@@ -14,14 +14,14 @@ int main()
 }
 */
 int main()
-{   long double num1;
-    long double num2;
-    long double sum;
+{   double num1;
+    double num2;
+    double sum;
     printf("數字1是: ");
-    scanf("%Lf", &num1);
+    scanf("%lf", &num1);
     printf("數字2是: ");
-    scanf("%Lf", &num2);
+    scanf("%lf", &num2);
     sum = num1 + num2;
-    printf("總和是 %Lf。\n爽了嗎?", sum);
+    printf("總和是 %lf。\n爽了嗎?????", sum);
     return 0;
 }
