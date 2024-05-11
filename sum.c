@@ -1,9 +1,9 @@
 #include <stdio.h>
 
 int main()
-{   int integer1;
-    int integer2;
-    int sum;
+{   long long int integer1;
+    long long int integer2;
+    long long int sum;
     printf("數字1是: ");
     scanf("%d", &integer1);
     printf("數字2是: ");
