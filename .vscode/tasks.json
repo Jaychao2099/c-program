@@ -4,29 +4,24 @@
         {
             "label": "Compile and Run",
             "type": "shell",
-            "command": "C:\\MinGW\\bin\\gcc.exe",
+            "command": "gcc",
             "args": [
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
             "problemMatcher": [],
             "presentation": {
                 "reveal": "always",
                 "focus": false,
                 "panel": "shared"
             },
-            "dependsOn": "Compile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "windows": {
                 "command": "${fileDirname}\\${fileBasenameNoExtension}.exe"
-            },
-            "group": {
-                "kind": "test",
-                "isDefault": true
             }
         }
     ]
