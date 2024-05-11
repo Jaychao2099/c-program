@@ -9,6 +9,6 @@ int main()
     printf("數字2是: ");
     scanf("%d", &integer2);
     sum = integer1 + integer2;
-    printf("總和是 %d。\n爽了嗎?", sum);
+    printf("總和是 %d。\n爽了嗎????", sum);
     return 0;
 }
