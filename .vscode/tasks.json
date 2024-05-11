@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Compile with MinGW",
+            "label": "Compile and Run",
             "type": "shell",
             "command": "C:\\MinGW\\bin\\gcc.exe",
             "args": [
@@ -16,7 +16,17 @@
             },
             "problemMatcher": [],
             "presentation": {
-                "reveal": "always"
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "dependsOn": "Compile",
+            "windows": {
+                "command": "${fileDirname}\\${fileBasenameNoExtension}.exe"
+            },
+            "group": {
+                "kind": "test",
+                "isDefault": true
             }
         }
     ]
