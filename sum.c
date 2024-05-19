@@ -1,13 +1,17 @@
 #include <stdio.h>
 
-int main()
-{   long long int integer, sum;
+int main(){
+    long long int integer, sum = 0;
 
     printf("數字1是: ");
     scanf("%lld", &integer);
     sum = sum + integer;
 
     printf("數字2是: ");
+    scanf("%lld", &integer);
+    sum = sum + integer;
+
+    printf("數字3是: ");
     scanf("%lld", &integer);
     sum = sum + integer;
     
