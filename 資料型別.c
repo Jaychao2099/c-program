@@ -10,12 +10,14 @@ int main(){
         "unsigned octal int", 
         "unsigned hexadecimal int", 
         "long int", 
+        "long long",
         "char", 
         "float", 
         "double", 
         "long double", 
         "scientific notation float", 
-        "auto-%f or %e", 
+        "auto %f or %e", 
+        "_Bool"
         "void *"                
     };
 
@@ -26,12 +28,14 @@ int main(){
         sizeof(unsigned int), 
         sizeof(unsigned int), 
         sizeof(long int), 
+        sizeof(long long), 
         sizeof(char), 
         sizeof(float), 
         sizeof(double), 
         sizeof(long double), 
         sizeof(double), 
         sizeof(double),
+        sizeof(_Bool),
         sizeof(void), 
     };
 
@@ -42,12 +46,14 @@ int main(){
         "%o", 
         "%x", 
         "%ld", 
+        "%lld", 
         "%c", 
         "%f", 
         "%lf", 
         "%Lf", 
         "%e", 
         "%g", 
+        "%d",
         ""                
     };
 
