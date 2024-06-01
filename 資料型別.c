@@ -1,25 +1,88 @@
 #include <stdio.h>
+#include <string.h>
+#include <math.h>
 
 int main(){
-    printf("short int: %d\n", sizeof(short int));
+    char *data_types[] = {
+        "short int", 
+        "int", 
+        "unsigned int", 
+        "unsigned octal int", 
+        "unsigned hexadecimal int", 
+        "long int", 
+        "char", 
+        "float", 
+        "double", 
+        "long double", 
+        "scientific notation float", 
+        "auto-%f or %e", 
+        "void *"                
+    };
 
-    printf("int: %d\n", sizeof(int));
+    int size[] = {
+        sizeof(short int), 
+        sizeof(int), 
+        sizeof(unsigned int), 
+        sizeof(unsigned int), 
+        sizeof(unsigned int), 
+        sizeof(long int), 
+        sizeof(char), 
+        sizeof(float), 
+        sizeof(double), 
+        sizeof(long double), 
+        sizeof(double), 
+        sizeof(double),
+        sizeof(void), 
+    };
 
-    printf("unsigned int: %d\n", sizeof(unsigned int));
+    char *data_format[] = {
+        "%hd", 
+        "%d", 
+        "%u", 
+        "%o", 
+        "%x", 
+        "%ld", 
+        "%c", 
+        "%f", 
+        "%lf", 
+        "%Lf", 
+        "%e", 
+        "%g", 
+        ""                
+    };
 
-    printf("long int: %d\n", sizeof(long int));
-    
-    printf("long long int: %d\n", sizeof(long long int));
-    
-    printf("char: %d\n", sizeof(char));
-    
-    printf("float: %d\n", sizeof(float));
-    
-    printf("double: %d\n", sizeof(double));
+    int num_strings = sizeof(data_types) / sizeof(data_types[0]); //字串組 組數
 
-    printf("long double: %d\n", sizeof(long double));
+    size_t max_length = 0; //初始化最大長度
+    for (int i = 0; i < num_strings; i++) {
+        size_t length = strlen(data_types[i]);
+        if (length > max_length) {
+        max_length = length; // 更新最大長度
+        }
+    }
 
-    printf("void: %d\n", sizeof(void));
-    
+    for (int s = 0; s < floor(max_length/2); s++) {
+            printf(" ");
+        };
+    printf("(type)");
+    for (int s = 0; s < ceil(max_length/2)-5; s++) {
+            printf(" ");
+        };
+    printf("(format)(byte size)\n");
+
+    for (int j = 0; j < num_strings; j++) {
+        size_t type_length = strlen(data_types[j]);
+        size_t format_length = strlen(data_format[j]);
+
+        for (int s = 0; s < max_length - type_length; s++) {
+            printf(" ");
+        }
+        printf("%s  %s", data_types[j], data_format[j]);
+        
+        for (int f = 0; f < 6 - format_length; f++) {
+            printf(" ");
+        }
+        printf("%zu bytes\n", size[j]);        
+    }
     return 0;
 }
