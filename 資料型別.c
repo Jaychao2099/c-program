@@ -17,8 +17,8 @@ int main(){
         "long double", 
         "scientific notation float", 
         "auto %f or %e", 
-        "_Bool"
-        "void *"                
+        "_Bool",
+        "void *"           
     };
 
     int size[] = {
@@ -36,7 +36,7 @@ int main(){
         sizeof(double), 
         sizeof(double),
         sizeof(_Bool),
-        sizeof(void), 
+        sizeof(void)
     };
 
     char *data_format[] = {
