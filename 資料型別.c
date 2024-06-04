@@ -12,6 +12,7 @@ int main(){
         "long int", 
         "long long",
         "char", 
+        "wchar_t", 
         "float", 
         "double", 
         "long double", 
@@ -30,6 +31,7 @@ int main(){
         sizeof(long int), 
         sizeof(long long), 
         sizeof(char), 
+        sizeof(wchar_t), 
         sizeof(float), 
         sizeof(double), 
         sizeof(long double), 
@@ -48,6 +50,7 @@ int main(){
         "%ld", 
         "%lld", 
         "%c", 
+        "%lc", 
         "%f", 
         "%lf", 
         "%Lf", 
@@ -69,11 +72,11 @@ int main(){
 
     for (int s = 0; s < floor(max_length/2); s++) {
             printf(" ");
-        };
+        }
     printf("(type)");
     for (int s = 0; s < ceil(max_length/2)-5; s++) {
             printf(" ");
-        };
+        }
     printf("(format)(byte size)\n");
 
     for (int j = 0; j < num_strings; j++) {
