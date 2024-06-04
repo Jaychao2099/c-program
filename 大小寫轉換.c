@@ -4,12 +4,12 @@ int main(){
 
     printf("Please type a letter: ");
     scanf("%c", &input);
-    if (input >= 65, input <= 90){
-        change = input + 97 - 65;
+    if (input >= 'A' && input <= 'Z'){
+        change = input + 'a' - 'A';
         printf("The lower case is: %c", change);
     }
-    else if (input >= 97, input <= 122){
-        change = input + 65 - 97;
+    else if (input >= 'a' && input <= 'z'){
+        change = input + 'A' - 'a';
         printf("The capital is: %c", change);
     }
     else {
