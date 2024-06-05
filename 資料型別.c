@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 
 int main(){
     char *data_types[] = {
@@ -70,11 +69,11 @@ int main(){
         }
     }
 
-    for (int s = 0; s < floor(max_length/2); s++) {
+    for (int s = 0; s < max_length/2; s++) {
             printf(" ");
         }
     printf("(type)");
-    for (int s = 0; s < ceil(max_length/2)-5; s++) {
+    for (int s = 0; s < max_length/2+1 - 5; s++) {
             printf(" ");
         }
     printf("(format)(byte size)\n");
@@ -82,6 +81,7 @@ int main(){
     for (int j = 0; j < num_strings; j++) {
         size_t type_length = strlen(data_types[j]);
         size_t format_length = strlen(data_format[j]);
+        size_t size_length = size[j] / 10 + 1;
 
         for (int s = 0; s < max_length - type_length; s++) {
             printf(" ");
@@ -91,7 +91,11 @@ int main(){
         for (int f = 0; f < 6 - format_length; f++) {
             printf(" ");
         }
-        printf("%zu bytes\n", size[j]);        
+
+        for (int b = 0; b < 2 - size_length; b++) {
+            printf(" ");
+        }
+        printf("%zu bytes\n", size[j]);       
     }
     return 0;
 }
