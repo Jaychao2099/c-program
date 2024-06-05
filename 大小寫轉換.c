@@ -16,12 +16,5 @@ int main(){
         printf("Please restart the exe. and type a letter, not a symbol.");
     }
 
-    /*
-    for (int i = 33; i < 128; i++){
-        char input = i;
-        printf("%d: %c\n", i,input);
-    }
-    */
-
     return 0;
 }
