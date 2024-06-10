@@ -8,8 +8,9 @@ int main(){
     while(i < 50) {
         printf("Number %d is: ", i);
         scanf("%lld", &integer);
-        if (integer == 0)
+        if (integer == 0) {
             break;
+        }
         sum = sum + integer;
         i++;
     }
