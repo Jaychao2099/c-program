@@ -4,9 +4,9 @@ int main(){
     long long integer, sum = 0;
 
     int i = 1;
-    printf("停止加法請輸入 0\n");
+    printf("Enter 0 to stop the addition\n");
     while(i < 50) {
-        printf("數字 %d 是: ", i);
+        printf("Number %d is: ", i);
         scanf("%lld", &integer);
         if (integer == 0)
             break;
@@ -14,6 +14,6 @@ int main(){
         i++;
     }
 
-    printf("總和是 %lld。\n爽了嗎?", sum);
+    printf("\nThe sum is %lld\n\nAre you happy?\n ", sum);
     return 0;
 }
