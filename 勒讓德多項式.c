@@ -7,7 +7,7 @@ int main() {
     double x;
     
     // 取得使用者輸入
-    printf("Enter the value of n (∈ N): ");
+    printf("Enter the value of n (non-negative int): ");
     scanf("%d", &n);
     printf("Enter the value of x (-1 ~ 1): ");
     scanf("%lf", &x);
@@ -19,15 +19,17 @@ int main() {
 }
 
 double polya(int n, double x) {
+    double result_0, result_1, change;
+    result_0 = 1.;
+    result_1 = x;
     if (n == 0) 
-        return 1.0;
+        return result_0;
     if (n == 1)
-        return x;
+        return result_1;
     else {
-        double result_0, result_1, change = 1., x;
         for(int i = 2; i <= n; i++){
             change = result_1;
-            result_1 = ((2.*i-1.)*x*result_1 - (i-1)*result_0)/i;
+            result_1 = ((2.*i-1.)*x*result_1 - (i-1)*result_0) / i;
             result_0 = change;
         }
         return result_1;
