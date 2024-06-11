@@ -23,11 +23,12 @@ float polya(float n, float x) {
     if (n == 1)
         return x;
     else {
-        float result_0, result_1 = 1., x;
+        float result_0, result_1, change = 1., x;
         for(int i = 2; i <= n; i++){
-            float change = result_1;
+            change = result_1;
             result_1 = ((2.*i-1.)*x*result_1 - (i-1)*result_0)/i;
             result_0 = change;
         }
+        return result_1;
     }
 }
