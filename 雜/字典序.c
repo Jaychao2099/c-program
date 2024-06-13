@@ -40,6 +40,7 @@ int main() {
     printf("Enter 10 words:\n");
 
     for(i = 0; i < 10; ++i) {
+        printf("%d: ", i + 1);
         scanf("%s", str[i]);
     }
 
@@ -47,8 +48,8 @@ int main() {
 
     printf("\nAfter lexicographic order: \n");
     for(i = 0; i < 10; ++i) {
-        puts(str[i]);
+        printf("%d: %s\n", i + 1, str[i]);
     }
-
+    puts("");
     return 0;
 }
