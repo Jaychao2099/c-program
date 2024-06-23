@@ -34,20 +34,23 @@ void quicksort(char arr[][50], int left, int right) {
 }
 
 int main() {
-    int i;
-    char str[10][50];
+    int i, count;
+    printf("Enter the number of words: ");
+    scanf("%d", &count);
+    
+    char str[count][50];
 
-    printf("Enter 10 words:\n");
+    printf("Enter %d words:\n", count);
 
-    for(i = 0; i < 10; ++i) {
+    for(i = 0; i < count; ++i) {
         printf("%d: ", i + 1);
         scanf("%s", str[i]);
     }
 
-    quicksort(str, 0, 9);
+    quicksort(str, 0, count - 1);
 
     printf("\nAfter lexicographic order: \n");
-    for(i = 0; i < 10; ++i) {
+    for(i = 0; i < count; ++i) {
         printf("%d: %s\n", i + 1, str[i]);
     }
     puts("");
