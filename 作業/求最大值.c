@@ -2,11 +2,11 @@
 
 int main(){
     int count, input, max, min;
-    printf("Enter the number of numbers: ");
+    printf("Enter the number of list: ");
     scanf("%d", &count);
 
+    printf("Enter the list:\n");
     for(int i = 1; i <= count; i++) {
-        printf("Number %d is: ", i);
         scanf("%d", &input);
         if (i == 1){
             max = input;

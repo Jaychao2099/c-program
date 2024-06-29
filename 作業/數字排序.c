@@ -7,7 +7,7 @@ int main(){
 
     int list[count];
 
-    printf("Enter the list: ");
+    printf("Enter the list: \n");
     for(int i = 0; i < count; i++){
         scanf("%d", &list[i]);
     }
