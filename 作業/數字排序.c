@@ -5,16 +5,23 @@ int main(){
     printf("Enter the number of list: ");
     scanf("%d", &count);
 
-    int list[count], sorted[count];
+    int list[count];
 
     printf("Enter the list: ");
     for(int i = 0; i < count; i++){
         scanf("%d", &list[i]);
     }
 
-    for (int j = 0; j < count; j++){
-        for(int k = j; k < count-1; k++){
-            list[j] = list[j] < list[k+1] ? list[j] : list[k+1];
+    for (int i = 0; i < count-1; i++){
+        int min_index = i;
+        for(int j = i+1; j < count; j++){
+            min_index = list[j] < list[min_index] ? j : min_index;
+        }
+
+        if(min_index != i){
+            int temp = list[i];
+            list[i] = list[min_index];
+            list[min_index] = temp;
         }
     }
     printf("Sorted list:");
