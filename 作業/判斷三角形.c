@@ -8,7 +8,7 @@ int main(){
     double a, b, c;
     printf("Please enter the lengths of the triangle: ");
     if (scanf("%lf%lf%lf", &a, &b, &c) != 3 || a <= 0 || b <= 0 || c <= 0) {
-        printf("Invalid input. Please enter positive numbers.\n");
+        printf("Invalid input. Please enter three positive numbers.\n");
         return 1;
     }
 
@@ -16,7 +16,7 @@ int main(){
     double side_min = min(min(a, b), c);
     double side_mid = a + b + c - side_max - side_min;
 
-    int case_Rectangular = fabs(side_max*side_max - side_mid*side_mid - side_min*side_min) < 1e-10;
+    int case_Rectangular = fabs(side_max*side_max - side_mid*side_mid - side_min*side_min) < 1e-30;
     int case_Isosceles = (a == b || b == c || c == a);
 
     printf("This is ");
