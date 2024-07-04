@@ -1,4 +1,6 @@
 # include <stdio.h>
+# include <string.h>
+# include <stdlib.h>
 
 int main(){
     int m, n, p;
@@ -33,9 +35,32 @@ int main(){
             }
         }
     }
+    size_t max_length[p];
+    char matrix_num[m][p][20];
+
+    // 初始化 max_length 數組
+    for (int j = 0; j < p; j++) {
+        max_length[j] = 0;
+    }
+
+    // 求該column 最長字串長度
+    for (int j = 0; j < p; j++){
+        for (int i = 0; i < m; i++){
+            sprintf(matrix_num[i][j], "%d", C[i][j]); // 矩陣 int 換成 string
+            size_t len = strlen(matrix_num[i][j]);
+            if (len > max_length[j]) {
+                max_length[j] = len;
+            }
+        }
+    }
+
     printf("Matrix C =\n");
     for (int i = 0; i < m; i++){
         for (int j = 0; j < p; j++){
+            size_t space_length = max_length[j] - strlen(matrix_num[i][j]);
+            for (int k = 0; k < space_length; k++){  //用space 對齊
+                printf(" ");
+            }
             printf("%d ", C[i][j]);
         }
         printf("\n");
