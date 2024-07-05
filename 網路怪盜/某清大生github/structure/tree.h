@@ -1,6 +1,6 @@
 #pragma once
 
-/* ©w¸qµ²ºc */
+/* å®šç¾©çµæ§‹ */
 typedef struct treeNode {
 	int val;
 	struct treeNode* left;
@@ -11,14 +11,14 @@ typedef struct binaryTree {
 	TreeNode_t* root;
 } BinaryTree_t;
 
-/* ³Ğ«Ø¾ğ¸`ÂI */
+/* å‰µå»ºæ¨¹ç¯€é» */
 TreeNode_t* createTreeNode(int val);
 
-/* DLR «e§Ç°lÂÜ */
+/* DLR å‰åºè¿½è¹¤ */
 void preOrderTraversal(TreeNode_t* root);
 
-/* LDR ¤¤§Ç°lÂÜ */
+/* LDR ä¸­åºè¿½è¹¤ */
 void inOrderTraversal(TreeNode_t* root);
 
-/* LRD «á§Ç°lÂÜ */
+/* LRD å¾Œåºè¿½è¹¤ */
 void postOrderTraversal(TreeNode_t* root);

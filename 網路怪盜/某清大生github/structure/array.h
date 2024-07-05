@@ -1,10 +1,10 @@
 #pragma once
 
-/* ªì©l¤Æ¸ê®Æ */
+/* åˆå§‹åŒ–è³‡æ–™ */
 void initAllData_Array(int* arr, int n);
 
-/* ­pºâÁ`©M */
+/* è¨ˆç®—ç¸½å’Œ */
 int calculateAllDataSum_Array(int* arr, int n);
 
-/* ¦L¥X¸ê®Æ */
+/* å°å‡ºè³‡æ–™ */
 void printAllData_Array(int* arr, int n);

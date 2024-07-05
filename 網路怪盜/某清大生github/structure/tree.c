@@ -12,7 +12,7 @@ TreeNode_t* createTreeNode(int val) {
 	return node;
 }
 
-/* DLR «e§Ç°lÂÜ */
+/* DLR å‰åºè¿½è¹¤ */
 void preOrderTraversal(TreeNode_t* root) {
 	if (root == NULL) {
 		return;
@@ -23,7 +23,7 @@ void preOrderTraversal(TreeNode_t* root) {
 	preOrderTraversal(root->right);
 }
 
-/* LDR ¤¤§Ç°lÂÜ */
+/* LDR ä¸­åºè¿½è¹¤ */
 void inOrderTraversal(TreeNode_t* root){
 	if (root == NULL) {
 		return;
@@ -34,7 +34,7 @@ void inOrderTraversal(TreeNode_t* root){
 	preOrderTraversal(root->right);
 }
 
-/* LRD «á§Ç°lÂÜ */
+/* LRD å¾Œåºè¿½è¹¤ */
 void postOrderTraversal(TreeNode_t* root) {
 	if (root == NULL) {
 		return;

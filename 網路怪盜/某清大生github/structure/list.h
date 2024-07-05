@@ -1,28 +1,28 @@
 #pragma once
 
-/* ©w¸qµ²ºc */
+/* å®šç¾©çµæ§‹ */
 typedef struct node {
 	int val;
 	struct node* next;
 } Node;
 
-/* ·s¼W¤@Áû¸`ÂI */
+/* æ–°å¢ä¸€é¡†ç¯€é» */
 Node* createNode(int val);
 
-/* ´¡¤J¤@Áû¸`ÂI¦b«á­± */
+/* æ’å…¥ä¸€é¡†ç¯€é»åœ¨å¾Œé¢ */
 void insertNode(Node* currentNode, Node* nextNode);
 
-/* ªì©l¤Æ¸ê®Æ */
+/* åˆå§‹åŒ–è³‡æ–™ */
 Node* initAllData_List(int n);
 
-/* ­pºâÁ`©M */
+/* è¨ˆç®—ç¸½å’Œ */
 int calculateAllDataSum_List(Node* head);
 
-/* ¤ÏÂà¦ê¦C */
+/* åè½‰ä¸²åˆ— */
 Node* reverseAllData_List(Node* head);
 
-/* ¦L¥X¸ê®Æ */
+/* å°å‡ºè³‡æ–™ */
 void printAllData_List(Node* head);
 
-/* free ¾ã­Ó List */
+/* free æ•´å€‹ List */
 void freeAllData_list(Node* head);

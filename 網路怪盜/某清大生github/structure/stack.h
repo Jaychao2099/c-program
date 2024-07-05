@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include "list.h"
 
-/* ©w¸qµ²ºc */
+/* å®šç¾©çµæ§‹ */
 typedef struct stack {
 	Node* top;
 	int size;
@@ -19,8 +19,8 @@ void pop(Stack_t* stack);
 /* peek */
 int peek(Stack_t* stack);
 
-/* ªì©l¤Æ¸ê®Æ */
+/* åˆå§‹åŒ–è³‡æ–™ */
 Stack_t* initAllData_Stack(Stack_t* stack, int n);
 
-/* free ¾ã­Ó Stack */
+/* free æ•´å€‹ Stack */
 void freeAllData_Stack(Stack_t* stack);
