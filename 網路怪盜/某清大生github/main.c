@@ -80,12 +80,14 @@ int main()
     assert(heapArray->arr != NULL);
 
     int testArr[6] = {3, 9, 2, 1, 4, 5};
-    //for (int i = 0; i < heapArray->size; ++i) {
-    //    int inputVal = i;
-    //    //printf("請輸入數字：");
-    //    //scanf("%d", &inputVal);
-    //    heapArray->arr[i] = inputVal;
-    //}
+    ///*
+    for (int i = 0; i < heapArray->size; ++i) {
+        int inputVal = i;
+        printf("請輸入數字:");
+        scanf("%d", &inputVal);
+        heapArray->arr[i] = inputVal;
+    }
+    //*/
     memcpy(heapArray->arr, testArr, sizeof(testArr));
     printAllData_Array(heapArray->arr, heapArray->size);
     for (int i = heapArray->size / 2 - 1; i >= 0; --i) {
