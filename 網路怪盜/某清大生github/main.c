@@ -24,12 +24,13 @@ int main()
     ptrArray = (int*) malloc(SIZE * sizeof(int));
     assert(ptrArray != NULL);
 
+    printf("------\n");
     initAllData_Array(ptrArray, SIZE);
-    printf("Array Init: ");
+    printf("Array Init:\n");
     printAllData_Array(ptrArray, SIZE);
 
     int sumArr = calculateAllDataSum_Array(ptrArray, SIZE);
-    printf("After Summing: %d\n", sumArr);
+    printf("\nAfter Summing: %d\n", sumArr);
     printAllData_Array(ptrArray, SIZE);
 
     free(ptrArray);
@@ -40,13 +41,13 @@ int main()
     Node* ptrList = NULL;
     ptrList = initAllData_List(SIZE);
     assert(ptrList != NULL);
-    printf("List Init: ");
+    printf("List Init:\n");
     printAllData_List(ptrList);
 
     int sumList = calculateAllDataSum_List(ptrList);
-    printf("After Summing: %d\n", sumList);
+    printf("\nAfter Summing: %d\n", sumList);
     printAllData_List(ptrList);
-    printf("After Reverse: \n");
+    printf("\nAfter Reverse: \n");
     ptrList = reverseAllData_List(ptrList);
     printAllData_List(ptrList);
 
@@ -80,14 +81,14 @@ int main()
     assert(heapArray->arr != NULL);
 
     int testArr[6] = {3, 9, 2, 1, 4, 5};
-    ///*
+    /*
+    printf("Please enter the numbers:\n");
     for (int i = 0; i < heapArray->size; ++i) {
         int inputVal = i;
-        printf("請輸入數字:");
         scanf("%d", &inputVal);
         heapArray->arr[i] = inputVal;
     }
-    //*/
+    */
     memcpy(heapArray->arr, testArr, sizeof(testArr));
     printAllData_Array(heapArray->arr, heapArray->size);
     for (int i = heapArray->size / 2 - 1; i >= 0; --i) {
@@ -109,11 +110,11 @@ int main()
     ptrTree->root->right->left = createTreeNode(105);
     ptrTree->root->right->right = createTreeNode(106);
 
-    printf("Tree PreOrder: ");
+    printf("Tree PreOrder:  ");
     preOrderTraversal(ptrTree->root);
     printf("\n");
 
-    printf("Tree InOrder: ");
+    printf("Tree InOrder:   ");
     inOrderTraversal(ptrTree->root);
     printf("\n");
 
