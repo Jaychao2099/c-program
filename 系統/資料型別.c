@@ -18,7 +18,7 @@ int main(){
         "scientific notation float", 
         "auto %f or %e", 
         "_Bool",
-        "void *"           
+        "void"           
     };
 
     int size[] = {

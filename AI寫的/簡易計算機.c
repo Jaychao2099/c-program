@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
             break;
         default:
             printf("不支持的運算符\n");
-            return 1;
+            //return 1;
     }
 
     printf("結果: %d\n", result);
