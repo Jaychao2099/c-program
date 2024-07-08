@@ -28,9 +28,10 @@ int main() {
         "unsigned hexadecimal int", 
         "long int", 
         "long long",
+        "integer[3][4]",
         "char", 
         "wchar_t", 
-        "string (5 letters)",
+        "string[][3]",
         "float", 
         "double", 
         "long double", 
@@ -40,7 +41,9 @@ int main() {
         "void"
     };
 
-    char str1[][6] = {"apple", "banana"};
+    int num1[3][4] = {{1,2,3,4,5,6,7},{6,0,46,7,8,4,45},{78,46,57,35,63,364,634,643}};
+    char str1[][3] = {"apple", "banana"};
+
     const size_t sizes[] = {
         sizeof(short int), 
         sizeof(int), 
@@ -49,6 +52,7 @@ int main() {
         sizeof(unsigned int), 
         sizeof(long int), 
         sizeof(long long), 
+        sizeof(num1),
         sizeof(char), 
         sizeof(wchar_t), 
         sizeof(str1),
@@ -69,6 +73,7 @@ int main() {
         "%x", 
         "%ld", 
         "%lld", 
+        "%d",
         "%c", 
         "%lc", 
         "%s",
