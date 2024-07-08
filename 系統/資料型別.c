@@ -30,6 +30,7 @@ int main() {
         "long long",
         "char", 
         "wchar_t", 
+        "string (5 letters)",
         "float", 
         "double", 
         "long double", 
@@ -39,6 +40,7 @@ int main() {
         "void"
     };
 
+    char str1[][6] = {"apple", "banana"};
     const size_t sizes[] = {
         sizeof(short int), 
         sizeof(int), 
@@ -49,6 +51,7 @@ int main() {
         sizeof(long long), 
         sizeof(char), 
         sizeof(wchar_t), 
+        sizeof(str1),
         sizeof(float), 
         sizeof(double), 
         sizeof(long double), 
@@ -68,6 +71,7 @@ int main() {
         "%lld", 
         "%c", 
         "%lc", 
+        "%s",
         "%f", 
         "%lf", 
         "%Lf", 
