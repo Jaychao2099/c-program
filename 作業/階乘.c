@@ -1,17 +1,22 @@
 # include<stdio.h>
 
-int fact(int a){
+long long fact(int a){
     if (a < 1)
         return 1;
     else
-        return fact(a - 1);
+        return a * fact(a - 1);
 }
 
 int main(){
-    int num, result;
+    int num;
+    long long result;
     printf("Enter a positive integer: ");
     scanf("%d", &num);
+    if (num < 1){
+        printf("Plz factorial a FUCKING POSITIVE integer!\n");
+        return 1;
+    }
     result = fact(num);
-    printf("%d! = %d", num, result);
+    printf("%d! = %lld", num, result);
     return 0;
 }
