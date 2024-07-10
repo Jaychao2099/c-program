@@ -22,17 +22,19 @@ char* switch_base(int old, int new){
         }
     }   //dex = num in base 10
 
-    max_length = (int)(log(dex) / log(new)) + 2;
-
     if (dex == 0){
         answer = "0";
         return answer;
     }
+
+    max_length = (int)(log(dex) / log(new)) + 2;
     answer = (char*)malloc(max_length * sizeof(char));
+    
     if (answer == NULL) {
         printf("Memory allocation failed\n");
         return NULL;
     }
+    
     max_length--;
     answer[max_length--] = '\0';
 
