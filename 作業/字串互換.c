@@ -5,12 +5,9 @@
 # define MAX_LENGTH 50
 
 void strcpyy(char* x, char* y){
-    /*
     int i = 0;
     while ((y[i] = x[i]) != '\0')
     i++;
-    */
-    y = x;
 }
 
 void strswitch(char* x, char* y){
