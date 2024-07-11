@@ -20,7 +20,7 @@ int main() {
         for (size_t j = 0; j < arrLen2; ++j) {
             int index = i * arrLen2 + j;
             dynArr[index] = index;
-            printf("%d ", dynArr[index]);
+            printf("[%d][%d] = dynArr[%d] = %d \n", i, j, index, dynArr[index]);
         }
     }
 
