@@ -1,0 +1,6 @@
+If both the Caller and Callee obey the procedure conventions, there are significant benefits.
+1
+
+/*1. All upper / 2. All lower / 3. Switch*/
+
+/*Get-Content 大小寫_test.txt | ./大小寫轉換*/
