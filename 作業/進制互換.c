@@ -3,15 +3,13 @@
 # include <stdlib.h>
 # include <math.h>
 
-char* switch_base(int old, int new){
-    char input[33];
+char* switch_base(int old, int new, char* input){
     long long dex = 0;
     int max_length;
     char* answer;
 
     const char num_str[] = "0123456789ABCDEF";
 
-    scanf("%32s", input);
     size_t input_length = strlen(input);
 
     for (size_t i = 0; i < input_length; i++){
@@ -48,7 +46,7 @@ char* switch_base(int old, int new){
 
 int main(){
     int base_old, base_new;
-    char* result;
+    char input_char[33], *result;
     printf("Original base: ");
     scanf("%d", &base_old);
     printf("New base: ");
@@ -58,7 +56,8 @@ int main(){
         return 1;
     }
     printf("Number: ");
-    result = switch_base(base_old, base_new);
+    scanf("%32s", input_char);
+    result = switch_base(base_old, base_new, input_char);
     printf("Answer: %s", result);
 
     free(result - 1);
