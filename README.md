@@ -1,1 +1,1 @@
-GO BACK, BEWARE OF THE DOG
+請退出門檔區再感應票卡
