@@ -1,4 +1,5 @@
 # include <stdio.h>
+# include <stdlib.h>
 
 void swap(int v[], int k){
     int temp;
