@@ -6,7 +6,8 @@ int sum(int a, int b, int c){
 }
 
 int Cout(int a, int b, int c){
-    int result = ((a ^ b) & c) | (a & b);
+    //int result = ((a ^ b) & c) | (a & b);
+    int result = (a & b) | (a & c) | (b & c);
     return result;
 }
 
