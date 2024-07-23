@@ -7,14 +7,17 @@ int gcd(int a, int b) {
     return gcd(b, a % b);
 }
 
-int cal_ratio(double a, double b){
-    int gcd_ab, result[2];
+int *cal_ratio(double a, double b){
+    int gcd_ab;
+    int *result = (int *)malloc(2 * sizeof(int));
     a = round(a * 10000);
     b = round(b * 10000);
     gcd_ab = gcd(a,b);
-    result[0] = a / gcd_ab;
-    result[1] = b / gcd_ab;
-    return &result[0];
+    a = a / gcd_ab;
+    b = b / gcd_ab;
+    result[0] = pow(a,2) + 2*a*b;
+    result[1] = pow(b,2);
+    return result;
 }
 
 int main(){
@@ -28,9 +31,10 @@ int main(){
         return 1;
     }
     
-    freq = malloc(num * sizeof(double));
-    ratio = malloc(num * 3 * sizeof(int));
-    result = malloc(pow(2, num) * sizeof(int));
+    freq = (double *)malloc(num * sizeof(double));
+    ratio = (int **)malloc(num * sizeof(int*));
+    for (int i = 0; i < num; i++) ratio[i] = (int *)malloc(2 * sizeof(int));  // 分配第二層指標數組
+    result = (int *)malloc(pow(2, num) * sizeof(int));
     
     for (int i = 0; i < num; i++){
         printf("allel-%d dominant gene frequency (0~1): ", i+1);
@@ -55,6 +59,7 @@ int main(){
     }
 
     free(freq);
+    for (int i = 0; i < num; i++) free(ratio[i]);
     free(ratio);
     free(result);
 
