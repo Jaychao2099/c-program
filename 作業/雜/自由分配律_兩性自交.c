@@ -61,6 +61,12 @@ int main(){
         ratio[i] = cal_ratio(freq[i], 1 - freq[i]);
     }
 
+    printf("\n");
+    for (int i = 0; i < num; i++){
+        printf("%c%c", 65+i, 97+i);
+    }
+    printf(" Inbreeding\n\n");
+
     for (int i = 0; i < (1 << num); i++){
         result[i] = 1;
         int temp = i;
