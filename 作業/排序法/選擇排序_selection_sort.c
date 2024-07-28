@@ -1,11 +1,12 @@
 # include <stdio.h>
+# include <stdlib.h>
 
 int main(){
     int count;
     printf("Enter the number of list: ");
     scanf("%d", &count);
 
-    int list[count];
+    int *list = malloc( (count) * sizeof(int) );
 
     printf("Enter the list: \n");
     for(int i = 0; i < count; i++){
@@ -28,5 +29,8 @@ int main(){
     for(int i = 0; i < count; i++){
         printf(" %d", list[i]);
     }
+    
+    free(list);
+
     return 0;
 }

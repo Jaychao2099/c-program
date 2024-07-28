@@ -23,7 +23,7 @@ int main(){
     printf("Enter the number of list: ");
     scanf("%d", &count);
 
-    int *list = malloc( (count+1) * sizeof(int) );
+    int *list = malloc( (count) * sizeof(int) );
 
     printf("Enter the list: \n");
     for(int i = 0; i < count; i++){
