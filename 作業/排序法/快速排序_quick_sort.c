@@ -2,10 +2,12 @@
 # include <stdlib.h>
 
 void swap(int *v, int a, int b){
-    int temp;
-    temp = v[a];
-    v[a] = v[b];
-    v[b] = temp;
+    if (a != b){
+        int temp;
+        temp = v[a];
+        v[a] = v[b];
+        v[b] = temp;
+    }
 }
 
 void sort(int *input, int start, int end){
