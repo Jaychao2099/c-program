@@ -8,21 +8,30 @@ void swap(int *v, int a, int b){
     v[b] = temp;
 }
 
-void sort(int *input, int num){
-    int i = 0;
-    for (int j = 0; j < num - 1; j++){
-        if(input[j] < input[num - 1]){
-            swap(input, j, i);
-            i++;
+/*
+printf("i=%d, j=%d, ", i, j);
+        printf("input[0~%d]=", num-1);
+        for(int k = 0; k < num; k++){
+            printf("%d ", input[k]);
         }
-    }
-    if (i != 0) swap(input, num - 1, i);
+        printf("\n");
+*/
 
-    if (i >= num - 1)
+void sort(int *input, int start, int end){
+    if (start >= end)
         return;
     else {
-        sort(input, i);
-        sort(&input[i + 1], num - i -1);
+        int i = start;
+        for (int j = start; j < end; j++){
+            if(input[j] < input[end]){
+                swap(input, j, i);
+                i++;
+            }
+        }
+        swap(input, end, i);
+        if (i < 1) i = 1;
+        sort(input, 0, i-1);
+        sort(input, i+1, end);
         return;
     }
 }
@@ -39,7 +48,7 @@ int main(){
         scanf("%d", &list[i]);
     }
 
-    sort(list, count);
+    sort(list, 0, count-1);
 
     printf("Sorted list:\n");
     for(int i = 0; i < count; i++){
