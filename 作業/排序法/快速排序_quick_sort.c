@@ -29,6 +29,7 @@ void sort(int *input, int start, int end){
             }
         }
         swap(input, end, i);
+        
         if (i < 1) i = 1;
         sort(input, 0, i-1);
         sort(input, i+1, end);
