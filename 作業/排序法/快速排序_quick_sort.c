@@ -8,19 +8,8 @@ void swap(int *v, int a, int b){
     v[b] = temp;
 }
 
-/*
-printf("i=%d, j=%d, ", i, j);
-        printf("input[0~%d]=", num-1);
-        for(int k = 0; k < num; k++){
-            printf("%d ", input[k]);
-        }
-        printf("\n");
-*/
-
 void sort(int *input, int start, int end){
-    if (start >= end)
-        return;
-    else {
+    while (start < end){
         int i = start;
         for (int j = start; j < end; j++){
             if(input[j] < input[end]){
@@ -29,11 +18,18 @@ void sort(int *input, int start, int end){
             }
         }
         swap(input, end, i);
-        
-        if (i < 1) i = 1;
-        sort(input, 0, i-1);
-        sort(input, i+1, end);
-        return;
+
+        if (i - start < end - i) {
+            sort(input, start, i - 1);  //對較小的分區進行 遞迴調用
+            start = i + 1;              //對較大的分區使用 while 迭代
+        } else {
+            sort(input, i + 1, end);    //同上
+            end = i - 1;
+        }
+
+        //sort(input, 0, i-1);
+        //sort(input, i+1, end);
+        //return;
     }
 }
 
