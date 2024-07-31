@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 int main(int argc, char *argv[]) {
     if (argc != 4) {
         printf("ㄏノよ猭: %s <计1> <笲衡才> <计2>\n", argv[0]);
-        //return 1;
+        return 1;
     }
 
     int num1 = atoi(argv[1]);
@@ -29,11 +30,18 @@ int main(int argc, char *argv[]) {
             }
             result = num1 / num2;
             break;
+        case '^':
+            result = pow(num1, num2);
+            break;
+        case '%':
+            result = num1 % num2;
+            break;
         default:
             printf("ぃや笲衡才\n");
-            //return 1;
+            return 1;
     }
 
+    printf("---------\n");
     printf("挡狦: %d\n", result);
 
     printf("---------\n");
