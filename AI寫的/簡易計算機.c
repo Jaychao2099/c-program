@@ -8,10 +8,10 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    int num1 = atoi(argv[1]);
+    double num1 = atof(argv[1]);
     char op = argv[2][0];
-    int num2 = atoi(argv[3]);
-    int result;
+    double num2 = atof(argv[3]);
+    double result;
 
     switch (op) {
         case '+':
@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
             result = pow(num1, num2);
             break;
         case '%':
-            result = num1 % num2;
+            result = (int)num1 % (int)num2;
             break;
         default:
             printf("不支持的運算符\n");
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     }
 
     printf("---------\n");
-    printf("結果: %d\n", result);
+    printf("結果: %lf\n", result);
 
     printf("---------\n");
     printf("Program name: %s\n", argv[0]);
