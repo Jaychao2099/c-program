@@ -78,7 +78,7 @@ int main(){
         return 1;
     }
     
-    printf("Answer: %.28Lf", output_num);
+    printf("Answer: %.18Lf", output_num);
 
     return 0;
 }
