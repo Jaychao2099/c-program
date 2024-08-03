@@ -2,11 +2,8 @@
 # include <stdlib.h>
 # include <math.h>
 
-//# define MAX_int_PRECISION 8
-//# define MAX_frac_PRECISION 16
-//# define MAX_CHAR MAX_int_PRECISION + MAX_frac_PRECISION + 2
-
-# define MAX_CHAR 18
+# define MAX_CHAR_10_2 18
+# define MAX_CHAR_2_10 32
 
 //# define num2char(a) a + 48
 # define char2num(a) a - 48
@@ -18,6 +15,7 @@ long double switch_base(int old, int new, char *input){
     int dot = 0;
     while (input[dot] != 46) dot++;     //小數點位置
 
+    int max = (old == 10) ? MAX_CHAR_10_2 : MAX_CHAR_2_10;
     
     int temp_old_int = 1;
     long long int temp_old_frac = old;
@@ -25,9 +23,9 @@ long double switch_base(int old, int new, char *input){
         integer += (int)(char2num(input[dot-i-1])) * temp_old_int;
         temp_old_int *= old;
     }
-    for (int i = dot + 1; i < MAX_CHAR; i++){   // 小數部分 變 old 進位 小數
+    for (int i = dot + 1; i < max; i++){   // 小數部分 變 old 進位 小數
         frac += (long double)((int)char2num(input[i])) / temp_old_frac;
-        //printf("i = %d, %.21Lf += %.21Lf / %lld\n", i, frac, (long double)((int)char2num(input[i])), temp_old_frac);
+        printf("i = %d, %.21Lf += %.21Lf / %lld\n", i, frac, (long double)((int)char2num(input[i])), temp_old_frac);
         temp_old_frac *= old;
     }
     switch (old){
@@ -38,12 +36,12 @@ long double switch_base(int old, int new, char *input){
                 integer /= new;
                 temp10 *= 10;
             }
-            temp10 = 10;
-            for (int i = dot + 1; i < MAX_CHAR && frac > 0; i++){  // 小數部分
+            long long int temp10_long = 10;
+            for (int i = dot + 1; i < max && frac > 0; i++){  // 小數部分
                 frac *= new;
-                result_d += (floor(frac+1e-5) / temp10);
+                result_d += (floor(frac+1e-5) / temp10_long);
                 frac = frac - ((frac > (1-1e-5)) ? 1. : 0.);
-                temp10 *= 10;
+                temp10_long *= 10;
             }
             return result_d;
         case 2:
@@ -56,7 +54,6 @@ long double switch_base(int old, int new, char *input){
 
 int main(){
     int base_old, base_new;
-    char input_char[MAX_CHAR];
     long double output_num;
 
     printf("Original base: ");
@@ -67,10 +64,14 @@ int main(){
     }
     base_new = base_old == 10 ? 2 : 10;
     printf("base %d --> base %d\n", base_old, base_new);
+
+    int max = (base_old == 10) ? MAX_CHAR_10_2 : MAX_CHAR_2_10;
+
+    char input_char[max];
     
-    printf("(within %d word, includind \".\")\nNumber: ", MAX_CHAR);
+    printf("(within %d word, includind \".\")\nNumber: ", max);
     getchar();  // 清除之前輸入的換行符
-    for (int i = 0; i < MAX_CHAR; i++){
+    for (int i = 0; i < max; i++){
         scanf("%c", &input_char[i]);
     }
 
@@ -84,7 +85,7 @@ int main(){
     
     switch (base_new){
         case 2:
-            printf("Answer: %.8Lf", output_num);
+            printf("Answer: %.16Lf", output_num);
             break;
         case 10:
             printf("Answer: %.9Lf", output_num);
