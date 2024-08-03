@@ -25,7 +25,7 @@ long double switch_base(int old, int new, char *input){
     }
     for (int i = dot + 1; i < max; i++){   // 小數部分 變 old 進位 小數
         frac += (long double)((int)char2num(input[i])) / temp_old_frac;
-        printf("i = %d, %.21Lf += %.21Lf / %lld\n", i, frac, (long double)((int)char2num(input[i])), temp_old_frac);
+        //printf("i = %d, %.21Lf += %.21Lf / %lld\n", i, frac, (long double)((int)char2num(input[i])), temp_old_frac);
         temp_old_frac *= old;
     }
     switch (old){
