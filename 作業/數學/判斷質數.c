@@ -1,17 +1,30 @@
 #include <stdio.h>
 
 int main(){
-    long int num;
+    long long num;
     printf("Number = ");
-    scanf("%d", &num);
+    if (scanf("%lld", &num) != 1 || num <= 1) {
+        printf("Invalid input. Please enter a number greater than 1.\n");
+        return 1;
+    }
+
+    if (num == 2) {
+        printf("2 is a Prime number\n");
+        return 0;
+    }
+    if (num % 2 == 0) {
+        printf("%lld is a Composite number, min factor is 2\n", num);
+        return 0;
+    }
+
     int isprime = 1;
-    for (long int i = 2; i <= num / i; i++){
+    for (long long i = 3; i <= num / i; i += 2){
         if (num % i == 0) {
             isprime = 0;
-            printf("%ld is a Composite number, min factor is %d", num, i);
+            printf("%lld is a Composite number, min factor is %d\n", num, i);
             break;
         }
     }
-    if (isprime == 1) printf("%ld is a Prime number", num);
+    if (isprime) printf("%lld is a Prime number\n", num);
     return 0;
 }
