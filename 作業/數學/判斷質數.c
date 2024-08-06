@@ -5,10 +5,10 @@ int main(){
     printf("Number = ");
     scanf("%d", &num);
     int isprime = 1;
-    for (long int i = 2; i < num && isprime == 1; i++){
+    for (long int i = 2; i <= num / i; i++){
         if (num % i == 0) {
             isprime = 0;
-            printf("%ld is a Composite number", num);
+            printf("%ld is a Composite number, min factor is %d", num, i);
             break;
         }
     }
