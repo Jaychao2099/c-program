@@ -17,6 +17,17 @@ int main(){
         printf("\n");
     }
 
+    for (int i = 1; i <= num+1; i++){
+        for (int j = 1; j <= num+2; j++){
+            if ((i == 1 || i == num+1) && (j != 1 && j != num+2)) printf("_");
+            else if (i != 1 && (j == 1 || j == num+2)) printf("|");
+            else printf(" ");
+        }
+        printf("\n");
+    }
+
+    printf("\n");
+
     for (int i = 1; i <= num; i++){
         printf("%*s", num-i, "");
         for (int j = 1; j <= 2*i-1; j++){
