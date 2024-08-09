@@ -40,6 +40,8 @@ void combine(Term *t1, Term *t2, Term *result, int vars) {
         if (t1->bits[i] != t2->bits[i]) result->bits[i] = 2;
         else result->bits[i] = t1->bits[i];
     }
+    result->used = 0;
+    result->combined = 0;
 }
 
 int termExists(TermArray *array, Term *term, int vars) {
@@ -60,8 +62,6 @@ void simplify(TermArray *input, TermArray *output, int vars) {
                 combine(&input->terms[i], &input->terms[j], &newTerm, vars);
                 input->terms[i].combined = 1;
                 input->terms[j].combined = 1;
-                newTerm.used = 0;
-                newTerm.combined = 0;
                 if (!termExists(output, &newTerm, vars)) {
                     output->terms[output->count++] = newTerm;
                 }
@@ -77,8 +77,8 @@ void simplify(TermArray *input, TermArray *output, int vars) {
 }
 
 void generatePrimeImplicants(TermArray *minterms, TermArray *dontCares, TermArray *primeImplicants, int vars) {
-    TermArray current, next;
-    current.count = 0;
+    TermArray current = { .count = 0 };
+    TermArray next;
     
     for (int i = 0; i < minterms->count; i++) {
         current.terms[current.count++] = minterms->terms[i];
@@ -180,7 +180,11 @@ int evaluateFunction(TermArray *minimalCover, int *input, int vars) {
 
 int main() {
     int vars, mintermCount, dontCareCount;
-    TermArray minterms, dontCares, primeImplicants, essentialPIs, minimalCover;
+    TermArray minterms = { .count = 0 };
+    TermArray dontCares = { .count = 0 };
+    TermArray primeImplicants = { .count = 0 };
+    TermArray essentialPIs = { .count = 0 };
+    TermArray minimalCover = { .count = 0 };
     
     printf("Enter number of variables: ");
     scanf("%d", &vars);
@@ -221,36 +225,27 @@ int main() {
         printf("\n");
     }
     
-    essentialPIs.count = 0;
     findEssentialPrimeImplicants(&primeImplicants, &minterms, &essentialPIs, vars);
     
-    minimalCover = essentialPIs;
-    
-    printf("\nMinimal Cover:\n");
-    for (int i = 0; i < minimalCover.count; i++) {
-        printTerm(&minimalCover.terms[i], vars);
+    printf("\nEssential Prime Implicants:\n");
+    for (int i = 0; i < essentialPIs.count; i++) {
+        printTerm(&essentialPIs.terms[i], vars);
         printf("\n");
     }
     
-    printf("\nBoolean Function:\n");
+    minimalCover = essentialPIs;  // For now, the minimal cover is just the essential PIs
+    
+    printf("\nSimplified Boolean Function:\n");
     generateBooleanFunction(&minimalCover, vars);
     
-    char input[MAX_VARS * 2];  // Allow space for spaces between digits
-    while (1) {
-        printf("\nEnter a binary input to evaluate (space-separated) or 'q' to quit: ");
-        scanf("%s", input);
-        if (input[0] == 'q' || input[0] == 'Q') break;
-        
-        int binaryInput[MAX_VARS];
-        char *token = strtok(input, " ");
-        for (int i = 0; i < vars && token != NULL; i++) {
-            binaryInput[i] = atoi(token);
-            token = strtok(NULL, " ");
-        }
-        
-        int result = evaluateFunction(&minimalCover, binaryInput, vars);
-        printf("Function output: %d\n", result);
+    int input[MAX_VARS];
+    printf("\nEnter inputs to evaluate (space-separated, 1 and 0 only):\n");
+    for (int i = 0; i < vars; i++) {
+        scanf("%d", &input[i]);
     }
+    
+    int result = evaluateFunction(&minimalCover, input, vars);
+    printf("Function evaluates to: %d\n", result);
     
     return 0;
 }
