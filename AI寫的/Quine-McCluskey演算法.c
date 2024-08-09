@@ -25,11 +25,14 @@ void printTerm(Term *term, int vars) {
 }
 
 int compareBits(Term *t1, Term *t2, int vars) {
-    int diff = 0;
+    int diff = 0, diffPos = -1;
     for (int i = 0; i < vars; i++) {
-        if (t1->bits[i] != t2->bits[i]) diff++;
+        if (t1->bits[i] != t2->bits[i]) {
+            diff++;
+            diffPos = i;
+        }
     }
-    return diff;
+    return (diff == 1) ? diffPos : -1;
 }
 
 void combine(Term *t1, Term *t2, Term *result, int vars) {
@@ -39,23 +42,35 @@ void combine(Term *t1, Term *t2, Term *result, int vars) {
     }
 }
 
+int termExists(TermArray *array, Term *term, int vars) {
+    for (int i = 0; i < array->count; i++) {
+        if (memcmp(array->terms[i].bits, term->bits, vars * sizeof(int)) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 void simplify(TermArray *input, TermArray *output, int vars) {
     for (int i = 0; i < input->count; i++) {
         for (int j = i + 1; j < input->count; j++) {
-            if (compareBits(&input->terms[i], &input->terms[j], vars) == 1) {
+            int diffPos = compareBits(&input->terms[i], &input->terms[j], vars);
+            if (diffPos != -1) {
                 Term newTerm;
                 combine(&input->terms[i], &input->terms[j], &newTerm, vars);
                 input->terms[i].combined = 1;
                 input->terms[j].combined = 1;
                 newTerm.used = 0;
                 newTerm.combined = 0;
-                output->terms[output->count++] = newTerm;
+                if (!termExists(output, &newTerm, vars)) {
+                    output->terms[output->count++] = newTerm;
+                }
             }
         }
     }
     
     for (int i = 0; i < input->count; i++) {
-        if (!input->terms[i].combined) {
+        if (!input->terms[i].combined && !termExists(output, &input->terms[i], vars)) {
             output->terms[output->count++] = input->terms[i];
         }
     }
@@ -65,9 +80,6 @@ void generatePrimeImplicants(TermArray *minterms, TermArray *dontCares, TermArra
     TermArray current, next;
     current.count = 0;
     
-    printf("Debug: Entering generatePrimeImplicants\n");
-    printf("Debug: Minterms count: %d, Don't cares count: %d\n", minterms->count, dontCares->count);
-    
     for (int i = 0; i < minterms->count; i++) {
         current.terms[current.count++] = minterms->terms[i];
     }
@@ -75,27 +87,18 @@ void generatePrimeImplicants(TermArray *minterms, TermArray *dontCares, TermArra
         current.terms[current.count++] = dontCares->terms[i];
     }
     
-    printf("Debug: Combined terms count: %d\n", current.count);
-    
-    int iteration = 0;
     while (1) {
-        printf("Debug: Iteration %d\n", iteration++);
         next.count = 0;
         simplify(&current, &next, vars);
         if (next.count == 0) break;
         current = next;
-        
-        if (iteration > 100) {  // Safeguard against infinite loop
-            printf("Debug: Possible infinite loop detected. Breaking.\n");
-            break;
-        }
     }
     
     *primeImplicants = current;
-    printf("Debug: Prime implicants generated. Count: %d\n", primeImplicants->count);
 }
 
 int isEssentialPrimeImplicant(Term *primeImplicant, TermArray *minterms, int vars) {
+    int essentialCount = 0;
     for (int i = 0; i < minterms->count; i++) {
         if (!minterms->terms[i].used) {
             int match = 1;
@@ -105,25 +108,10 @@ int isEssentialPrimeImplicant(Term *primeImplicant, TermArray *minterms, int var
                     break;
                 }
             }
-            if (match) {
-                int count = 0;
-                for (int k = 0; k < minterms->count; k++) {
-                    if (!minterms->terms[k].used) {
-                        int subMatch = 1;
-                        for (int l = 0; l < vars; l++) {
-                            if (primeImplicant->bits[l] != 2 && primeImplicant->bits[l] != minterms->terms[k].bits[l]) {
-                                subMatch = 0;
-                                break;
-                            }
-                        }
-                        if (subMatch) count++;
-                    }
-                }
-                if (count == 1) return 1;
-            }
+            if (match) essentialCount++;
         }
     }
-    return 0;
+    return (essentialCount == 1);
 }
 
 void findEssentialPrimeImplicants(TermArray *primeImplicants, TermArray *minterms, TermArray *essentialPIs, int vars) {
@@ -152,13 +140,24 @@ void generateBooleanFunction(TermArray *minimalCover, int vars) {
     }
     printf(") = ");
     
+    if (minimalCover->count == 0) {
+        printf("0");  // If minimal cover is empty, function is always 0
+        return;
+    }
+    
     for (int i = 0; i < minimalCover->count; i++) {
+        int termPrinted = 0;
         for (int j = 0; j < vars; j++) {
             if (minimalCover->terms[i].bits[j] == 0) {
                 printf("%c'", 'A' + j);
+                termPrinted = 1;
             } else if (minimalCover->terms[i].bits[j] == 1) {
                 printf("%c", 'A' + j);
+                termPrinted = 1;
             }
+        }
+        if (!termPrinted) {
+            printf("1");  // If term is all don't cares, it's always true
         }
         if (i < minimalCover->count - 1) printf(" + ");
     }
@@ -206,10 +205,7 @@ int main() {
         printf("Enter don't cares in binary (space-separated):\n");
         for (int i = 0; i < dontCareCount; i++) {
             for (int j = 0; j < vars; j++) {
-                if (scanf("%1d", &dontCares.terms[i].bits[j]) != 1) {
-                    printf("Error reading don't care term. Exiting.\n");
-                    return 1;
-                }
+                scanf("%1d", &dontCares.terms[i].bits[j]);
             }
             dontCares.terms[i].used = 0;
             dontCares.terms[i].combined = 0;
@@ -217,7 +213,6 @@ int main() {
     }
     dontCares.count = dontCareCount;
     
-    printf("Debug: About to generate prime implicants\n");
     generatePrimeImplicants(&minterms, &dontCares, &primeImplicants, vars);
     
     printf("\nPrime Implicants:\n");
@@ -240,14 +235,22 @@ int main() {
     printf("\nBoolean Function:\n");
     generateBooleanFunction(&minimalCover, vars);
     
-    printf("\nEnter a binary input to evaluate (space-separated):\n");
-    int input[MAX_VARS];
-    for (int i = 0; i < vars; i++) {
-        scanf("%d", &input[i]);
+    char input[MAX_VARS * 2];  // Allow space for spaces between digits
+    while (1) {
+        printf("\nEnter a binary input to evaluate (space-separated) or 'q' to quit: ");
+        scanf("%s", input);
+        if (input[0] == 'q' || input[0] == 'Q') break;
+        
+        int binaryInput[MAX_VARS];
+        char *token = strtok(input, " ");
+        for (int i = 0; i < vars && token != NULL; i++) {
+            binaryInput[i] = atoi(token);
+            token = strtok(NULL, " ");
+        }
+        
+        int result = evaluateFunction(&minimalCover, binaryInput, vars);
+        printf("Function output: %d\n", result);
     }
-    
-    int result = evaluateFunction(&minimalCover, input, vars);
-    printf("Function output: %d\n", result);
     
     return 0;
 }
