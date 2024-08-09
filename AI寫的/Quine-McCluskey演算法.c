@@ -65,6 +65,9 @@ void generatePrimeImplicants(TermArray *minterms, TermArray *dontCares, TermArra
     TermArray current, next;
     current.count = 0;
     
+    printf("Debug: Entering generatePrimeImplicants\n");
+    printf("Debug: Minterms count: %d, Don't cares count: %d\n", minterms->count, dontCares->count);
+    
     for (int i = 0; i < minterms->count; i++) {
         current.terms[current.count++] = minterms->terms[i];
     }
@@ -72,14 +75,24 @@ void generatePrimeImplicants(TermArray *minterms, TermArray *dontCares, TermArra
         current.terms[current.count++] = dontCares->terms[i];
     }
     
+    printf("Debug: Combined terms count: %d\n", current.count);
+    
+    int iteration = 0;
     while (1) {
+        printf("Debug: Iteration %d\n", iteration++);
         next.count = 0;
         simplify(&current, &next, vars);
         if (next.count == 0) break;
         current = next;
+        
+        if (iteration > 100) {  // Safeguard against infinite loop
+            printf("Debug: Possible infinite loop detected. Breaking.\n");
+            break;
+        }
     }
     
     *primeImplicants = current;
+    printf("Debug: Prime implicants generated. Count: %d\n", primeImplicants->count);
 }
 
 int isEssentialPrimeImplicant(Term *primeImplicant, TermArray *minterms, int vars) {
@@ -186,14 +199,17 @@ int main() {
     }
     minterms.count = mintermCount;
     
-    printf("Enter number of don't cares:");
+    printf("Enter number of don't cares: ");
     scanf("%d", &dontCareCount);
     
     if (dontCareCount > 0) {
         printf("Enter don't cares in binary (space-separated):\n");
         for (int i = 0; i < dontCareCount; i++) {
             for (int j = 0; j < vars; j++) {
-                scanf("%1d", &dontCares.terms[i].bits[j]);
+                if (scanf("%1d", &dontCares.terms[i].bits[j]) != 1) {
+                    printf("Error reading don't care term. Exiting.\n");
+                    return 1;
+                }
             }
             dontCares.terms[i].used = 0;
             dontCares.terms[i].combined = 0;
@@ -201,6 +217,7 @@ int main() {
     }
     dontCares.count = dontCareCount;
     
+    printf("Debug: About to generate prime implicants\n");
     generatePrimeImplicants(&minterms, &dontCares, &primeImplicants, vars);
     
     printf("\nPrime Implicants:\n");
