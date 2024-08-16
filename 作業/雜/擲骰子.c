@@ -8,6 +8,8 @@ int main(){
 
     printf("How many dice? ");
     scanf("%d", &num);
+
+    /*
     int *num_add = &num;
 
     unsigned long long time2 = time(0);
@@ -16,11 +18,36 @@ int main(){
     srand(temp);
     temp = rand();
     srand(temp);
+    */
+    srand(time1);
 
-    //printf("temp = %llu\n\n", temp);
+    int loop;
+    int one=0, two=0, three=0, four=0, five=0, six=0;
 
     for (int i = 0; i < num; i++){
-        printf("%d\n", rand() % 6 + 1);
+        loop = rand() % 6 + 1;
+        //printf("%d\n", loop);
+        switch (loop){
+        case 1:
+            one++;
+            break;
+        case 2:
+            two++;
+            break;
+        case 3:
+            three++;
+            break;
+        case 4:
+            four++;
+            break;
+        case 5:
+            five++;
+            break;
+        case 6:
+            six++;
+            break;
+        }
     }
+    printf("one   = %d\ntwo   = %d\nthree = %d\nfour  = %d\nfive  = %d\nsix   = %d\n", one, two, three, four, five, six);
     return 0;
 }
