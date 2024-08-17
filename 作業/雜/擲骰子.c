@@ -11,12 +11,12 @@ int main(){
     srand(time(0));
 
     int loop;
-    int one=0, two=0, three=0, four=0, five=0, six=0;
+    //int one=0, two=0, three=0, four=0, five=0, six=0;
 
     for (int i = 0; i < num; i++){
         loop = rand() % 6 + 1;
-        //printf("%d\n", loop);
-        switch (loop){
+        printf("%d\n", loop);
+        /*switch (loop){
         case 1:
             one++;
             break;
@@ -35,8 +35,8 @@ int main(){
         case 6:
             six++;
             break;
-        }
+        }*/
     }
-    printf("one   = %d\ntwo   = %d\nthree = %d\nfour  = %d\nfive  = %d\nsix   = %d\n", one, two, three, four, five, six);
+    //printf("one   = %d\ntwo   = %d\nthree = %d\nfour  = %d\nfive  = %d\nsix   = %d\n", one, two, three, four, five, six);
     return 0;
 }
