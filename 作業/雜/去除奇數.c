@@ -3,7 +3,7 @@
 # include <stdlib.h>
 
 int main(){
-    int num, *list, *ptr;
+    int num, *list;
     printf("Enter the max number: ");
     scanf("%d", &num);
 
@@ -19,7 +19,7 @@ int main(){
             }
         }
         temp *= 2;
-        for (int j = 0; j < num; j++) printf(" %d", list[j]);
+        for (int j = 0; j < num; j++) if (list[j] != 0) printf(" %d", list[j]);
         printf("\n");
     }
 
