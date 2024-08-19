@@ -11,7 +11,7 @@ int main(){
     for (int i = 0 ; i < num; i++) list[i] = i + 1;
 
     int temp = 1;
-    for (int i = 0; i < log(num)+1; i++){
+    for (int i = 0; i < (int)log2(num); i++){
         printf("%d:", i + 1);
         for (int j = temp-1; j < num; j += temp){
             if ((j / temp) % 2 == 0){
