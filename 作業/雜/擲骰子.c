@@ -1,11 +1,23 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <time.h>
+# include <limits.h>
 
 # define MAX_DICE 10
 # define MAX_FACE 600
 
-void rollDice_random(int dice, int time, int face, int *result) {
+// 取得使用者輸入並進行驗證
+int getValidatedInput(const char *prompt, int min, int max){
+    int value;
+    printf("%s", prompt);
+    if (scanf("%d", &value) != 1 || value < min || value > max) {
+        printf("Error! Input must be between %d and %d\n", min, max);
+        exit(1);
+    }
+    return value;
+}
+
+void rollDice_random(int dice, int time, int face, int *result){
     for (int i = 0; i < time; i++) {
         int sum = 0;
         for (int j = 0; j < dice; j++) {
@@ -29,25 +41,15 @@ void rollDice_theory(int diceLeft, int currentSum, int face, int *frequency, int
 }
 
 int main(){
-    int face_num, dice_num, d_time, total_theory[1] = {0};
-
-    printf("How many face per dice? ");
-    if (scanf("%d", &face_num) != 1 || face_num > MAX_FACE || face_num < 1){
-        printf("Error! Too many face! Must between 1 and %d", MAX_FACE);
-        return 1;
-    }
-    printf("How many dice? ");
-    if (scanf("%d", &dice_num) != 1 || dice_num > MAX_DICE || dice_num < 1){
-        printf("Error! Too many face! Must between 1 and %d", MAX_DICE);
-        return 1;
-    }
-    printf("Dice how many times? ");
-    scanf("%d", &d_time);
+    int face_num = getValidatedInput("How many face per dice? ", 1, MAX_FACE);
+    int dice_num = getValidatedInput("How many dice? ", 1, MAX_DICE);
+    int d_time = getValidatedInput("Dice how many times? ", 1, INT_MAX);
 
     srand(time(0));
 
     int *result = (int *)calloc(face_num * dice_num + 1, sizeof(int)); // 實際值
     if (result == NULL){
+        free(result);
         fprintf(stderr, "Error: unable to allocate required memory\n");
         return 1;
     }
@@ -55,15 +57,17 @@ int main(){
 
     int *freq = (int *)calloc(face_num * dice_num + 1, sizeof(int));  // 理論值
     if (freq == NULL){
+        free(freq);
         fprintf(stderr, "Error: unable to allocate required memory\n");
         return 1;
     }
+    int total_theory[1] = {0};
     rollDice_theory(dice_num, 0, face_num, freq, total_theory);
 
     double avg;
     printf("Sum\tFrequency\tTheoretical value\tbias\n");
     for (int i = dice_num; i <= dice_num * face_num; i++){
-        avg = (double)freq[i] * (double)d_time / total_theory[0];
+        avg = (double)freq[i] * d_time / total_theory[0];
         printf("%d\t%d\t\t%.0lf\t\t\t(%5.1lf %)\n", i, result[i], avg, ((result[i]/avg)-1)*100);
     }
     
