@@ -7,7 +7,7 @@
 # define MAX_FACE 600
 
 // 取得使用者輸入並進行驗證
-int getValidatedInput(const char *prompt, int min, int max){
+int get_validated_input(const char *prompt, int min, int max){
     int value;
     printf("%s", prompt);
     if (scanf("%d", &value) != 1 || value < min || value > max) {
@@ -17,8 +17,8 @@ int getValidatedInput(const char *prompt, int min, int max){
     return value;
 }
 
-void rollDice_random(int dice, int time, int face, int *result){
-    for (int i = 0; i < time; i++) {
+void rollDice_random(int dice, int times, int face, int *result){
+    for (int i = 0; i < times; i++) {
         int sum = 0;
         for (int j = 0; j < dice; j++) {
             sum += (rand() % face) + 1;
@@ -41,15 +41,14 @@ void rollDice_theory(int diceLeft, int currentSum, int face, int *frequency, int
 }
 
 int main(){
-    int face_num = getValidatedInput("How many face per dice? ", 1, MAX_FACE);
-    int dice_num = getValidatedInput("How many dice? ", 1, MAX_DICE);
-    int d_time = getValidatedInput("Dice how many times? ", 1, INT_MAX);
+    int face_num = get_validated_input("How many face per dice? ", 1, MAX_FACE);
+    int dice_num = get_validated_input("How many dice? ", 1, MAX_DICE);
+    int d_time = get_validated_input("Dice how many times? ", 1, INT_MAX);
 
     srand(time(0));
 
     int *result = (int *)calloc(face_num * dice_num + 1, sizeof(int)); // 實際值
     if (result == NULL){
-        free(result);
         fprintf(stderr, "Error: unable to allocate required memory\n");
         return 1;
     }
@@ -57,7 +56,7 @@ int main(){
 
     int *freq = (int *)calloc(face_num * dice_num + 1, sizeof(int));  // 理論值
     if (freq == NULL){
-        free(freq);
+        free(result);
         fprintf(stderr, "Error: unable to allocate required memory\n");
         return 1;
     }
