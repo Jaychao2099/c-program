@@ -64,7 +64,7 @@ int main(){
     printf("Sum\tFrequency\tTheoretical value\tbias\n");
     for (int i = dice_num; i <= dice_num * face_num; i++){
         avg = (double)freq[i] * (double)d_time / total_theory[0];
-        printf("%d\t%d\t\t%.1lf\t\t\t(%5.1lf %)\n", i, result[i], avg, ((result[i]/avg)-1)*100);
+        printf("%d\t%d\t\t%.0lf\t\t\t(%5.1lf %)\n", i, result[i], avg, ((result[i]/avg)-1)*100);
     }
     
     free(result);
