@@ -1,41 +1,74 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <time.h>
-# include <math.h>
+
+# define MAX_DICE 10
+# define MAX_FACE 600
+
+void rollDice_random(int dice, int time, int face, int *result) {
+    for (int i = 0; i < time; i++) {
+        int sum = 0;
+        for (int j = 0; j < dice; j++) {
+            sum += (rand() % face) + 1;
+        }
+        result[sum]++;
+    }
+}
+
+void rollDice_theory(int diceLeft, int currentSum, int face, int *frequency, int *total){
+    if (diceLeft == 0) {
+        frequency[currentSum]++;
+        total[0]++;
+        return;
+    }
+
+    // 遍歷每個骰子的面數
+    for (int i = 1; i <= face; i++) {
+        rollDice_theory(diceLeft - 1, currentSum + i, face, frequency, total);
+    }
+}
 
 int main(){
-    int num, side;
+    int face_num, dice_num, d_time, total_theory[1] = {0};
 
-    printf("How many side per dice? ");
-    if (scanf("%d", &side) != 1 || side > 1000){
-        printf("Error! Too large!");
+    printf("How many face per dice? ");
+    if (scanf("%d", &face_num) != 1 || face_num > MAX_FACE || face_num < 1){
+        printf("Error! Too many face! Must between 1 and %d", MAX_FACE);
         return 1;
     }
-    
     printf("How many dice? ");
-    scanf("%d", &num);
+    if (scanf("%d", &dice_num) != 1 || dice_num > MAX_DICE || dice_num < 1){
+        printf("Error! Too many face! Must between 1 and %d", MAX_DICE);
+        return 1;
+    }
+    printf("Dice how many times? ");
+    scanf("%d", &d_time);
 
     srand(time(0));
 
-    int dice;
-
-    /*for (int i = 0; i < num; i++){
-        dice = rand() % side + 1;
-        printf("%d\n", dice);
-    }*/
-
-    int *result;
-    result = (int *)calloc(side, sizeof(int));
-
-    for (int i = 0; i < num; i++){
-        dice = rand() % side;
-        for(int j = 0; j < side; j++) if (j == dice) result[j]++;
+    int *result = (int *)calloc(face_num * dice_num + 1, sizeof(int)); // 實際值
+    if (result == NULL){
+        fprintf(stderr, "Error: unable to allocate required memory\n");
+        return 1;
     }
-    double avg = (double)num / (double)side;
-    for (int i = 0; i < side; i++){
-        printf("%*d: %*d (%5.1lf %)\n", (int)log10(side)+1, i+1, (int)log10(avg)+1, result[i], ((result[i]/avg)-1)*100);
+    rollDice_random(dice_num, d_time, face_num, result);
+
+    int *freq = (int *)calloc(face_num * dice_num + 1, sizeof(int));  // 理論值
+    if (freq == NULL){
+        fprintf(stderr, "Error: unable to allocate required memory\n");
+        return 1;
     }
+    rollDice_theory(dice_num, 0, face_num, freq, total_theory);
+
+    double avg;
+    printf("Sum\tFrequency\tTheoretical value\tbias\n");
+    for (int i = dice_num; i <= dice_num * face_num; i++){
+        avg = (double)freq[i] * (double)d_time / total_theory[0];
+        printf("%d\t%d\t\t%.1lf\t\t\t(%5.1lf %)\n", i, result[i], avg, ((result[i]/avg)-1)*100);
+    }
+    
     free(result);
+    free(freq);
     
     return 0;
 }
