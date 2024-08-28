@@ -35,7 +35,7 @@ int bin_extend_iterative(int m, int n){     //擴展二項式 迭代
         return int_error;
     }
     if (m < n && m > 0) return int_error;
-    if (n == 0) return n;
+    if (n == 0) return 1;
     else {
         int result = 1;
         for(int i = 0; i < n; i++){
@@ -56,7 +56,7 @@ int main(){
     }
     
     int mode;
-    printf("Choose mode:\n1. normal recursive\n2. extended recursive\n3. extended iterative\n");
+    printf("Choose mode:\n1. normal recursive\n2. extended recursive\n3. extended iterative\n(1/2/3): ");
     do {
         scanf("%d", &mode);
         switch (mode){
@@ -70,7 +70,7 @@ int main(){
                 result = bin_extend_iterative(num1, num2);  //擴展二項式 迭代
                 break;
             default:
-                printf("Plz choose 1 ~ 3\n");
+                printf("Plz choose (1/2/3): ");
                 break;
         }
     } while (mode > 3 || mode < 1);
