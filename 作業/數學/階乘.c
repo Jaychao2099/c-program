@@ -1,10 +1,23 @@
-# include<stdio.h>
+# include <stdio.h>
+
+# define int_error 42069
 
 long long fact(int a){
+    if (a < 0){
+        printf("Plz factorial a fuckin' POSITIVE integer!\n");
+        return int_error;
+    }
+    else if (a > 20){
+        printf("Too big!\n");
+        return int_error;
+    }
+    else return (a < 1) ? 1 : a * fact(a - 1);
+    /*
     if (a < 1)
         return 1;
     else
         return a * fact(a - 1);
+    */
 }
 
 int main(){
@@ -12,11 +25,11 @@ int main(){
     long long result;
     printf("Enter a positive integer: ");
     scanf("%d", &num);
-    if (num < 1){
-        printf("Plz factorial a FUCKING POSITIVE integer!\n");
-        return 1;
-    }
+    
     result = fact(num);
-    printf("%d! = %lld", num, result);
+
+    if (result == int_error) return 1;
+    else printf("%d! = %lld", num, result);
+
     return 0;
 }
