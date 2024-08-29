@@ -38,7 +38,8 @@ int main() {
         "scientific notation float", 
         "auto %f or %e", 
         "_Bool",
-        "void"
+        "void",
+        "Mem. address"
     };
 
     int num1[3][4] = {{1,2,3,4,5,6,7},{6,0,46,7,8,4,45},{78,46,57,35,63,364,634,643}};
@@ -62,7 +63,8 @@ int main() {
         sizeof(double), 
         sizeof(double),
         sizeof(_Bool),
-        sizeof(void)
+        sizeof(void),
+        sizeof(int *)
     };
 
     const char *data_formats[] = {
@@ -83,6 +85,7 @@ int main() {
         "%e", 
         "%g", 
         "%d",
+        "",
         ""
     };
 
