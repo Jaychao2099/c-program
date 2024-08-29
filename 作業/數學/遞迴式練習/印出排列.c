@@ -13,10 +13,10 @@ void swap(char *v, int a, int b){
 void perm(char *list, int current, int last){
     if (current == last - 1) printf("%s\n", list);  //遞迴結束
     else for (int j = current; j < last; j++){
-            swap(list, current, j);             //換list[j]當頭
-            perm(list, current + 1, last);      //排列剩餘元素
-            swap(list, current, j);             //換回來
-        }
+        swap(list, current, j);             //換list[j]當頭
+        perm(list, current + 1, last);      //排列剩餘元素
+        swap(list, current, j);             //換回來
+    }
 }
 
 int main(){
