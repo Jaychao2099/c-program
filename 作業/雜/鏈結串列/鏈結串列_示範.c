@@ -7,16 +7,15 @@ typedef struct Person{   //結構體的標識符
 }Person;                 // typedef 創建的類型別名
 
 int main(){
-    int count, i;
+    int count, age;
     printf("How many members? ");
     scanf("%d", &count);
 
-    int age;
     Person *head = malloc(sizeof(Person)); //取得一個和 Person 大小一樣的區塊，然後被給 head 這個指標
     Person *current = head; //宣告現在只到哪裡的 current，先把它等於 head
 
     printf("Age of Person: ");
-    for (i = 0; i < count - 1; i++){
+    for (int i = 0; i < count; i++){
         scanf("%d", &age);
         current->value = age;
         current->next = (i == count-1 ? NULL : malloc(sizeof(Person))); //建立節點完後，結束鏈結串列
