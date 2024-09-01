@@ -6,16 +6,23 @@ typedef struct Node {
     struct Node *next;
 } Node;
 
-void printAndFreeRow(Node *head) {
+void printRow(Node *head) {
+    Node *current = head;
+    while (current != NULL) {
+        printf("%d ", current->value);
+        current = current->next;
+    }
+    printf("\n");
+}
+
+void freeRow(Node *head) {
     Node *current = head;
     Node *temp;
     while (current != NULL) {
-        printf("%d ", current->value);
         temp = current;
         current = current->next;
         free(temp);
     }
-    printf("\n");
 }
 
 Node* createNode(int value) {
@@ -47,8 +54,16 @@ void pascal(int layers) {
             if (prev != NULL) prev = prev->next;
         }
 
-        printAndFreeRow(currentRow);
+        printRow(currentRow);
+        
+        if (prevRow != NULL) {
+            freeRow(prevRow);
+        }
         prevRow = currentRow;
+    }
+    
+    if (prevRow != NULL) {
+        freeRow(prevRow);
     }
 }
 
