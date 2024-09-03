@@ -1,13 +1,13 @@
-#include <stdio.h>
-#include <stdlib.h>
+# include <stdio.h>
+# include <stdlib.h>
 
-typedef struct Node {
+typedef struct p_tree{
     int value;
-    struct Node *next;
-} Node;
+    struct p_tree *next;
+} p_tree;
 
-void printRow(Node *head) {
-    Node *current = head;
+void printRow(p_tree *head){
+    p_tree *current = head;
     while (current != NULL) {
         printf("%d ", current->value);
         current = current->next;
@@ -15,9 +15,9 @@ void printRow(Node *head) {
     printf("\n");
 }
 
-void freeRow(Node *head) {
-    Node *current = head;
-    Node *temp;
+void freeRow(p_tree *head){
+    p_tree *current = head;
+    p_tree *temp;
     while (current != NULL) {
         temp = current;
         current = current->next;
@@ -25,38 +25,38 @@ void freeRow(Node *head) {
     }
 }
 
-Node* createNode(int value) {
-    Node *newNode = (Node*)malloc(sizeof(Node));
-    newNode->value = value;
-    newNode->next = NULL;
-    return newNode;
+p_tree* createp_tree(int value){
+    p_tree *newp_tree = (p_tree*)malloc(sizeof(p_tree));
+    newp_tree->value = value;
+    newp_tree->next = NULL;
+    return newp_tree;
 }
 
-void pascal(int layers) {
+void pascal(int layers){
     if (layers <= 0) {
         printf("Please enter a positive number.\n");
         return;
     }
 
-    Node *prevRow = NULL;
+    p_tree *prevRow = NULL;
     
-    for (int i = 1; i <= layers; i++) {
-        Node *currentRow = createNode(1);
-        Node *curr = currentRow;
-        Node *prev = prevRow;
+    for (int i = 1; i <= layers; i++){
+        p_tree *currentRow = createp_tree(1);
+        p_tree *curr = currentRow;
+        p_tree *prev = prevRow;
 
-        for (int j = 1; j < i; j++) {
+        for (int j = 1; j < i; j++){
             int leftValue = (prev != NULL) ? prev->value : 0;
             int rightValue = (prev != NULL && prev->next != NULL) ? prev->next->value : 0;
             
-            curr->next = createNode(leftValue + rightValue);
+            curr->next = createp_tree(leftValue + rightValue);
             curr = curr->next;
             if (prev != NULL) prev = prev->next;
         }
 
         printRow(currentRow);
         
-        if (prevRow != NULL) {
+        if (prevRow != NULL){
             freeRow(prevRow);
         }
         prevRow = currentRow;
@@ -67,7 +67,7 @@ void pascal(int layers) {
     }
 }
 
-int main() {
+int main(){
     int layers;
     printf("How many layers? ");
     scanf("%d", &layers);
