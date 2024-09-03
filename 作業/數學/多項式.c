@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-# define MaxTerms 100
+# define MaxTerms 100   //大陣列的最多容量
 
 typedef struct term{
     double coef;  //係數
@@ -22,7 +22,7 @@ typedef struct polynomial_System{
 // 初始化 polynomialSystem
 polynomial_System init_Polynomial_System(int size){
     polynomial_System ps;
-    ps.termArray = (term *)malloc(size * sizeof(term));
+    ps.termArray = (term *)calloc(size, sizeof(term));
     ps.free_index = 0;
     return ps;
 }
@@ -45,7 +45,7 @@ polynomial input_poly(polynomial_System *ps, char name, int terms){    //輸入�
     polynomial x = {ps->free_index, ps->free_index + terms - 1, name};
     printf("\n\"Polynomial %c\":\n", name);
     int temp = 0;
-    for (int i = x.start; i <= x.end + terms; i++){
+    for (int i = x.start; i <= x.end; i++){
         printf("Enter %d coefficint: ", i - x.start + 1);
         scanf("%lf", &ps->termArray[i].coef);
         printf("Enter %d exponent: ", i - x.start + 1);
