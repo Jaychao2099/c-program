@@ -41,6 +41,49 @@ void print_poly(polynomial_System *ps, polynomial x){          //印出多項式
     }
 }
 
+void swap(term *v, int a, int b){
+    if (a != b){
+        term temp;
+        temp = v[a];
+        v[a] = v[b];
+        v[b] = temp;
+    }
+}
+
+void q_sort(term *array_to_sort, int start_index, int end_index){ //小到大
+    while (start_index < end_index){
+        int i = start_index;
+        for (int j = start_index; j < end_index; j++){
+            if(array_to_sort[j].exp < array_to_sort[end_index].exp){
+                swap(array_to_sort, j, i);
+                i++;
+            }
+        }
+        swap(array_to_sort, end_index, i);
+
+        if (i - start_index < end_index - i) {
+            q_sort(array_to_sort, start_index, i - 1);  //對較小的分區進行 遞迴調用
+            start_index = i + 1;              //對較大的分區使用 while 迭代
+        } else {
+            q_sort(array_to_sort, i + 1, end_index);    //同上
+            end_index = i - 1;
+        }
+    }
+}
+
+void reverse_array(term *array, int start_index, int end_index){
+    while (start_index < end_index) {   // 當 start 小於 end 時，繼續交換
+        swap(array, start_index, end_index);    // 交換 start 和 end 指向的元素
+        start_index++;    // 移動指標
+        end_index--;
+    }
+}
+
+void sort_by_exp(polynomial_System *ps, polynomial x){
+    q_sort(ps->termArray, x.start, x.end);
+    reverse_array(ps->termArray, x.start, x.end);
+}
+
 polynomial input_poly(polynomial_System *ps, char name, int terms){    //輸入多項式
     polynomial x = {ps->free_index, ps->free_index + terms - 1, name};
     printf("\n\"Polynomial %c\":\n", name);
@@ -51,6 +94,7 @@ polynomial input_poly(polynomial_System *ps, char name, int terms){    //輸入�
         printf("Enter %d exponent: ", i - x.start + 1);
         scanf("%d", &ps->termArray[i].exp);
 
+        sort_by_exp(ps, x);     //依 exp 排序
         print_poly(ps, x);      //隨時印出檢查
     }
     ps->free_index = x.end + 1;
@@ -111,7 +155,7 @@ polynomial poly_Add(polynomial_System *ps, polynomial A, polynomial B){
 int main(){
     int terms_A, terms_B;       //項數
     
-    printf("Polynomial addition (A)+(B) = (C)\n");
+    printf("Polynomial addition (A) + (B) = (C)\n");
     printf("How many terms in A? ");
     scanf("%d", &terms_A);
     printf("How many terms in B? ");
