@@ -46,26 +46,27 @@ void pascal(int layer){
             current_r = current_r->next;    //指到下一個節點
         }
     }
-    free(current_l);
-    free(current_r);
 
     current = head;     //回頭節點
+    p_tree *follow;      //free 前一個
     for (int i = 1; i <= layer; i++){
         for (int j = 1; j <= i; j++){
             printf("%d", current->value);
             if (j == 1) next_layer = current->left;
             if (j == i){
+                follow = current;
                 current = next_layer;
+                free(follow);
                 printf("\n");
             }
             else{
+                follow = current;
                 current = current->next;
+                free(follow);
                 printf(" ");
             }
         }
     }
-    free(current);
-    free(next_layer);
 }
 
 
