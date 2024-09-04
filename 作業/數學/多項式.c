@@ -18,32 +18,20 @@ typedef struct polynomial{
 typedef struct polynomial_system{
     term *termArray;    //全域 大陣列
     int free_index;     //全域 大陣列 最後一格留白
+    int temp;       //臨時的全域
 } polynomial_system;
 
 // 初始化 polynomialSystem
 polynomial_system init_polynomial_system(size_t size){
     polynomial_system ps;
-    ps.termArray = (term *)calloc(size, sizeof(term));
+    ps.termArray = (term *)malloc(size * sizeof(term));
     if (ps.termArray == NULL){
         fprintf(stderr, "ERROR: unable to allocate required memory");
         exit(1);
     }
+    for (int i = 0; i < size - 1; i++) ps.termArray[i].exp = -1;    //初始化 exp = -1
     ps.free_index = 0;
     return ps;
-}
-
-void print_poly(polynomial_system *ps, polynomial x){          //印出多項式
-    printf("%c = ", x.name);
-    for(int j = x.start; j < x.end + 1; j++){
-        printf("%.2lf ", ps->termArray[j].coef);
-        switch (ps->termArray[j].exp){      //指數為1 or 0時 可省略一些東西
-            case 0:  break;
-            case 1:  printf("x"); break;
-            default: printf("x^%d", ps->termArray[j].exp); break;
-        }
-        if (j != x.end) printf(" + ");
-        else printf("\n");
-    }
 }
 
 void swap(term *v, int a, int b){
@@ -55,7 +43,8 @@ void swap(term *v, int a, int b){
     }
 }
 
-void q_sort(term *array_to_sort, int start_index, int end_index){ //小到大
+//小到大排序
+void q_sort(term *array_to_sort, int start_index, int end_index){
     while (start_index < end_index){
         int i = start_index;
         for (int j = start_index; j < end_index; j++){
@@ -89,26 +78,68 @@ void sort_by_exp(polynomial_system *ps, polynomial x){
     reverse_array(ps->termArray, x.start, x.end);
 }
 
-polynomial input_poly(polynomial_system *ps, char name, int terms){    //輸入多項式
-    polynomial x = {ps->free_index, ps->free_index + terms - 1, name};
-    printf("\n\"Polynomial %c\":\n", name);
-    int temp = 0;
-    for (int i = x.start; i <= x.end; i++){
-        printf("Enter %d coefficint: ", i - x.start + 1);
-        scanf("%lf", &ps->termArray[i].coef);
-        printf("Enter %d exponent: ", i - x.start + 1);
-        scanf("%d", &ps->termArray[i].exp);
-
-        sort_by_exp(ps, x);     //依 exp 排序
-        print_poly(ps, x);      //隨時印出檢查
+//印出多項式, mode 0 = 一般, 1 = 輸入時
+void print_poly(polynomial_system *ps, polynomial x, int mode){
+    printf("%c = ", x.name);
+    switch (mode){
+        case 0:
+            for(int j = x.start; j <= x.end; j++){
+                printf("%.2lf ", ps->termArray[j].coef);
+                    switch (ps->termArray[j].exp){      //指數為1 or 0時 可省略一些東西
+                        case 0:  break;
+                        case 1:  printf("x"); break;
+                        default: printf("x^%d", ps->termArray[j].exp); break;
+                    }
+                if (j != x.end) printf(" + ");
+                else printf("\n");
+            }
+            break;
+        case 1:
+            for(int j = x.start; j <= x.end; j++){
+                printf("%.2lf ", ps->termArray[j].coef);
+                switch (ps->termArray[j].exp){      //指數為1 or 0時 可省略一些東西
+                    case -1: printf("x^"); break;
+                    case 0:  break;
+                    case 1:  printf("x"); break;
+                    default: printf("x^%d", ps->termArray[j].exp); break;
+                }
+                if (ps->termArray[j].exp != -1){
+                    if (j != ps->temp - 1) printf(" + ");
+                    else printf("\n");
+                }
+            }
+            break;
+        default:
+            fprintf(stderr, "ERROR: unable to identify mode code\n");
+            exit(1);
     }
-    ps->free_index = x.end + 1;
+}
+
+polynomial input_poly(polynomial_system *ps, char name, int terms){    //輸入多項式
+    polynomial x = {ps->free_index, ps->free_index - 1, name};
+    printf("\n\"Polynomial %c\": ", name);
+    printf("Enter coefficint and exponent 1-by-1:\n");
+    printf("%c = ", x.name);
+    ps->temp = x.end + terms + 1;
+    for (int i = x.start; i < ps->temp; i++){
+        ps->free_index++;
+        x.end++;
+        scanf("%lf", &ps->termArray[i].coef);   //輸入coef
+        print_poly(ps, x, 1);      //隨時印出檢查
+        scanf("%d", &ps->termArray[i].exp);     //輸入exp
+        sort_by_exp(ps, x);     //依 exp 排序
+        print_poly(ps, x, 1);      //隨時印出檢查
+    }
+    if (ps->free_index != x.end + 1){
+        fprintf(stderr, "ERROR: free_index error in input_poly\n");
+        exit(1);
+    }
     return x;
 }
 
 bool new_term(polynomial_system *ps, double c, int e){
     if (ps->free_index > MaxTerms){
-        printf("ERROR: too many terms in polynomials\n");
+        fprintf(stderr, "ERROR: too many terms in polynomials\n");
         return false;
     }
     ps->termArray[ps->free_index].coef = c;
@@ -123,8 +154,8 @@ char compare_int(int a, int b){
     if (a > b) return '>';
 }
 
-polynomial poly_Add(polynomial_system *ps, polynomial A, polynomial B){
-    polynomial C = {ps->free_index, ps->free_index, 'C'};
+polynomial poly_Add(polynomial_system *ps, polynomial A, polynomial B, char name){
+    polynomial C = {ps->free_index, ps->free_index - 1, name};
     int current_a = A.start, current_b = B.start;   //用來歷遍的index
     double co;      //C 的係數
     while (current_a <= A.end && current_b <= B.end){   //歷遍A, B 的元素 至某一方元素用完
@@ -146,8 +177,9 @@ polynomial poly_Add(polynomial_system *ps, polynomial A, polynomial B){
                     current_b++;
                     break;
                 } else exit(1);
-            default: fprintf(stderr, "ERROR: function poly_add went wrong\n"); exit(1);
-                break;
+            default:
+                fprintf(stderr, "ERROR: function poly_add went wrong\n");
+                exit(1);
         }
     }
     //歷遍A, B 剩餘的元素
@@ -155,9 +187,10 @@ polynomial poly_Add(polynomial_system *ps, polynomial A, polynomial B){
         if (new_term(ps, ps->termArray[current_a].coef, ps->termArray[current_a].exp) == false)
             exit(1);
     for (current_b; current_b <= B.end; current_b++)
-        if (new_term(ps, ps->termArray[current_b].coef, ps->termArray[current_b].exp))
+        if (new_term(ps, ps->termArray[current_b].coef, ps->termArray[current_b].exp) == false)
             exit(1);
     C.end = ps->free_index - 1;
+    //printf("C.end = %d, free_index = %d\n", C.end, ps->free_index);
     sort_by_exp(ps, C);     // 確保 C 依 exp 排序
     return C;
 }
@@ -183,11 +216,11 @@ int main(){
 
     polynomial poly_A = input_poly(&total_poly, 'A', terms_A);     //大陣列取得 poly_A 的資料
     polynomial poly_B = input_poly(&total_poly, 'B', terms_B);     //大陣列取得 poly_B 的資料
-    
-    polynomial poly_C = poly_Add(&total_poly, poly_A, poly_B);    //大陣列取得 poly_C 的資料
+
+    polynomial poly_C = poly_Add(&total_poly, poly_A, poly_B, 'C');    //大陣列取得 poly_C 的資料
 
     printf("\n");
-    print_poly(&total_poly, poly_C);     //印出 poly_C
+    print_poly(&total_poly, poly_C, 0);     //印出 poly_C
 
     free(total_poly.termArray);
 
