@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <stdlib.h>
+# include <stdbool.h>
 
 # define MaxTerms 100   //大陣列的最多容量
 
@@ -14,20 +15,24 @@ typedef struct polynomial{
     char name;  //名稱
 }polynomial;
 
-typedef struct polynomial_System{
+typedef struct polynomial_system{
     term *termArray;    //全域 大陣列
     int free_index;     //全域 大陣列 最後一格留白
-} polynomial_System;
+} polynomial_system;
 
 // 初始化 polynomialSystem
-polynomial_System init_Polynomial_System(int size){
-    polynomial_System ps;
+polynomial_system init_polynomial_system(size_t size){
+    polynomial_system ps;
     ps.termArray = (term *)calloc(size, sizeof(term));
+    if (ps.termArray == NULL){
+        fprintf(stderr, "ERROR: unable to allocate required memory");
+        exit(1);
+    }
     ps.free_index = 0;
     return ps;
 }
 
-void print_poly(polynomial_System *ps, polynomial x){          //印出多項式
+void print_poly(polynomial_system *ps, polynomial x){          //印出多項式
     printf("%c = ", x.name);
     for(int j = x.start; j < x.end + 1; j++){
         printf("%.2lf ", ps->termArray[j].coef);
@@ -61,7 +66,7 @@ void q_sort(term *array_to_sort, int start_index, int end_index){ //小到大
         }
         swap(array_to_sort, end_index, i);
 
-        if (i - start_index < end_index - i) {
+        if (i - start_index < end_index - i){
             q_sort(array_to_sort, start_index, i - 1);  //對較小的分區進行 遞迴調用
             start_index = i + 1;              //對較大的分區使用 while 迭代
         } else {
@@ -72,19 +77,19 @@ void q_sort(term *array_to_sort, int start_index, int end_index){ //小到大
 }
 
 void reverse_array(term *array, int start_index, int end_index){
-    while (start_index < end_index) {   // 當 start 小於 end 時，繼續交換
+    while (start_index < end_index){   // 當 start 小於 end 時，繼續交換
         swap(array, start_index, end_index);    // 交換 start 和 end 指向的元素
         start_index++;    // 移動指標
         end_index--;
     }
 }
 
-void sort_by_exp(polynomial_System *ps, polynomial x){
+void sort_by_exp(polynomial_system *ps, polynomial x){
     q_sort(ps->termArray, x.start, x.end);
     reverse_array(ps->termArray, x.start, x.end);
 }
 
-polynomial input_poly(polynomial_System *ps, char name, int terms){    //輸入多項式
+polynomial input_poly(polynomial_system *ps, char name, int terms){    //輸入多項式
     polynomial x = {ps->free_index, ps->free_index + terms - 1, name};
     printf("\n\"Polynomial %c\":\n", name);
     int temp = 0;
@@ -101,14 +106,15 @@ polynomial input_poly(polynomial_System *ps, char name, int terms){    //輸入�
     return x;
 }
 
-void new_term(polynomial_System *ps, double c, int e){
+bool new_term(polynomial_system *ps, double c, int e){
     if (ps->free_index > MaxTerms){
         printf("ERROR: too many terms in polynomials\n");
-        exit(1);
+        return false;
     }
     ps->termArray[ps->free_index].coef = c;
     ps->termArray[ps->free_index].exp = e;
     ps->free_index++;
+    return true;
 }
 
 char compare_int(int a, int b){
@@ -117,38 +123,42 @@ char compare_int(int a, int b){
     if (a > b) return '>';
 }
 
-polynomial poly_Add(polynomial_System *ps, polynomial A, polynomial B){
+polynomial poly_Add(polynomial_system *ps, polynomial A, polynomial B){
     polynomial C = {ps->free_index, ps->free_index, 'C'};
     int current_a = A.start, current_b = B.start;   //用來歷遍的index
     double co;      //C 的係數
-
     while (current_a <= A.end && current_b <= B.end){   //歷遍A, B 的元素 至某一方元素用完
         switch (compare_int(ps->termArray[current_a].exp, ps->termArray[current_b].exp)){
             case '=':
                 co = ps->termArray[current_a].coef + ps->termArray[current_b].coef;
-                if (co) new_term(ps, co, ps->termArray[current_a].exp);
-                current_a++;
-                current_b++;
-                break;
+                if (co) if (new_term(ps, co, ps->termArray[current_a].exp)){
+                    current_a++;
+                    current_b++;
+                    break;
+                } else exit(1);
             case '>':
-                new_term(ps, ps->termArray[current_a].coef, ps->termArray[current_a].exp);
-                current_a++;
-                break;
+                if (new_term(ps, ps->termArray[current_a].coef, ps->termArray[current_a].exp)){
+                    current_a++;
+                    break;
+                } else exit(1);
             case '<':
-                new_term(ps, ps->termArray[current_b].coef, ps->termArray[current_b].exp);
-                current_b++;
-                break;
-            default: printf("ERROR: function poly_add wrong\n"); exit(1);
+                if (new_term(ps, ps->termArray[current_b].coef, ps->termArray[current_b].exp)){
+                    current_b++;
+                    break;
+                } else exit(1);
+            default: fprintf(stderr, "ERROR: function poly_add went wrong\n"); exit(1);
                 break;
         }
     }
     //歷遍A, B 剩餘的元素
     for (current_a; current_a <= A.end; current_a++)
-        new_term(ps, ps->termArray[current_a].coef, ps->termArray[current_a].exp);
+        if (new_term(ps, ps->termArray[current_a].coef, ps->termArray[current_a].exp) == false)
+            exit(1);
     for (current_b; current_b <= B.end; current_b++)
-        new_term(ps, ps->termArray[current_b].coef, ps->termArray[current_b].exp);
-    
+        if (new_term(ps, ps->termArray[current_b].coef, ps->termArray[current_b].exp))
+            exit(1);
     C.end = ps->free_index - 1;
+    sort_by_exp(ps, C);     // 確保 C 依 exp 排序
     return C;
 }
 
@@ -165,7 +175,7 @@ int main(){
         return 1;
     }
 
-    polynomial_System total_poly = init_Polynomial_System(terms_A + terms_B + 1);
+    polynomial_system total_poly = init_polynomial_system(terms_A + terms_B + 1);
     if (total_poly.termArray == NULL){
         printf("ERROR: unable to allocate required memory\n");
         return 1;
