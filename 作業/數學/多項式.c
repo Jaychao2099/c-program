@@ -104,7 +104,7 @@ void print_poly(polynomial_system *ps, polynomial x, int mode){
                     default: printf("x^%d", ps->termArray[j].exp); break;
                 }
                 if (ps->termArray[j].exp != -1){
-                    if (j != ps->temp - 1) printf(" + ");
+                    if (j != ps->temp) printf(" + ");
                     else printf("\n");
                 }
             }
@@ -120,13 +120,19 @@ polynomial input_poly(polynomial_system *ps, char name, int terms){    //輸入�
     printf("\n\"Polynomial %c\": ", name);
     printf("Enter coefficint and exponent 1-by-1:\n");
     printf("%c = ", x.name);
-    ps->temp = x.end + terms + 1;
-    for (int i = x.start; i < ps->temp; i++){
+    ps->temp = x.end + terms;
+    for (int i = x.start; i <= ps->temp; i++){
         ps->free_index++;
         x.end++;
         scanf("%lf", &ps->termArray[i].coef);   //輸入coef
         print_poly(ps, x, 1);      //隨時印出檢查
         scanf("%d", &ps->termArray[i].exp);     //輸入exp
+        for (int j = x.start; j < i; j++){
+            if (ps->termArray[i].exp == ps->termArray[j].exp){
+                fprintf(stderr, "ERROR: same exp in different terms is not allowed\n");
+                exit(1);
+            }
+        }
         sort_by_exp(ps, x);     //依 exp 排序
         print_poly(ps, x, 1);      //隨時印出檢查
     }
