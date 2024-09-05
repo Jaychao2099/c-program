@@ -3,7 +3,6 @@
 # include <stdbool.h>
 
 # define MaxTerms 100   //大陣列的最多容量
-# define max(a,b) a > b ? a : b
 
 // 項 {coefficient, exponential}
 typedef struct term{
