@@ -236,7 +236,7 @@ polynomial poly_Mult(polynomial_system *ps, polynomial A, polynomial B, char nam
             ex = ps->termArray[i].exp + ps->termArray[j].exp;
             if (co){
                 int found = 0;
-                for (size_t k = M.start; k < M.end; k++){
+                for (size_t k = M.start; k <= M.end; k++){
                     if (ex == ps->termArray[k].exp){
                         ps->termArray[k].coef += co;        //指數相同的 係數相加
                         found = 1;
@@ -280,7 +280,7 @@ int main(){
 
     polynomial poly_C = poly_Add(&total_poly, poly_A, poly_B, 'C');    //大陣列取得 poly_C 的資料
     polynomial poly_D = poly_Mult(&total_poly, poly_A, poly_B, 'D');    //大陣列取得 poly_C 的資料
-    //printf("D.start = %d, D.end = %d, free_index = %d\n", poly_D.start, poly_D.end, total_poly.free_index);
+    printf("D.start = %d, D.end = %d, free_index = %d\n", poly_D.start, poly_D.end, total_poly.free_index);
 
     printf("\n");
     print_poly(&total_poly, poly_C, 0);     //印出 poly_C
