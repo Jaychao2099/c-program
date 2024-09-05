@@ -4,21 +4,24 @@
 
 # define MaxTerms 100   //大陣列的最多容量
 
+// 項 {係數, 指數}
 typedef struct term{
     double coef;  //係數
     int exp;  //指數
 }term;
 
+// 多項式 {第一項, 最後一項, 名稱}
 typedef struct polynomial{
     int start;  //每個多項式的 第一項 在哪個index
     int end;    //每個多項式的 最後一項 在哪個index
     char name;  //名稱
 }polynomial;
 
+// 全域函數 {大陣列, 最後一格留白, 臨時變數}
 typedef struct polynomial_system{
     term *termArray;    //全域 大陣列
     int free_index;     //全域 大陣列 最後一格留白
-    int temp;       //臨時的全域
+    int temp;       //臨時的全域變數
 } polynomial_system;
 
 // 初始化 polynomialSystem
@@ -111,6 +114,7 @@ void print_poly(polynomial_system *ps, polynomial x, int mode){
             break;
         default:
             fprintf(stderr, "ERROR: unable to identify mode code\n");
+            free(ps->termArray);
             exit(1);
     }
 }
@@ -130,6 +134,7 @@ polynomial input_poly(polynomial_system *ps, char name, int terms){    //輸入�
         for (int j = x.start; j < i; j++){
             if (ps->termArray[i].exp == ps->termArray[j].exp){
                 fprintf(stderr, "ERROR: same exp in different terms is not allowed\n");
+                free(ps->termArray);
                 exit(1);
             }
         }
@@ -138,14 +143,17 @@ polynomial input_poly(polynomial_system *ps, char name, int terms){    //輸入�
     }
     if (ps->free_index != x.end + 1){
         fprintf(stderr, "ERROR: free_index error in input_poly\n");
+        free(ps->termArray);
         exit(1);
     }
     return x;
 }
 
+// 新增一個 term
 bool new_term(polynomial_system *ps, double c, int e){
     if (ps->free_index > MaxTerms){
         fprintf(stderr, "ERROR: too many terms in polynomials\n");
+        free(ps->termArray);
         return false;
     }
     ps->termArray[ps->free_index].coef = c;
@@ -185,6 +193,7 @@ polynomial poly_Add(polynomial_system *ps, polynomial A, polynomial B, char name
                 } else exit(1);
             default:
                 fprintf(stderr, "ERROR: function poly_add went wrong\n");
+                free(ps->termArray);
                 exit(1);
         }
     }
