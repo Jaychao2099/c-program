@@ -4,20 +4,20 @@
 
 # define MaxTerms 100   //大陣列的最多容量
 
-// 項 {係數, 指數}
+// 項 {coefficient, exponential}
 typedef struct term{
     double coef;  //係數
     int exp;  //指數
 }term;
 
-// 多項式 {第一項, 最後一項, 名稱}
+// 多項式 {start index, end index, name of polynomial}
 typedef struct polynomial{
     int start;  //每個多項式的 第一項 在哪個index
     int end;    //每個多項式的 最後一項 在哪個index
     char name;  //名稱
 }polynomial;
 
-// 全域函數 {大陣列, 最後一格留白, 臨時變數}
+// 全域變數 {total array, last(free) index, temp var.}
 typedef struct polynomial_system{
     term *termArray;    //全域 大陣列
     int free_index;     //全域 大陣列 最後一格留白
@@ -100,8 +100,8 @@ void print_poly(polynomial_system *ps, polynomial x, int mode){
         case 1:
             for(int j = x.start; j <= x.end; j++){
                 printf("%.2lf ", ps->termArray[j].coef);
-                switch (ps->termArray[j].exp){      //指數為1 or 0時 可省略一些東西
-                    case -1: printf("x^"); break;
+                switch (ps->termArray[j].exp){      //指數為 1 or 0 時 可省略一些東西
+                    case -1: printf("x^"); break;   //指數為 -1 時 可繼續輸入
                     case 0:  break;
                     case 1:  printf("x"); break;
                     default: printf("x^%d", ps->termArray[j].exp); break;
@@ -176,11 +176,17 @@ polynomial poly_Add(polynomial_system *ps, polynomial A, polynomial B, char name
         switch (compare_int(ps->termArray[current_a].exp, ps->termArray[current_b].exp)){
             case '=':
                 co = ps->termArray[current_a].coef + ps->termArray[current_b].coef;
-                if (co) if (new_term(ps, co, ps->termArray[current_a].exp)){
+                if (co){
+                    if (new_term(ps, co, ps->termArray[current_a].exp)){
+                        current_a++;
+                        current_b++;
+                        break;
+                    } else exit(1);
+                } else{
                     current_a++;
                     current_b++;
                     break;
-                } else exit(1);
+                }
             case '>':
                 if (new_term(ps, ps->termArray[current_a].coef, ps->termArray[current_a].exp)){
                     current_a++;
@@ -209,6 +215,57 @@ polynomial poly_Add(polynomial_system *ps, polynomial A, polynomial B, char name
     sort_by_exp(ps, C);     // 確保 C 依 exp 排序
     return C;
 }
+/*
+polynomial poly_Mult(polynomial_system *ps, polynomial A, polynomial B, char name){
+    polynomial M = {ps->free_index, ps->free_index - 1, name};
+    double co;      //M 的係數
+    int ex;         //M 的指數
+
+    for (size_t i = A.start; i <= A.end; i++){      //歷遍A, B 的元素
+        for (size_t j = B.start; j <= B.end; j++){
+            co = ps->termArray[i].coef * ps->termArray[j].coef;
+            ex = ps->termArray[i].exp + ps->termArray[j].exp;
+            if (co) 
+        }
+        
+    }
+    while (current_a <= A.end && current_b <= B.end){   //歷遍A, B 的元素 至某一方元素用完
+        switch (compare_int(ps->termArray[current_a].exp, ps->termArray[current_b].exp)){
+            case '=':
+                co = ps->termArray[current_a].coef + ps->termArray[current_b].coef;
+                if (co) if (new_term(ps, co, ps->termArray[current_a].exp)){
+                    current_a++;
+                    current_b++;
+                    break;
+                } else exit(1);
+            case '>':
+                if (new_term(ps, ps->termArray[current_a].coef, ps->termArray[current_a].exp)){
+                    current_a++;
+                    break;
+                } else exit(1);
+            case '<':
+                if (new_term(ps, ps->termArray[current_b].coef, ps->termArray[current_b].exp)){
+                    current_b++;
+                    break;
+                } else exit(1);
+            default:
+                fprintf(stderr, "ERROR: function poly_add went wrong\n");
+                free(ps->termArray);
+                exit(1);
+        }
+    }
+    //歷遍A, B 剩餘的元素
+    for (current_a; current_a <= A.end; current_a++)
+        if (new_term(ps, ps->termArray[current_a].coef, ps->termArray[current_a].exp) == false)
+            exit(1);
+    for (current_b; current_b <= B.end; current_b++)
+        if (new_term(ps, ps->termArray[current_b].coef, ps->termArray[current_b].exp) == false)
+            exit(1);
+    M.end = ps->free_index - 1;
+    //printf("C.end = %d, free_index = %d\n", C.end, ps->free_index);
+    sort_by_exp(ps, M);     // 確保 C 依 exp 排序
+    return M;
+}*/
 
 int main(){
     int terms_A, terms_B;       //項數
