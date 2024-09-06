@@ -17,11 +17,11 @@ typedef struct polynomial{
     char name;  //名稱
 }polynomial;
 
-// 全域變數 {total array, last(free) index, temp var.}
+// 全域變數 {total array, last(free) index, input_new_end var.}
 typedef struct polynomial_system{
     term *termArray;    //全域 大陣列
     int free_index;     //全域 大陣列 最後一格留白
-    int temp;       //臨時的全域變數
+    int input_new_end;       // input時的全域變數
 } polynomial_system;
 
 // 初始化 polynomialSystem
@@ -114,7 +114,7 @@ void print_poly(polynomial_system *ps, polynomial x, int mode){
                 break;
             case 1:
                 if (ps->termArray[j].exp != -1)        //exp = -1, 可繼續輸入 exp
-                    if (j != ps->temp)
+                    if (j != ps->input_new_end)
                         if (ps->termArray[j+1].coef < 0)
                             printf(" ");
                         else printf(" +");
@@ -133,8 +133,8 @@ polynomial input_poly(polynomial_system *ps, char name, int terms){    //輸入�
     printf("\n\"Polynomial %c\": ", name);
     printf("Enter coefficint and exponent 1-by-1:\n");
     printf("%c = ", x.name);
-    ps->temp = x.end + terms;
-    for (int i = x.start; i <= ps->temp; i++){
+    ps->input_new_end = x.end + terms;
+    for (int i = x.start; i <= ps->input_new_end; i++){
         ps->free_index++;
         x.end++;
         scanf("%lf", &ps->termArray[i].coef);   //輸入coef
@@ -250,15 +250,18 @@ polynomial poly_Mult(polynomial_system *ps, polynomial A, polynomial B, char nam
         }
     }
     sort_by_exp(ps, &M);     // 確保 M 依 exp 排序
-    if (M.end != ps->free_index - 1) printf("ERROR: free_index in poly_Mult\n");
+    if (M.end != ps->free_index - 1){
+        fprintf(stderr, "ERROR: free_index in poly_Mult\n");
+        free(ps->termArray);
+    }
     return M;
 }
 
 int main(){
     int terms_A, terms_B;       //項數
     
-    printf("Polynomial addition (A) + (B) = (C)\n");
-    printf("Polynomial addition (A) * (B) = (D)\n");
+    printf("Polynomial addition C = A + B\n");
+    printf("Polynomial multiplication D = A * B\n");
     printf("How many terms in A? ");
     scanf("%d", &terms_A);
     printf("How many terms in B? ");
@@ -284,7 +287,7 @@ int main(){
     printf("\n");
     print_poly(&total_poly, poly_C, 0);     //印出 poly_C
     printf("\n");
-    print_poly(&total_poly, poly_D, 0);     //印出 poly_C
+    print_poly(&total_poly, poly_D, 0);     //印出 poly_D
 
     free(total_poly.termArray);
 
