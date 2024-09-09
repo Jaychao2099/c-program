@@ -135,21 +135,32 @@ sparse_matrix sm_Add(sparse_matrix a, sparse_matrix b, char *name){
         if (a.smArray[a_now].row < b.smArray[b_now].row || 
             (a.smArray[a_now].row == b.smArray[b_now].row && 
              a.smArray[a_now].col < b.smArray[b_now].col)){
-            c.smArray[c_now++] = a.smArray[a_now++];
+            if (a.smArray[a_now].value) c.smArray[c_now++] = a.smArray[a_now]; // 檢查value是否為0
+            a_now++;
         } else if (a.smArray[a_now].row > b.smArray[b_now].row || 
                    (a.smArray[a_now].row == b.smArray[b_now].row && 
                     a.smArray[a_now].col > b.smArray[b_now].col)){
-            c.smArray[c_now++] = b.smArray[b_now++];
+            if (b.smArray[b_now].value) c.smArray[c_now++] = b.smArray[b_now]; // 檢查value是否為0
+            b_now++;
         } else {
-            c.smArray[c_now] = a.smArray[a_now];
-            c.smArray[c_now].value += b.smArray[b_now].value;
-            a_now++; b_now++; c_now++;
+            if (a.smArray[a_now].value + b.smArray[b_now].value){   // 檢查value是否為0
+                c.smArray[c_now].row = a.smArray[a_now].row;
+                c.smArray[c_now].col = a.smArray[a_now].col;
+                c.smArray[c_now++].value = a.smArray[a_now].value + b.smArray[b_now].value;
+            }
+            a_now++; b_now++;
         }
     }
     
     // 處理剩餘元素
-    while (a_now < a.terms) c.smArray[c_now++] = a.smArray[a_now++];
-    while (b_now < b.terms) c.smArray[c_now++] = b.smArray[b_now++];
+    while (a_now < a.terms){
+        if (a.smArray[a_now].value) c.smArray[c_now++] = a.smArray[a_now];
+        a_now++;
+    }
+    while (b_now < b.terms){
+        if (b.smArray[b_now].value) c.smArray[c_now++] = b.smArray[b_now];
+        b_now++;
+    }
     
     c.terms = c_now;
     c.smArray = realloc(c.smArray, c_now * sizeof(matrix_term));
@@ -232,7 +243,7 @@ int main(){
                 {5, 2, 28}
             };
             matrix_term smB_array[] = {
-                {1, 0, 15}, {1, 4, 91},
+                {1, 0, 15}, {1, 2, -3},
                 {2, 1, 11},
                 {3, 1, 3}, {3, 5, 28},
                 {4, 0, 22}, {4, 2, -6},
