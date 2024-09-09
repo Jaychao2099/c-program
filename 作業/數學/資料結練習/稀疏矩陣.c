@@ -57,7 +57,7 @@ sparse_matrix input_sm(char *name){
     printf("Terms\tin %s: ", name);
     scanf("%d", &x.terms);
     if (x.terms > MaxTerms || x.terms > x.rows * x.cols || x.terms < 0){
-        fprintf(stderr,"ERROR: Terms of %s must between 0 ~ %d\n", name, MIN(MaxTerms, x.rows * x.cols));
+        fprintf(stderr,"ERROR: Terms of %s must be 0 ~ %d\n", name, MIN(MaxTerms, x.rows * x.cols));
         exit(1);
     }
     x.smArray = malloc(x.terms * sizeof(matrix_term));
@@ -66,6 +66,17 @@ sparse_matrix input_sm(char *name){
         exit(1);
     }
     for (int i = 0; i < x.terms; i++){
+        if (i > 1 && 
+        ((x.smArray[i-1].row == x.smArray[i-2].row && x.smArray[i-1].col <= x.smArray[i-2].col) ||
+        (x.smArray[i-1].row < x.smArray[i-2].row))){
+            fprintf(stderr,"ERROR: please enter terms by order\n");
+            i--;
+        }
+        else if (i > 0 && 
+        (x.smArray[i-1].row >= x.rows || x.smArray[i-1].col >= x.cols || x.smArray[i-1].row < 0 || x.smArray[i-1].col < 0)){
+            fprintf(stderr,"ERROR: row must be 0 ~ %d, column must be 0 ~ %d\n", x.rows - 1, x.cols - 1);
+            i--;
+        }
         printf("%d. ", i + 1);
         scanf("%d%d%d", &x.smArray[i].row, &x.smArray[i].col, &x.smArray[i].value);
         printf("%d. [%d, %d] = %d\n", i + 1, x.smArray[i].row, x.smArray[i].col, x.smArray[i].value);
@@ -245,6 +256,10 @@ int main(){
     switch (print_mode){
         case 1:
             printf("\n");
+            print_sm(smA);     //印出 smA
+            printf("\n");
+            print_sm(smB);     //印出 smB
+            printf("\n");
             print_sm(smAT);     //印出 smAT
             printf("\n");
             print_sm(smBT);     //印出 smBT
@@ -269,7 +284,7 @@ int main(){
             break;
         default:
             fprintf(stderr, "ERROR: unable to identify print_mode\n");
-            return 1;
+            //return 1;
     }
 
     if (input_mode == 1) {
