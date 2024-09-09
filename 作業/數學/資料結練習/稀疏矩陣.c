@@ -26,12 +26,13 @@ void print_matrix(sparse_matrix x){
     for (int i = 0; i < x.rows; i++){
         printf("[");
         for (int j = 0; j < x.cols; j++){
-            if (i == x.smArray[current].row && j == x.smArray->col){
-                printf("%d, ", x.smArray[current].value);
+            if (current < x.terms && i == x.smArray[current].row && j == x.smArray[current].col){
+                printf("%4d", x.smArray[current].value);
                 current++;
-            } else printf("0, ");
+            } else printf("%4d", 0);
+            if (j < x.cols - 1) printf(", ");
         }
-        printf("]\n");
+        printf(" ]\n");
     }
 }
 
@@ -154,12 +155,13 @@ sparse_matrix sm_Mult(sparse_matrix a, sparse_matrix b, char *name){
     m.cols = b.cols;
     m.name = name;
     m.smArray = calloc((a.terms * b.terms), sizeof(matrix_term));
-    if (m.smArray == NULL){
+
+    int *row_size = calloc(a.rows, sizeof(int));    // 取得每 row 的 row size
+    int *row_start = malloc(a.rows * sizeof(int));  // 取得每 row 在index 的起始位置
+    if (m.smArray == NULL || row_size == NULL || row_start == NULL){
         fprintf(stderr,"ERROR: unable to allocate required memory in \"sm_Add\"\n");
         exit(1);
     }
-    int *row_size = calloc(a.rows, sizeof(int));    // 取得每 row 的 row size
-    int *row_start = malloc(a.rows * sizeof(int));  // 取得每 row 在index 的起始位置
     for (int i = 0; i < a.terms; i++) row_size[a.smArray[i].row]++;
     row_start[0] = 0;
     for (int i = 1; i < a.rows; i++) row_start[i] = row_start[i-1] + row_size[i-1];
@@ -193,35 +195,90 @@ sparse_matrix sm_Mult(sparse_matrix a, sparse_matrix b, char *name){
 
 int main(){
     int rows_B, cols_B, terms_B;
+    int input_mode, print_mode;
     
     printf("Matrix transpose A^T\n");
     printf("Matrix transpose B^T\n");
     printf("Matrix Addition A + B = C\n");
     printf("Matrix Multiplication AB = D\n");
+    printf("Input mode (1) user mode, (2) test mode:\n(1/2): ");
+    scanf("%d", &input_mode);
 
-    sparse_matrix smA = input_sm("A");
-    sparse_matrix smB = input_sm("B");
+    sparse_matrix smA;
+    sparse_matrix smB;
+
+    switch (input_mode){
+        case 1:
+            smA = input_sm("A");
+            smB = input_sm("B");
+            break;
+        case 2:
+            matrix_term smA_array[] = {
+                {0, 0, 15}, {0, 3, 22}, {0, 5, -15},
+                {1, 1, 11}, {1, 2, 3},
+                {2, 3, -6},
+                {4, 0, 91},
+                {5, 2, 28}
+            };
+            matrix_term smB_array[] = {
+                {1, 0, 15}, {1, 4, 91},
+                {2, 1, 11},
+                {3, 1, 3}, {3, 5, 28},
+                {4, 0, 22}, {4, 2, -6},
+                {5, 0, -15}, {5, 1, 61}, {5, 5, 17}
+            };
+            smA = (sparse_matrix){6, 6, sizeof(smA_array)/sizeof(matrix_term), smA_array, "A"};
+            smB = (sparse_matrix){6, 6, sizeof(smB_array)/sizeof(matrix_term), smB_array, "B"};
+            break;
+        default:
+            fprintf(stderr, "ERROR: unable to identify input_mode\n");
+            return 1;
+    }
 
     sparse_matrix smAT = transpose(smA, "A^T");
     sparse_matrix smBT = transpose(smB, "B^T");
     sparse_matrix smC  = sm_Add(smA, smB, "C");
     sparse_matrix smD  = sm_Mult(smA, smB, "D");
     
-    printf("\n");
-    print_sm(smAT);     //印出 smAT
-    printf("\n");
-    print_sm(smBT);     //印出 smBT
-    printf("\n");
-    print_sm(smC);      //印出 smC
-    printf("\n");
-    print_sm(smD);      //印出 smD
+    printf("Print mode (1) sparse mode, (2) normal mode:\n(1/2): ");
+    scanf("%d", &print_mode);
+    switch (print_mode){
+        case 1:
+            printf("\n");
+            print_sm(smAT);     //印出 smAT
+            printf("\n");
+            print_sm(smBT);     //印出 smBT
+            printf("\n");
+            print_sm(smC);      //印出 smC
+            printf("\n");
+            print_sm(smD);      //印出 smD
+            break;
+        case 2:
+            printf("\n");
+            print_matrix(smA);     //印出 smA
+            printf("\n");
+            print_matrix(smB);     //印出 smB
+            printf("\n");
+            print_matrix(smAT);     //印出 smAT
+            printf("\n");
+            print_matrix(smBT);     //印出 smBT
+            printf("\n");
+            print_matrix(smC);      //印出 smC
+            printf("\n");
+            print_matrix(smD);      //印出 smD
+            break;
+        default:
+            fprintf(stderr, "ERROR: unable to identify print_mode\n");
+            return 1;
+    }
 
-    free(smA.smArray);
-    free(smB.smArray);
+    if (input_mode == 1) {
+        free(smA.smArray);
+        free(smB.smArray);
+    }
     free(smAT.smArray);
     free(smBT.smArray);
     free(smC.smArray);
     free(smD.smArray);
-
     return 0;
 }
