@@ -21,11 +21,11 @@ typedef struct sparse_matrix{
 }sparse_matrix;
 
 void print_matrix(sparse_matrix x){
-    int current;
+    int current = 0;
     printf("%s =\n", x.name);
     for (int i = 0; i < x.rows; i++){
         printf("[");
-        for (int j = 0; i < x.cols; i++){
+        for (int j = 0; j < x.cols; j++){
             if (i == x.smArray[current].row && j == x.smArray->col){
                 printf("%d, ", x.smArray[current].value);
                 current++;
@@ -119,46 +119,26 @@ sparse_matrix sm_Add(sparse_matrix a, sparse_matrix b, char *name){
     int a_now = 0;
     int b_now = 0;
     int c_now = 0;
-    while (a_now <= a.terms && b_now <= b.terms){
-        if (a.smArray[a_now].row < b.smArray[b_now].row){
-            c.smArray[c_now].row = a.smArray[a_now].row;
-            c.smArray[c_now].col = a.smArray[a_now].col;
-            c.smArray[c_now].value = a.smArray[a_now].value;
-            a_now++;
-            c_now++;
-        }
-        if (a.smArray[a_now].row > b.smArray[b_now].row){
-            c.smArray[c_now].row = b.smArray[b_now].row;
-            c.smArray[c_now].col = b.smArray[b_now].col;
-            c.smArray[c_now].value = b.smArray[b_now].value;
-            b_now++;
-            c_now++;
-        }
-        if (a.smArray[a_now].row = b.smArray[b_now].row){
-            if (a.smArray[a_now].col < b.smArray[b_now].col){
-                c.smArray[c_now].row = a.smArray[a_now].row;
-                c.smArray[c_now].col = a.smArray[a_now].col;
-                c.smArray[c_now].value = a.smArray[a_now].value;
-                a_now++;
-                c_now++;
-            }
-            if (a.smArray[a_now].col > b.smArray[b_now].col){
-                c.smArray[c_now].row = b.smArray[b_now].row;
-                c.smArray[c_now].col = b.smArray[b_now].col;
-                c.smArray[c_now].value = b.smArray[b_now].value;
-                b_now++;
-                c_now++;
-            }
-            if (a.smArray[a_now].col = b.smArray[b_now].col){
-                c.smArray[c_now].row = b.smArray[b_now].row;
-                c.smArray[c_now].col = b.smArray[b_now].col;
-                c.smArray[c_now].value = a.smArray[a_now].value + b.smArray[b_now].value;
-                a_now++;
-                b_now++;
-                c_now++;
-            }
+    while (a_now < a.terms && b_now < b.terms){
+        if (a.smArray[a_now].row < b.smArray[b_now].row || 
+            (a.smArray[a_now].row == b.smArray[b_now].row && 
+             a.smArray[a_now].col < b.smArray[b_now].col)){
+            c.smArray[c_now++] = a.smArray[a_now++];
+        } else if (a.smArray[a_now].row > b.smArray[b_now].row || 
+                   (a.smArray[a_now].row == b.smArray[b_now].row && 
+                    a.smArray[a_now].col > b.smArray[b_now].col)){
+            c.smArray[c_now++] = b.smArray[b_now++];
+        } else {
+            c.smArray[c_now] = a.smArray[a_now];
+            c.smArray[c_now].value += b.smArray[b_now].value;
+            a_now++; b_now++; c_now++;
         }
     }
+    
+    // 處理剩餘元素
+    while (a_now < a.terms) c.smArray[c_now++] = a.smArray[a_now++];
+    while (b_now < b.terms) c.smArray[c_now++] = b.smArray[b_now++];
+    
     c.terms = c_now;
     c.smArray = realloc(c.smArray, c_now * sizeof(matrix_term));
     return c;
@@ -178,28 +158,36 @@ sparse_matrix sm_Mult(sparse_matrix a, sparse_matrix b, char *name){
         fprintf(stderr,"ERROR: unable to allocate required memory in \"sm_Add\"\n");
         exit(1);
     }
-    int *row_size = calloc(a.rows, sizeof(int));
-    int *row_end = malloc(a.rows * sizeof(int));
-    for (int i = 0; i < a.terms; i++) row_size[a.smArray[i].row]++; // 取得每 row 的 row size
-    for (int i = 0; i < a.rows; i++) row_end[i] = row_end[i-1] + row_size[i]; //取得每 row 在index 的終點位置
+    int *row_size = calloc(a.rows, sizeof(int));    // 取得每 row 的 row size
+    int *row_start = malloc(a.rows * sizeof(int));  // 取得每 row 在index 的起始位置
+    for (int i = 0; i < a.terms; i++) row_size[a.smArray[i].row]++;
+    row_start[0] = 0;
+    for (int i = 1; i < a.rows; i++) row_start[i] = row_start[i-1] + row_size[i-1];
 
     int m_now = 0;
-    int a_now = 0;
     for (int i = 0; i < a.rows; i++){
-        for (int j = a_now; j < row_end[i]; j++){
-            for (int k = 0; k < b.terms; k++){
-                if (a.smArray[i].row == b.smArray[k].col){
-                    m.smArray[m_now].row = a.smArray[i].row;
-                    m.smArray[m_now].col = b.smArray[k].col;
-                    m.smArray[m_now].value += a.smArray[i].value * b.smArray[k].value;
+        for (int j = 0; j < b.cols; j++){
+            int sum = 0;
+            for (int ka = row_start[i]; ka < row_start[i] + row_size[i]; ka++){
+                for (int kb = 0; kb < b.terms; kb++){
+                    if (a.smArray[ka].col == b.smArray[kb].row && b.smArray[kb].col == j){
+                        sum += a.smArray[ka].value * b.smArray[kb].value;
+                    }
                 }
             }
-            m_now++;
-            a_now++;
+            if (sum != 0){
+                m.smArray[m_now].row = i;
+                m.smArray[m_now].col = j;
+                m.smArray[m_now].value = sum;
+                m_now++;
+            }
         }
     }
+    
+    m.terms = m_now;
+    m.smArray = realloc(m.smArray, m_now * sizeof(matrix_term));
     free(row_size);
-    free(row_end);
+    free(row_start);
     return m;
 }
 
