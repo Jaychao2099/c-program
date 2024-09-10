@@ -19,11 +19,19 @@ int *failure_function(char *string, int length){
 
 int KMP(char *main_str, char*sub_str, int *index, int length){
     int k = 0;      // matched 的字數
+    int total = 0;  // 總 match 數
+    printf("Found at index: ");
     for (int i = 0; i < MAX_SEARCH; i++){
-        if (k > 0 && sub_str[k] != main_str[i]) k = index[k];   //
+        if (k > 0 && sub_str[k] != main_str[i]) k = 0;//index[k];   //
         else if (sub_str[k] == main_str[i]) k++;
-        if (k == length) return i - length + 1;
+        if (k == length){
+            printf("%d ", i - length + 1);
+            k = 0;
+            total++;
+        }
     }
+    printf("\n");
+    return total;
 }
 
 int main(){
@@ -39,7 +47,7 @@ int main(){
         return 1;
     }
 
-    printf("Enter the string you want to search:\n");
+    printf("Enter the string you want to search: ");
     if (fgets(input_str, MAX_INPUT, stdin) == NULL){
         printf("Error reading input string.\n");
         free(input_str);
@@ -72,19 +80,11 @@ int main(){
         return 1;
     }
     printf("failure index: ");
-    for (int i = 0; i < strlen(input_str); i++)
-        printf("%d ", fail_index[i]);
+    for (int i = 0; i < strlen(input_str); i++) printf("%d ", fail_index[i]);
     printf("\n");
 
     int result = KMP(line, input_str, fail_index, strlen(input_str));
-    printf("Found at index: %d\n", result);
-
-    // 查找子字串並計算其起始位置
-    // char *pos = strstr(line, input_str);
-    // if (pos != NULL){
-    //     int result = pos - line; // 計算子字串起始位置的偏移量
-    //     printf("Found at index: %d\n", result);
-    // } else printf("String not found.\n");
+    printf("Total matched: %d\n", result);
 
     free(input_str);
     free(fail_index);
