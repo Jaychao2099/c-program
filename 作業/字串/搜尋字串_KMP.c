@@ -1,28 +1,29 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
-# define MAX_INPUT 500
-# define MAX_SEARCH 100
+# define MAX_INPUT 100
+# define MAX_SEARCH 10000
 
 int *failure_function(char *string, int length){
     int *index = malloc(length * sizeof(int));  // failure index
-    if (index == NULL){
-        printf("Error allocating memory for index in failure_function\n");
-        return NULL;
-    }
+    if (index == NULL) return NULL;
     index[0] = 0;
     int k = 0;
     for (int i = 1; i < length; i++){
         if (k > 0 && string[k] != string[i]) k = 0;
-        else if (string[k] == string[i]) k++;
+        else if (string[k] == string[i]) k++;   //有相同 k才往上加
         index[i] = k;
     }
     return index;
 }
 
-int KMP(char *main_str, char*search_str, int *index){
-    int location;
-    return location;
+int KMP(char *main_str, char*sub_str, int *index, int length){
+    int k = 0;      // matched 的字數
+    for (int i = 0; i < MAX_SEARCH; i++){
+        if (k > 0 && sub_str[k] != main_str[i]) k = index[k];   //
+        else if (sub_str[k] == main_str[i]) k++;
+        if (k == length) return i - length + 1;
+    }
 }
 
 int main(){
@@ -64,7 +65,7 @@ int main(){
 
     int *fail_index = failure_function(input_str, strlen(input_str));     // 取得 failure array
     if (fail_index == NULL){
-        printf("ERROR in failure_function");
+        printf("Error allocating memory for fail_index in failure_function\n");
         free(input_str);
         free(line);
         fclose(file);
@@ -74,8 +75,8 @@ int main(){
     for (int i = 0; i < strlen(input_str); i++)
         printf("%d ", fail_index[i]);
     printf("\n");
-    
-    int result = KMP(line, input_str, fail_index);
+
+    int result = KMP(line, input_str, fail_index, strlen(input_str));
     printf("Found at index: %d\n", result);
 
     // 查找子字串並計算其起始位置
