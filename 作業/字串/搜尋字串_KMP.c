@@ -4,29 +4,28 @@
 # define MAX_INPUT 100
 # define MAX_SEARCH 10000
 
-int *failure_function(char *string, int length){
-    int *index = malloc(length * sizeof(int));  // failure index
+int *failure_function(const char *string, int length){
+    int *index = calloc(length, sizeof(int));  // failure index
     if (index == NULL) return NULL;
-    index[0] = 0;
     int k = 0;
     for (int i = 1; i < length; i++){
-        if (k > 0 && string[k] != string[i]) k = 0;
-        else if (string[k] == string[i]) k++;   //有相同 k才往上加
+        while (k > 0 && string[k] != string[i]) k = index[k - 1];
+        if (string[k] == string[i]) k++;   //有相同 k才往上加
         index[i] = k;
     }
     return index;
 }
 
-int KMP(char *main_str, char*sub_str, int *index, int length){
+int KMP(const char *main_str, const char *sub_str, const int *index, int main_len, int sub_len){
     int k = 0;      // matched 的字數
     int total = 0;  // 總 match 數
     printf("Found at index: ");
-    for (int i = 0; i < MAX_SEARCH; i++){
-        if (k > 0 && sub_str[k] != main_str[i]) k = 0;//index[k];   //
-        else if (sub_str[k] == main_str[i]) k++;
-        if (k == length){
-            printf("%d ", i - length + 1);
-            k = 0;
+    for (int i = 0; i < main_len; i++){
+        while (k > 0 && sub_str[k] != main_str[i]) k = index[k - 1];
+        if (sub_str[k] == main_str[i]) k++;
+        if (k == sub_len){
+            printf("%d ", i - sub_len + 1);
+            k = index[k - 1];
             total++;
         }
     }
@@ -35,7 +34,7 @@ int KMP(char *main_str, char*sub_str, int *index, int length){
 }
 
 int main(){
-    char *input_str = malloc(MAX_INPUT * sizeof(char));     //待搜尋的字串 放這
+    char *input_str = malloc((MAX_INPUT + 1) * sizeof(char));     //待搜尋的字串 放這
     if (input_str == NULL){
         printf("Error allocating memory for input_str\n");
         return 1;
@@ -47,7 +46,7 @@ int main(){
         return 1;
     }
 
-    printf("Enter the string you want to search: ");
+    printf("Enter the string you want to search (< %d letters):\n", MAX_INPUT);
     if (fgets(input_str, MAX_INPUT, stdin) == NULL){
         printf("Error reading input string.\n");
         free(input_str);
@@ -71,23 +70,26 @@ int main(){
         return 1;
     }
 
-    int *fail_index = failure_function(input_str, strlen(input_str));     // 取得 failure array
-    if (fail_index == NULL){
-        printf("Error allocating memory for fail_index in failure_function\n");
+    int sub_str = strlen(input_str);
+    int main_str = strlen(line);
+
+    int *failure_index = failure_function(input_str, sub_str);     // 取得 failure array
+    if (failure_index == NULL){
+        printf("Error allocating memory for failure_index in failure_function\n");
         free(input_str);
         free(line);
         fclose(file);
         return 1;
     }
     printf("failure index: ");
-    for (int i = 0; i < strlen(input_str); i++) printf("%d ", fail_index[i]);
+    for (int i = 0; i < sub_str; i++) printf("%d ", failure_index[i]);
     printf("\n");
 
-    int result = KMP(line, input_str, fail_index, strlen(input_str));
+    int result = KMP(line, input_str, failure_index, main_str, sub_str);
     printf("Total matched: %d\n", result);
 
     free(input_str);
-    free(fail_index);
+    free(failure_index);
     free(line);
     fclose(file);   // 關閉文件
     
