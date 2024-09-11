@@ -28,7 +28,7 @@ int file_exists(const char *filename) {
 }
 
 int main() {
-    char charset[] = STR_DNA;
+    char charset[] = STR_RNA;
     char random_string[MAX_LENGTH + 1];
     char filename[MAX_FILENAME];
     int length;

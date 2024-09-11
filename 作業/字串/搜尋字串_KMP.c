@@ -2,9 +2,10 @@
 # include <stdlib.h>
 # include <string.h>
 # define MAX_INPUT 100
-# define MAX_SEARCH 10000
+# define MAX_SEARCH 1000000
 //# define FILE_NAME "Pi_10k.txt"
-# define FILE_NAME "DNA_1.txt"
+//# define FILE_NAME "DNA_1.txt"
+# define FILE_NAME "RNA_1.txt"
 
 int *failure_function(const char *string, int length){
     int *index = calloc(length, sizeof(int));  // failure index
