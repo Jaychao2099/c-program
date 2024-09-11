@@ -3,6 +3,8 @@
 # include <string.h>
 # define MAX_INPUT 100
 # define MAX_SEARCH 10000
+//# define FILE_NAME "Pi_10k.txt"
+# define FILE_NAME "DNA_1.txt"
 
 int *failure_function(const char *string, int length){
     int *index = calloc(length, sizeof(int));  // failure index
@@ -17,15 +19,15 @@ int *failure_function(const char *string, int length){
 }
 
 int KMP(const char *main_str, const char *sub_str, const int *index, int main_len, int sub_len){
-    int k = 0;      // matched 的字數
+    int c = 0;      // matched 的字數
     int total = 0;  // 總 match 數
     printf("Found at index: ");
     for (int i = 0; i < main_len; i++){
-        while (k > 0 && sub_str[k] != main_str[i]) k = index[k - 1];
-        if (sub_str[k] == main_str[i]) k++;
-        if (k == sub_len){
+        while (c > 0 && sub_str[c] != main_str[i]) c = index[c - 1];
+        if (sub_str[c] == main_str[i]) c++;
+        if (c == sub_len){
             printf("%d ", i - sub_len + 1);
-            k = index[k - 1];
+            c = index[c - 1];
             total++;
         }
     }
@@ -55,7 +57,7 @@ int main(){
     }
     input_str[strcspn(input_str, "\n")] = '\0'; // 移除換行符
 
-    FILE *file = fopen("Pi_10k.txt", "r");    // 打開文件
+    FILE *file = fopen(FILE_NAME, "r");    // 打開文件
     if (file == NULL){
         printf("ERROR opening the file\n");
         free(input_str);
