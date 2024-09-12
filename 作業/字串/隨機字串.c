@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <locale.h>
 
 #define MAX_LENGTH 1000000
 #define MAX_FILENAME 256
@@ -12,8 +13,8 @@ typedef struct letter_set{
 }letter_set;
 
 char *choose_set(void){
-    int total_sets = 3;     //增加 set 時修改
-    letter_set *sets = malloc(total_sets * sizeof(letter_set));
+    int total_sets = 3;     //有增加 set 時修改
+    letter_set sets[total_sets];
     if (sets == NULL){
         printf("Error allocating memory for sets\n");
         exit(1);
@@ -32,7 +33,7 @@ char *choose_set(void){
         if (set_num < 1 || set_num > total_sets) printf("ERROR: invalid number. Choose again: ");
         else break;
     } while (1);
-    return sets[set_num].charlist;
+    return sets[set_num - 1].charlist;
 }
 
 void generate_random_string(char *str, const char *charset, int length) {
@@ -54,7 +55,7 @@ int file_exists(const char *filename) {
 }
 
 int main() {
-    char random_string[MAX_LENGTH + 1];
+    char *random_string;
     char filename[MAX_FILENAME];
     int length;
     char overwrite_choice;
@@ -62,6 +63,7 @@ int main() {
     // 初始化隨機數生成器
     srand(time(NULL));
 
+    // 選擇字符集
     char *charset = choose_set();
 
     // 獲取用戶輸入的檔案名稱並檢查是否存在
@@ -76,11 +78,19 @@ int main() {
         } else break;
     } while (1);
 
+    // 格式化數字 (MAX_LENGTH 加逗點)
+    setlocale(LC_ALL, "");
+    
     // 獲取用戶輸入的字符串長度
-    printf("String length (max %d): ", MAX_LENGTH);
-    scanf("%d", &length);
-    if (length <= 0 || length > MAX_LENGTH) {
-        printf("ERROR: invalid length, must be 1 ~ %d\n", MAX_LENGTH);
+    do {
+        printf("String length (max %'d): ", MAX_LENGTH);
+        scanf("%d", &length);
+        if (length < 1 || length > MAX_LENGTH) printf("ERROR: invalid length, must be 1 ~ %'d\n", MAX_LENGTH);
+        else break;
+    } while (1);
+    random_string= malloc((length + 1) * sizeof(char));
+    if (random_string == NULL){
+        printf("Error allocating memory for random_string\n");
         return 1;
     }
 
@@ -98,6 +108,8 @@ int main() {
     fclose(file);
 
     printf("Random string has been written into '%s'\n", filename);
+
+    free(random_string);
 
     return 0;
 }
