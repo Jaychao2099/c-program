@@ -6,32 +6,35 @@
 
 #define MAX_LENGTH 1000000
 #define MAX_FILENAME 256
+#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 
 typedef struct letter_set{
-    char *name;
-    char *charlist;
+    const char *name;
+    const char *charlist;
 }letter_set;
 
-char *choose_set(void){
-    int total_sets = 3;     //有增加 set 時修改
-    letter_set sets[total_sets];
-    if (sets == NULL){
-        printf("Error allocating memory for sets\n");
-        exit(1);
-    }
-    sets[0].name = "LETTER"; sets[0].charlist = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    sets[1].name = "DNA"; sets[1].charlist = "ATGC";
-    sets[2].name = "RNA"; sets[2].charlist = "AUGC";
+const char *choose_set(void){
+    const letter_set sets[] = {
+        {"LETTER", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
+        {"DNA", "ATGC"},
+        {"RNA", "AUGC"},
+    };
 
     printf("Choose a letter set: ");
-    for (int i = 0; i < total_sets; i++) printf("%d. %s ", i + 1, sets[i].name);
+    for (int i = 0; i < ARRAY_SIZE(sets); i++) printf("%d. %s ", i + 1, sets[i].name);
     int i = 1;
-    printf("("); while (i < total_sets) printf("%d/", i++); printf("%d): ", i);
+    printf("("); while (i < ARRAY_SIZE(sets)) printf("%d/", i++); printf("%d): ", i);
     int set_num;
     do {
-        scanf("%d", &set_num);
-        if (set_num < 1 || set_num > total_sets) printf("ERROR: invalid number. Choose again: ");
-        else break;
+        if (scanf("%d", &set_num) != 1){    // Clear input buffer
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+            printf("ERROR: invalid input. Please enter a number: ");
+        } else if (set_num < 1 || set_num > ARRAY_SIZE(sets)){
+            printf("ERROR: invalid number. Choose again ");
+            i = 1;
+            printf("("); while (i < ARRAY_SIZE(sets)) printf("%d/", i++); printf("%d): ", i);
+        } else break;
     } while (1);
     return sets[set_num - 1].charlist;
 }
@@ -64,7 +67,7 @@ int main() {
     srand(time(NULL));
 
     // 選擇字符集
-    char *charset = choose_set();
+    const char *charset = choose_set();
 
     // 獲取用戶輸入的檔案名稱並檢查是否存在
     do {
