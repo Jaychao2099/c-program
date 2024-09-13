@@ -3,9 +3,34 @@
 # include <string.h>
 # define MAX_INPUT 100
 # define MAX_SEARCH 1000000
-//# define FILE_NAME "Pi_10k.txt"
-//# define FILE_NAME "DNA_1.txt"
-# define FILE_NAME "RNA_1.txt"
+# define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
+
+const char *choose_file(void){
+    const char *file_name[] = {
+        "Pi_10k.txt",
+        "DNA_1.txt",
+        "RNA_1.txt",
+        "Letters_1.txt"
+    };
+    printf("Choose a file to search:\n");
+    for (int i = 0; i < ARRAY_SIZE(file_name); i++) printf("%d. %s ", i + 1, file_name[i]);
+    int i = 1;
+    printf("("); while (i < ARRAY_SIZE(file_name)) printf("%d/", i++); printf("%d): ", i);
+    int file_num;
+    do {
+        if (scanf("%d", &file_num) != 1){    // Clear input buffer
+            int c;
+            while ((c = getchar()) != '\n' && c != EOF);
+            printf("ERROR: invalid input. Please enter a number: ");
+        } else if (file_num < 1 || file_num > ARRAY_SIZE(file_name)){
+            printf("ERROR: invalid number. Choose again ");
+            i = 1;
+            printf("("); while (i < ARRAY_SIZE(file_name)) printf("%d/", i++); printf("%d): ", i);
+        } else break;
+    } while (1);
+    setbuf(stdin, '\0');    //清空 stdin
+    return file_name[file_num - 1];
+}
 
 int *failure_function(const char *string, int length){
     int *index = calloc(length, sizeof(int));  // failure index
@@ -49,6 +74,8 @@ int main(){
         return 1;
     }
 
+    const char *file_name = choose_file();  //選擇文件名稱
+
     printf("Enter the string you want to search (< %d letters):\n", MAX_INPUT);
     if (fgets(input_str, MAX_INPUT, stdin) == NULL){
         printf("Error reading input string.\n");
@@ -58,7 +85,7 @@ int main(){
     }
     input_str[strcspn(input_str, "\n")] = '\0'; // 移除換行符
 
-    FILE *file = fopen(FILE_NAME, "r");    // 打開文件
+    FILE *file = fopen(file_name, "r");    // 打開文件
     if (file == NULL){
         printf("ERROR opening the file\n");
         free(input_str);
