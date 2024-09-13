@@ -44,7 +44,13 @@ void Infix2Postfix(const char* expr){
         if (i == strlen(expr)) while (top > -1) output[output_last++] = stack[top--];    //最後一格
         else if (isOperand(expr[i])) output[output_last++] = expr[i];       // operator 直接印
         else if (expr[i] == ')'){                                           // ')'情況
-            while (top >= 0 && stack[top] != '(') output[output_last++] = stack[top--];
+            while (stack[top] != '('){
+                if (top < 0){
+                    printf("ERROR: illegal expression with '(', ')' pair\n");
+                    exit(1);
+                }
+                output[output_last++] = stack[top--];
+            }
             top--;
         }
         else if (top > -1 && priority(expr[i], "icp") >= priority(stack[top], "isp")){  //比優先度
