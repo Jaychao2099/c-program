@@ -17,9 +17,8 @@ const char *choose_set(void){
     const letter_set sets[] = {
         {"LETTER", "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"},
         {"DNA", "ATGC"},
-        {"RNA", "AUGC"},
+        {"RNA", "AUGC"}
     };
-
     printf("Choose a letter set: ");
     for (int i = 0; i < ARRAY_SIZE(sets); i++) printf("%d. %s ", i + 1, sets[i].name);
     int i = 1;
