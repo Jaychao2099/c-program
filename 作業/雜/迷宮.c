@@ -24,35 +24,28 @@ typedef struct MazeStruct{
     int **maze;
     int row_size;
     int col_size;
-    int sr, sc;
-    int er, ec;
+    int sr, sc; //start row, start col
+    int er, ec; //end row, end col
 }MazeStruct;
 
-void print_path(int **m, int x, int y){
-    for(int i = 1; i <= x; i++){
+void print_path(const MazeStruct *m, int **mark){
+    for(int i = 1; i <= m->row_size; i++){
         printf("[");
-        for(int j = 1; j <= y; j++){
-            if (m[i][j] == 1)
-                //printf("\033[41;30m1 \033[0m");
-                printf("1 ");
-            else printf("0 ");
+        for(int j = 1; j <= m->col_size; j++){
+            if (mark[i][j] == 1) printf("\033[41;30m1 \033[0m");
+            else printf("%d ", m->maze[i][j]);
         }
-        printf("]\n");
+        printf("] %d\n", i);
     }
 }
 
-void print_maze(const MazeStruct m){
-    for(int i = 1; i <= m.row_size; i++){
+void print_maze(const MazeStruct *m){
+    for(int i = 1; i <= m->row_size; i++){
         printf("[");
-        for(int j = 1; j <= m.col_size; j++){
-            //printf("%d ", m.maze[i][j]);
-            if (m.maze[i][j] == 1)
-                printf("\033[41;30m1 \033[0m");
-                //printf("1 ");
-            else printf("0 ");
-        }
+        for(int j = 1; j <= m->col_size; j++) printf("%d ", m->maze[i][j]);
         printf("]\n");
     }
+    printf("\n");
 }
 
 void GenerateMaze(MazeStruct *m){
@@ -62,31 +55,32 @@ void GenerateMaze(MazeStruct *m){
     for(int i = 1; i <= m->row_size; i++)
         for(int j = 1; j <= m->col_size; j++)
             m->maze[i][j] = rand() % 2;
-    m->maze[m->sr][m->sc] = m->maze[m->er][m->ec] = 1;    // 初始化起點, 終點
+    m->maze[m->sr][m->sc] = m->maze[m->er][m->ec] = 1;    // 初始化起點, 終點 = 1
     return;
 }
 
 // dir = 0_N, 1_NE, 2_E, 3_SE, 4_S, 5_SW, 6_W, 7_NW
-void path(const MazeStruct m, const int start_dir){
-    int **mark= malloc(m.row_size* sizeof(int *));      // 紀錄有無走過
-    for (int i = 0; i < m.row_size; i++) m.maze[i] = calloc(m.col_size, sizeof(int));
+void path(const MazeStruct *m, const int start_dir){
+    int **mark= malloc((m->row_size + 2)* sizeof(int *));      // 紀錄有無走過
+    for (int i = 0; i < m->row_size + 2; i++) mark[i] = calloc(m->col_size + 2, sizeof(int));
     
     offsets move[8] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};   // 設定 direction
     
-    item *stack = malloc(m.row_size * m.col_size * sizeof(item));   // 製作 stack
+    item *stack = malloc(m->row_size * m->col_size * sizeof(item));   // 製作 stack
     int top = -1;
     
-    item temp = {m.sr, m.sc, start_dir};
+    item temp = {m->sr, m->sc, start_dir};
     stack[++top] = temp;    // push 起點
 
+    mark[m->sr][m->sc] = 1; // 起點標記為已訪問
     while (top > -1){       // stack not empty
-        top--;
+        temp = stack[top--];
         int i = temp.row, j = temp.col, d = temp.way;
         while (d < 8){      // 往下一格移動
             int v = i + move[d].vert, h = j + move[d].horiz;
-            if (v == m.er && h == m.ec) print_path(mark, m.row_size, m.col_size);   // 結束 印出path
-            if (m.maze[v][h] && !mark[v-1][h-1]){       // 移動合法 + 沒有去過
-                mark[v-1][h-1] = 1;
+            if (v == m->er && h == m->ec) print_path(m, mark);   // 結束 印出path
+            if (v > 0 && v <= m->row_size && h > 0 && h <= m->col_size && m->maze[v][h] && !mark[v][h]){   // 移動合法 + 沒有去過
+                mark[v][h] = 1;
                 temp.row = i; temp.col = j; temp.way = d + 1;
                 stack[++top] = temp;
                 i = v; j = h; d = 0;
@@ -95,9 +89,9 @@ void path(const MazeStruct m, const int start_dir){
         }
     }
     printf("No path found\n");  // stack empty
-    print_path(mark, m.row_size, m.col_size);   // 結束 印出path
+    print_path(m, mark);   // 結束 印出path
 
-    for (int i = 0; i < m.row_size; i++) free(mark[i]);
+    for (int i = 0; i < m->row_size + 2; i++) free(mark[i]);
     free(mark);
     free(stack);
     return;
@@ -136,8 +130,8 @@ int main(){
         } while (1);
     }
     GenerateMaze(&M);
-    print_maze(M);
-    path(M, 2);
+    //print_maze(&M);
+    path(&M, 2);
 
     for (int i = 0; i < M.row_size + 2; i++) free(M.maze[i]);
     free(M.maze);
