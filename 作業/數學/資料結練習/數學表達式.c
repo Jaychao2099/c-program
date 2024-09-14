@@ -61,11 +61,13 @@ void Infix2Postfix(const char* expr){
             top++;
             stack[top] = expr[i];
         }
-        printf("%c\t", expr[i]);    //scanning
-        for (int i = 0; i <= top; i++) printf("%c", stack[i]);
-        printf("\t%d\t", top);
-        printf("%s\t\n", output);
+        printf("%c\t", expr[i]);    // scanning token
+        for (int i = 0; i <= top; i++) printf("%c", stack[i]);  // stack
+        printf("\t%d\t", top);      // top
+        printf("%s\t\n", output);   // postfix
     }
+    free(stack);
+    free(output);
 }
 
 int main(){
