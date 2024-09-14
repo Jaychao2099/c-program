@@ -3,23 +3,18 @@
 # include <string.h>
 # include <stdbool.h>
 # define MAX_EXPRESSION 100
+# define FILENAME "數學表達式_test.txt"
 
 int priority(const char x, char *mode){
     switch (x){
-        case '!':
-            return 1;
-        case '*':
-            return 2;
-        case '/':
-            return 2;
-        case '%':
-            return 2;
-        case '-':
-            return 3;
-        case '+':
-            return 3;
-        case '(':
-            return mode == "isp" ? 8 : 0;
+        case '!': return 1;
+        case '^': return 2;
+        case '*': return 3;
+        case '/': return 3;
+        case '%': return 3;
+        case '-': return 4;
+        case '+': return 4;
+        case '(': return mode == "isp" ? 8 : 0;
         default:
             printf("\nERROR: invalid operator\n");
             exit(1);
@@ -27,7 +22,7 @@ int priority(const char x, char *mode){
 }
 
 _Bool isOperand(const char x){
-    if ((x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z')) return true;
+    if ((x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z') || (x >= '0' && x <= '9')) return true;
     else return false;
 }
 
@@ -66,6 +61,7 @@ void Infix2Postfix(const char* expr){
         printf("\t%d\t", top);      // top
         printf("%s\t\n", output);   // postfix
     }
+    printf("Postfix = %s\n", output);   // postfix
     free(stack);
     free(output);
 }
@@ -77,7 +73,7 @@ int main(){
         return 1;
     }
 
-    const char* filename = "數學表達式_test.txt";
+    const char* filename = FILENAME;
     FILE *file = fopen(filename, "r");
     if (file == NULL){
         perror("Error opening file");
