@@ -2,16 +2,17 @@
 # include <stdlib.h>
 # include <string.h>
 # include <time.h>
+# include <stdbool.h>
 # define MAXROW 1000
 # define MAXCOL 1000
 
 // 垂直移動, 水平移動
 typedef struct offsets{
     int vert;
-    int horiz
+    int horiz;
 }offsets;
 
-// 走過的路
+// 走過的路 {row, col, way}
 typedef struct item{
     int row;
     int col;
@@ -23,77 +24,122 @@ typedef struct MazeStruct{
     int **maze;
     int row_size;
     int col_size;
-    int sr;
-    int sc;
-    int er;
-    int ec;
+    int sr, sc;
+    int er, ec;
 }MazeStruct;
 
-void print_maze(MazeStruct m){
-    for(int i = 1; i <= m.row_size; i++){
-        for(int j = 1; j <= m.col_size; j++) printf("%d", m.maze[i][j]);
-        printf("\n");
+void print_path(int **m, int x, int y){
+    for(int i = 1; i <= x; i++){
+        printf("[");
+        for(int j = 1; j <= y; j++){
+            if (m[i][j] == 1)
+                //printf("\033[41;30m1 \033[0m");
+                printf("1 ");
+            else printf("0 ");
+        }
+        printf("]\n");
     }
 }
 
-MazeStruct GenerateMaze(const int n, const int p, int start_row, int start_col, int end_row, int end_col){
-    MazeStruct m;
-    m.row_size = n;
-    m.col_size = p;
-    m.sr = start_row;
-    m.sc = start_col;
-    m.er = end_row;
-    m.ec = end_col;
-    m.maze = malloc((n + 2) * sizeof(int *));
-    for (int i = 0; i < n + 2; i++) m.maze[i] = calloc(p + 2, sizeof(int));
-    srand(time(0));
-    for(int i = 1; i <= m.row_size; i++)
-        for(int j = 1; j <= m.col_size; j++)
-            m.maze[i][j] = rand() % 2;
-    return m;
+void print_maze(const MazeStruct m){
+    for(int i = 1; i <= m.row_size; i++){
+        printf("[");
+        for(int j = 1; j <= m.col_size; j++){
+            //printf("%d ", m.maze[i][j]);
+            if (m.maze[i][j] == 1)
+                printf("\033[41;30m1 \033[0m");
+                //printf("1 ");
+            else printf("0 ");
+        }
+        printf("]\n");
+    }
 }
 
-void path(const MazeStruct m){
-    offsets move[8] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};
-    item *stack = malloc(m.row_size * m.col_size * sizeof(item));
-    printf("\033[47;30;1m1 \033[47;30;0m");
-    printf("0 ");
+void GenerateMaze(MazeStruct *m){
+    m->maze = malloc((m->row_size + 2) * sizeof(int *));
+    for (int i = 0; i < m->row_size + 2; i++) m->maze[i] = calloc(m->col_size + 2, sizeof(int));
+    srand(time(0));
+    for(int i = 1; i <= m->row_size; i++)
+        for(int j = 1; j <= m->col_size; j++)
+            m->maze[i][j] = rand() % 2;
+    m->maze[m->sr][m->sc] = m->maze[m->er][m->ec] = 1;    // 初始化起點, 終點
+    return;
+}
+
+// dir = 0_N, 1_NE, 2_E, 3_SE, 4_S, 5_SW, 6_W, 7_NW
+void path(const MazeStruct m, const int start_dir){
+    int **mark= malloc(m.row_size* sizeof(int *));      // 紀錄有無走過
+    for (int i = 0; i < m.row_size; i++) m.maze[i] = calloc(m.col_size, sizeof(int));
+    
+    offsets move[8] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};   // 設定 direction
+    
+    item *stack = malloc(m.row_size * m.col_size * sizeof(item));   // 製作 stack
+    int top = -1;
+    
+    item temp = {m.sr, m.sc, start_dir};
+    stack[++top] = temp;    // push 起點
+
+    while (top > -1){       // stack not empty
+        top--;
+        int i = temp.row, j = temp.col, d = temp.way;
+        while (d < 8){      // 往下一格移動
+            int v = i + move[d].vert, h = j + move[d].horiz;
+            if (v == m.er && h == m.ec) print_path(mark, m.row_size, m.col_size);   // 結束 印出path
+            if (m.maze[v][h] && !mark[v-1][h-1]){       // 移動合法 + 沒有去過
+                mark[v-1][h-1] = 1;
+                temp.row = i; temp.col = j; temp.way = d + 1;
+                stack[++top] = temp;
+                i = v; j = h; d = 0;
+            }
+            else d++;
+        }
+    }
+    printf("No path found\n");  // stack empty
+    print_path(mark, m.row_size, m.col_size);   // 結束 印出path
+
+    for (int i = 0; i < m.row_size; i++) free(mark[i]);
+    free(mark);
     free(stack);
+    return;
 }
 
 int main(){
-    int x, y;
+    MazeStruct M;
     char mode;
     do {
         printf("Enter maze size (split by 'space'): ");
-        if (scanf("%d%d", &x, &y) < 1){    // Clear input buffer
+        if (scanf("%d%d", &M.row_size, &M.col_size) != 2){    // Clear input buffer
             int c;
             while ((c = getchar()) != '\n' && c != EOF);
             printf("ERROR: invalid input. Please enter two numbers: ");
-        } else if (x < 1 || x > MAXROW || y < 1 || y > MAXCOL){
+        } else if (M.row_size < 1 || M.row_size > MAXROW || M.col_size < 1 || M.col_size > MAXCOL){
             printf("ERROR: invalid number. Must be (1 ~ %d) * (1 ~ %d)\n", MAXROW, MAXCOL);
         } else break;
     } while (1);
-    int sr = 1, sc = 1, er = x, ec = y;     // 0 保留作邊界
-    printf("WNAT TO CHANGE the defult start point (1,1) and end point(%d,%d)? (y/n)", x, y);
+    setbuf(stdin, '\0');    //清空 stdin
+    M.sr = 1, M.sc = 1, M.er = M.row_size, M.ec = M.col_size;     // 0 保留作邊界
+    printf("WNAT TO CHANGE the defult start point (1,1) and end point(%d,%d)? (y/n)", M.row_size, M.col_size);
     scanf("%c", &mode);
     if (mode == 'y' || mode =='Y'){
         do {
             printf("Enter start point and end point (split by 'space'): ");
-            if (scanf("%d%d%d%d", &sr, &sc, &er, &ec) < 1){    // Clear input buffer
+            if (scanf("%d%d%d%d", &M.sr, &M.sc, &M.er, &M.ec) != 4){    // Clear input buffer
                 int c;
                 while ((c = getchar()) != '\n' && c != EOF);
-                printf("ERROR: invalid input. Please enter four numbers: ");
-            } else if (x < 1 || x > MAXROW || y < 1 || y > MAXCOL){
-                printf("ERROR: invalid number. Must between (1,%d) and (1,%d)\n", x, y);
-            } else break;
+                printf("ERROR: invalid input. Please enter four numbers\n");
+            } else if (M.sr < 1 || M.sr > M.row_size ||
+                        M.sc < 1 || M.sc > M.col_size ||
+                        M.er < 1 || M.er > M.row_size ||
+                        M.ec < 1 || M.ec > M.col_size)
+                printf("ERROR: invalid number. Must between (1,%d) and (%d,%d)\n", M.col_size, M.row_size, M.col_size);
+            else break;
         } while (1);
     }
-    MazeStruct M = GenerateMaze(x, y, sr, sc, er, ec);
+    GenerateMaze(&M);
     print_maze(M);
-    path(M);
+    path(M, 2);
 
-    for (int i = 0; i < y + 2; i++) free(M.maze[i]);
+    for (int i = 0; i < M.row_size + 2; i++) free(M.maze[i]);
     free(M.maze);
     
     return 0;
