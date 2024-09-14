@@ -2,7 +2,6 @@
 # include <stdlib.h>
 # include <string.h>
 # include <time.h>
-# include <stdbool.h>
 # define MAXROW 1000
 # define MAXCOL 1000
 
@@ -32,7 +31,9 @@ void print_path(const MazeStruct *m, int **mark){
     for(int i = 1; i <= m->row_size; i++){
         printf("[");
         for(int j = 1; j <= m->col_size; j++){
-            if (mark[i][j] == 1) printf("\033[41;30m1 \033[0m");
+            if (i == m->sr && j == m->sc) printf("\033[42;30m1 \033[0m");
+            else if (i == m->er && j == m->ec) printf("\033[44;30m1 \033[0m");
+            else if (mark[i][j] == 1) printf("\033[41;30m1 \033[0m");
             else printf("%d ", m->maze[i][j]);
         }
         printf("] %d\n", i);
@@ -50,7 +51,13 @@ void print_maze(const MazeStruct *m){
 
 void GenerateMaze(MazeStruct *m){
     m->maze = malloc((m->row_size + 2) * sizeof(int *));
-    for (int i = 0; i < m->row_size + 2; i++) m->maze[i] = calloc(m->col_size + 2, sizeof(int));
+    for (int i = 0; i < m->row_size + 2; i++){
+        m->maze[i] = calloc(m->col_size + 2, sizeof(int));
+        if (m->maze == NULL || m->maze[i] == NULL){
+            printf("ERROR: unable to allocate required memory in GenerateMaze()\n");
+            exit(1);
+        }
+    }
     srand(time(0));
     for(int i = 1; i <= m->row_size; i++)
         for(int j = 1; j <= m->col_size; j++)
@@ -62,11 +69,21 @@ void GenerateMaze(MazeStruct *m){
 // dir = 0_N, 1_NE, 2_E, 3_SE, 4_S, 5_SW, 6_W, 7_NW
 void path(const MazeStruct *m, const int start_dir){
     int **mark= malloc((m->row_size + 2)* sizeof(int *));      // 紀錄有無走過
-    for (int i = 0; i < m->row_size + 2; i++) mark[i] = calloc(m->col_size + 2, sizeof(int));
+    for (int i = 0; i < m->row_size + 2; i++){
+        mark[i] = calloc(m->col_size + 2, sizeof(int));
+        if (mark == NULL || mark[i] == NULL){
+            printf("ERROR: unable to allocate required memory for mark in path()\n");
+            exit(1);
+        }
+    }
     
     offsets move[8] = {{-1, 0}, {-1, 1}, {0, 1}, {1, 1}, {1, 0}, {1, -1}, {0, -1}, {-1, -1}};   // 設定 direction
     
     item *stack = malloc(m->row_size * m->col_size * sizeof(item));   // 製作 stack
+    if (stack == NULL){
+        printf("ERROR: unable to allocate required memory for stack in path()\n");
+        exit(1);
+    }
     int top = -1;
     
     item temp = {m->sr, m->sc, start_dir};
@@ -78,7 +95,10 @@ void path(const MazeStruct *m, const int start_dir){
         int i = temp.row, j = temp.col, d = temp.way;
         while (d < 8){      // 往下一格移動
             int v = i + move[d].vert, h = j + move[d].horiz;
-            if (v == m->er && h == m->ec) print_path(m, mark);   // 結束 印出path
+            if (v == m->er && h == m->ec){
+                print_path(m, mark);   // 結束 印出path
+                return;
+            }
             if (v > 0 && v <= m->row_size && h > 0 && h <= m->col_size && m->maze[v][h] && !mark[v][h]){   // 移動合法 + 沒有去過
                 mark[v][h] = 1;
                 temp.row = i; temp.col = j; temp.way = d + 1;
@@ -125,7 +145,7 @@ int main(){
                         M.sc < 1 || M.sc > M.col_size ||
                         M.er < 1 || M.er > M.row_size ||
                         M.ec < 1 || M.ec > M.col_size)
-                printf("ERROR: invalid number. Must between (1,%d) and (%d,%d)\n", M.col_size, M.row_size, M.col_size);
+                printf("ERROR: invalid number. Must between (1,1) and (%d,%d)\n", M.row_size, M.col_size);
             else break;
         } while (1);
     }
