@@ -9,11 +9,8 @@ int priority(const char x, char *mode){
     switch (x){
         case '!': return 1;
         case '^': return 2;
-        case '*': return 3;
-        case '/': return 3;
-        case '%': return 3;
-        case '-': return 4;
-        case '+': return 4;
+        case '*': case '/': case '%': return 3;
+        case '+': case '-': return 4;
         case '(': return mode == "isp" ? 8 : 0;
         default:
             printf("\nERROR: invalid operator\n");
@@ -22,8 +19,7 @@ int priority(const char x, char *mode){
 }
 
 _Bool isOperand(const char x){
-    if ((x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z') || (x >= '0' && x <= '9')) return true;
-    else return false;
+    return (x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z') || (x >= '0' && x <= '9');
 }
 
 void Infix2Postfix(const char* expr){
@@ -48,13 +44,10 @@ void Infix2Postfix(const char* expr){
             }
             top--;
         }
-        else if (top > -1 && priority(expr[i], "icp") >= priority(stack[top], "isp")){  //比優先度
-            output[output_last++] = stack[top];
-            stack[top] = expr[i];
-        }
-        else {          // 比不過就 push 進 stack
-            top++;
-            stack[top] = expr[i];
+        else {
+            while (top > -1 && priority(expr[i], "icp") >= priority(stack[top], "isp"))  //比優先度 直到比不過
+                output[output_last++] = stack[top--];
+            stack[++top] = expr[i];     // 比不過就 push 進 stack
         }
         printf("%c\t", expr[i]);    // scanning token
         for (int i = 0; i <= top; i++) printf("%c", stack[i]);  // stack
