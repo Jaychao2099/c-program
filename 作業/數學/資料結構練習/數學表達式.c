@@ -33,7 +33,7 @@ void Infix2Postfix(const char* expr){
     printf("Token\tStack\tTop\tPostfix\n");
     for (int i = 0; i <= strlen(expr); i++){
         if (i == strlen(expr)) while (top > -1) output[output_last++] = stack[top--];    //最後一格
-        else if (isOperand(expr[i])) output[output_last++] = expr[i];       // operator 直接印
+        else if (isOperand(expr[i])) output[output_last++] = expr[i];       // operand 直接印
         else if (expr[i] == ')'){                                           // ')'情況
             while (stack[top] != '('){
                 if (top < 0){
