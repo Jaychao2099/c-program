@@ -34,10 +34,10 @@ typedef struct DirectPriority{
 }DirectPriority;
 
 // 設定優先的方向
-DirectPriority DesideStartDir(const MazeStruct *m){
+DirectPriority DesideStartDir(const int sr, const int sc, const int er, const int ec){
     DirectPriority dp;
-    int row_dir = m->er - m->sr;
-    int col_dir = m->ec - m->sc;
+    int row_dir = er - sr;
+    int col_dir = ec - sc;
     dp.clockwise = 1;       // defult is clockwise
     if (col_dir > 0){
         dp.start_dir = 2;          // end is at right
@@ -54,13 +54,13 @@ DirectPriority DesideStartDir(const MazeStruct *m){
     return dp;
 }
 
-void PrintPath_unsuccess(const MazeStruct *m, int **mark){
-    for(int i = 0; i < m->row_size + 2; i++){
+void PrintUnsuccessPath(const MazeStruct *m, int **mark){
+    for(int i = 1; i <= m->row_size; i++){
         printf("[");
-        for(int j = 0; j < m->col_size + 2; j++){
+        for(int j = 1; j <= m->col_size; j++){
             if (i == m->sr && j == m->sc) printf("\033[42;30m1 \033[0m");       // 起點
             else if (i == m->er && j == m->ec) printf("\033[44;30m1 \033[0m");  // 終點
-            else if (mark[i][j] == 1) printf("\033[41;30m1 \033[0m");           // 路徑
+            else if (mark[i][j] == 1) printf("\033[41;30m%d \033[0m", m->maze[i][j]);           // 路徑
             else printf("%d ", m->maze[i][j]);          // 非路徑
         }
         printf("] %d\n", i);
@@ -68,9 +68,9 @@ void PrintPath_unsuccess(const MazeStruct *m, int **mark){
 }
 
 void PrintPath(const MazeStruct *m, item *stack, int top){
-    for(int i = 0; i < m->row_size + 2; i++){
+    for(int i = 1; i <= m->row_size; i++){
         printf("[");
-        for(int j = 0; j < m->col_size + 2; j++){
+        for(int j = 1; j <= m->col_size; j++){
             if (i == m->sr && j == m->sc) printf("\033[42;30m1 \033[0m");       // 起點
             else if (i == m->er && j == m->ec) printf("\033[44;30m1 \033[0m");  // 終點
             else {
@@ -78,7 +78,7 @@ void PrintPath(const MazeStruct *m, item *stack, int top){
                 for (int k = 0; k <= top; k++){
                     if (i == stack[k].row && j == stack[k].col) found = 1;
                 }
-                if (found) printf("\033[41;30m1 \033[0m");  // 路徑
+                if (found) printf("\033[41;30m%d \033[0m", m->maze[i][j]);  // 路徑
                 else printf("%d ", m->maze[i][j]);          // 非路徑
             }
         }
@@ -123,7 +123,7 @@ void path(const MazeStruct *m){
     }
     int top = -1;
 
-    DirectPriority dp = DesideStartDir(m);
+    DirectPriority dp = DesideStartDir(m->sr, m->sc, m->er, m->ec);
     
     item temp = {m->sr, m->sc, dp.start_dir};
     stack[++top] = temp;    // push 起點
@@ -146,8 +146,9 @@ void path(const MazeStruct *m){
             }
             if (v > 0 && v <= m->row_size && h > 0 && h <= m->col_size && m->maze[v][h] && !mark[v][h]){   // 移動合法 + 沒有去過
                 mark[v][h] = 1;
-                temp.row = i; temp.col = j; temp.dir = (d + dp.clockwise + 8) % 8; // 確保方向index為正數
+                temp.row = i; temp.col = j; temp.dir = (d + dp.clockwise + 8) % 8;  // 保留下一個方向 若之後退回來時可用 // 確保方向index為正數
                 stack[++top] = temp;
+                dp = DesideStartDir(v, h, m->er, m->ec);    // 每前進一格 皆校正方向
                 i = v; j = h; d = dp.start_dir;     // 設為初始方向
                 dir_count = 0;  // dir記數重置
             }
@@ -158,7 +159,7 @@ void path(const MazeStruct *m){
         }
     }
     printf("\033[31mNo path found\n\033[0m");   // stack empty
-    PrintPath_unsuccess(m, mark);   // 結束 印出經過的 path
+    PrintUnsuccessPath(m, mark);   // 結束 印出經過的 path
 
     for (int i = 0; i < m->row_size + 2; i++) free(mark[i]);
     free(mark);
