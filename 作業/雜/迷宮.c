@@ -103,7 +103,6 @@ void GenerateMaze(MazeStruct *m){
     return;
 }
 
-// dir = 0_N, 1_NE, 2_E, 3_SE, 4_S, 5_SW, 6_W, 7_NW
 void path(const MazeStruct *m){
     int **mark= malloc((m->row_size + 2)* sizeof(int *));      // 紀錄有無走過
     for (int i = 0; i < m->row_size + 2; i++){
@@ -182,7 +181,7 @@ int main(){
     } while (1);
     setbuf(stdin, '\0');    //清空 stdin
     M.sr = 1, M.sc = 1, M.er = M.row_size, M.ec = M.col_size;     // 0 保留作邊界
-    printf("WNAT TO CHANGE the defult start point (1,1) and end point(%d,%d)? (y/n)", M.row_size, M.col_size);
+    printf("WNAT TO CHANGE the defult \033[42;30mstart point (1,1)\033[0m and \033[44;30mend point(%d,%d)\033[0m? (y/n)", M.row_size, M.col_size);
     scanf("%c", &mode);
     if (mode == 'y' || mode =='Y'){
         do {
