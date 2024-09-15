@@ -11,6 +11,7 @@ int priority(const char x, char *mode){
         case '^': return 2;
         case '*': case '/': case '%': return 3;
         case '+': case '-': return 4;
+        case '>': case '<': return 5;
         case '(': return mode == "isp" ? 8 : 0;
         default:
             printf("\nERROR: invalid operator\n");
@@ -34,6 +35,7 @@ void Infix2Postfix(const char* expr){
     for (int i = 0; i <= strlen(expr); i++){
         if (i == strlen(expr)) while (top > -1) output[output_last++] = stack[top--];    //最後一格
         else if (isOperand(expr[i])) output[output_last++] = expr[i];       // operand 直接印
+        else if (expr[i] == ' ');       // 'space' 直接跳過
         else if (expr[i] == ')'){                                           // ')'情況
             while (stack[top] != '('){
                 if (top < 0){
