@@ -6,20 +6,20 @@
 # define MAXCOL 1000
 
 // 垂直移動, 水平移動
-typedef struct offsets{
+typedef struct {
     int vert;
     int horiz;
 }offsets;
 
 // 走過的路 {row, col, way}
-typedef struct item{
+typedef struct {
     int row;
     int col;
     int dir;
 }item;
 
 // 迷宮結構
-typedef struct MazeStruct{
+typedef struct {
     int **maze;
     int row_size;
     int col_size;
@@ -28,7 +28,7 @@ typedef struct MazeStruct{
 }MazeStruct;
 
 // 選擇方向
-typedef struct DirectPriority{
+typedef struct {
     int start_dir;  // 0 ~ 7
     int clockwise;  // 1 or -1
 }DirectPriority;

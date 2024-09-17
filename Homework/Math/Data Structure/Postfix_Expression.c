@@ -3,7 +3,7 @@
 # include <string.h>
 # include <stdbool.h>
 # define MAX_EXPRESSION 100
-# define FILENAME "¼Æ¾Çªí¹F¦¡_test.txt"
+# define FILENAME "Postfix_Expression_test.txt"
 
 int priority(const char x, char *mode){
     switch (x){
@@ -33,10 +33,10 @@ void Infix2Postfix(const char* expr){
     int top = -1, output_last = 0;
     printf("Token\tStack\tTop\tPostfix\n");
     for (int i = 0; i <= strlen(expr); i++){
-        if (i == strlen(expr)) while (top > -1) output[output_last++] = stack[top--];    //³Ì«á¤@®æ
-        else if (isOperand(expr[i])) output[output_last++] = expr[i];       // operand ª½±µ¦L
-        else if (expr[i] == ' ');       // 'space' ª½±µ¸õ¹L
-        else if (expr[i] == ')'){                                           // ')'±¡ªp
+        if (i == strlen(expr)) while (top > -1) output[output_last++] = stack[top--];    //æœ€å¾Œä¸€æ ¼
+        else if (isOperand(expr[i])) output[output_last++] = expr[i];       // operand ç›´æ¥å°
+        else if (expr[i] == ' ');       // 'space' ç›´æ¥è·³é
+        else if (expr[i] == ')'){                                           // ')'æƒ…æ³
             while (stack[top] != '('){
                 if (top < 0){
                     printf("ERROR: illegal expression with '(', ')' pair\n");
@@ -47,9 +47,9 @@ void Infix2Postfix(const char* expr){
             top--;
         }
         else {
-            while (top > -1 && priority(expr[i], "icp") >= priority(stack[top], "isp"))  //¤ñÀu¥ı«× ª½¨ì¤ñ¤£¹L
+            while (top > -1 && priority(expr[i], "icp") >= priority(stack[top], "isp"))  //æ¯”å„ªå…ˆåº¦ ç›´åˆ°æ¯”ä¸é
                 output[output_last++] = stack[top--];
-            stack[++top] = expr[i];     // ¤ñ¤£¹L´N push ¶i stack
+            stack[++top] = expr[i];     // æ¯”ä¸éå°± push é€² stack
         }
         printf("%c\t", expr[i]);    // scanning token
         for (int i = 0; i <= top; i++) printf("%c", stack[i]);  // stack
@@ -85,7 +85,7 @@ int main(){
         return 1;
     }
     printf("%s\n", expression);
-    expression[strcspn(expression, "\n")] = '\0'; // ²¾°£´«¦æ²Å
+    expression[strcspn(expression, "\n")] = '\0'; // ç§»é™¤æ›è¡Œç¬¦
 
     Infix2Postfix(expression);
 
