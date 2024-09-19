@@ -99,9 +99,11 @@ int main(){
                          {8, 9},
                          {7, 4},
                          {6, 8},
+                         {0, 2}, //
                          {3, 5},
                          {2, 11},
-                         {11, 0}};
+                         {11, 0}
+                         };
     int eq_size = sizeof(eq) / sizeof(eq[0]);
     int max = 0;
     for (int i = 0; i < ARRAY_SIZE(eq); i++){
