@@ -77,13 +77,13 @@ void find_equivalence(Equivanlence *eq, int eq_size, Sequence *seq, int seq_size
             while (current != NULL || top > -1){
                 if (current != NULL && !seq[current->value].visited){
                     printf(", %d", current->value);
-                    seq[current->value].visited = 1;
-                    stack[++top] = current->next;
-                    current = seq[current->value].list.head;
+                    seq[current->value].visited = 1;            // 準備跳過去的 list 標記為 1
+                    stack[++top] = current->next;               // 此 list 下一格 push 進 stack
+                    current = seq[current->value].list.head;    // 跳過去
                 } else {
-                    if (current == NULL && top > -1){
+                    if (current == NULL && top > -1){                   // 此 list 沒有了, 但 stack 還有
                         current = stack[top--];
-                    } else current = current ? current->next : NULL;
+                    } else current = current ? current->next : NULL;    // 都沒了, 換下一個等價類
                 }
             }
             printf("}\n");
