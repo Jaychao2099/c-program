@@ -23,7 +23,7 @@ typedef struct{
 typedef struct{
     int a;
     int b;
-}Equivanlence;
+}Equivalence;
 
 // create node
 node *create_node(int var){
@@ -60,7 +60,7 @@ void remove_list(List *list){
     list->last = NULL; 
 }
 
-void find_equivalence(Equivanlence *eq, int eq_size, Sequence *seq, int seq_size){
+void find_equivalence(Equivalence *eq, int eq_size, Sequence *seq, int seq_size){
     for (int i = 0; i < eq_size; i++){
         append_node(&seq[eq[i].a].list, create_node(eq[i].b));
         append_node(&seq[eq[i].b].list, create_node(eq[i].a));
@@ -93,7 +93,7 @@ void find_equivalence(Equivanlence *eq, int eq_size, Sequence *seq, int seq_size
 }
 
 int main(){
-    Equivanlence eq[] = {{0, 4}, 
+    Equivalence eq[] = {{0, 4}, 
                          {3, 1},
                          {6, 10},
                          {8, 9},
