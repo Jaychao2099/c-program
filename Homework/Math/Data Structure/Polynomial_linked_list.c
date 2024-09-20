@@ -126,18 +126,19 @@ void remove_list(List *list){
 }
 
 // inverting list
-void invert_list(List *list){
-    if (list->head == NULL) return;
-    term *current = list->head, *prev_1 = NULL, *prev_2;
-    list->last = list->head;
-    while (current != NULL){
-        prev_2 = prev_1;
-        prev_1 = current;
-        current = current->next;
-        prev_1->next = prev_2;
-    }
-    list->head = prev_1;
-}
+// void invert_list(List *list){
+//     if (list->head == NULL) return;
+//     term *current = list->head, *prev_1 = NULL, *prev_2;
+//     list->last = list->head;
+//     while (current != NULL){
+//         prev_2 = prev_1;
+//         prev_1 = current;
+//         current = current->next;
+//         prev_1->next = prev_2;
+//     }
+//     list->head = prev_1;
+// }
+
 List input_poly(char *name, List *freelist){
     List list = {NULL, NULL, name};
     printf("\nPolynomial %s: ", list.name);
@@ -150,7 +151,7 @@ List input_poly(char *name, List *freelist){
         if (input[0] == 'e' && (input[1] == '\n' || input[1] == '\0')) break;   // 檢查是否只輸入了 'e'
         double c;
         int e;
-        if (sscanf(input, "%lf %d", &c, &e) == 2) {
+        if (sscanf(input, "%lf %d", &c, &e) == 2){
             append_node(&list, create_node(c, e, freelist));
             print_list(&list, 1);
         } else printf("Invalid input. Please enter a double followed by an integer.\n");
