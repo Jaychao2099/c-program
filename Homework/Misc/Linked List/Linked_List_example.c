@@ -87,9 +87,8 @@ void append_list(List *list, List *newlist){
 // insert after target
 void insert_list(List *list, node *target, List *newlist){
     if (target->next == NULL){
-        list->last = newlist->last;
-        if (list->head == target)           // target == list->head == null
-            list->head = newlist->head;
+        append_list(list, newlist);
+        return;
     }
     newlist->last->next = target->next;
     target->next = newlist->head;

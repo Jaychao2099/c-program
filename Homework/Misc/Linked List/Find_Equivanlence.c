@@ -1,5 +1,6 @@
 # include <stdio.h>
 # include <stdlib.h>
+# include <stdbool.h>
 
 # define ARRAY_SIZE(arr) (sizeof(arr) / sizeof(arr[0]))
 # define MAX(a, b) a > b ? a : b
@@ -15,7 +16,7 @@ typedef struct{
 }List;
 
 typedef struct{
-    int visited;
+    bool visited;
     List list;
 }Sequence;
 
@@ -72,12 +73,12 @@ void find_equivalence(Equivalence *eq, int eq_size, Sequence *seq, int seq_size)
     for (int i = 0; i < seq_size; i++){
         if (!seq[i].visited){
             printf("{%d", i);
-            seq[i].visited = 1;
+            seq[i].visited = true;
             node *current = seq[i].list.head;
             while (current != NULL || top > -1){
                 if (current != NULL && !seq[current->value].visited){
                     printf(", %d", current->value);
-                    seq[current->value].visited = 1;            // 準備跳過去的 list 標記為 1
+                    seq[current->value].visited = true;            // 準備跳過去的 list 標記為 1
                     stack[++top] = current->next;               // 此 list 下一格 push 進 stack
                     current = seq[current->value].list.head;    // 跳過去
                 } else {
@@ -99,7 +100,7 @@ int main(){
                          {8, 9},
                          {7, 4},
                          {6, 8},
-                         {0, 2}, //
+                        //  {0, 2}, //
                          {3, 5},
                          {2, 11},
                          {11, 0}
