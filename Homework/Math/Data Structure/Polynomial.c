@@ -106,19 +106,21 @@ void print_poly(polynomial_system *ps, polynomial x, int mode){
         }
         switch (mode){
             case 0:
-                if (j != x.end)
-                    if (ps->termArray[j+1].coef < 0)
-                        printf(" ");
-                    else printf(" +");
-                else printf("\n");
+                if (j == x.end) 
+                    printf("\n");
+                else if (ps->termArray[j+1].coef < 0)
+                    printf(" ");
+                else
+                    printf(" +");
                 break;
             case 1:
                 if (ps->termArray[j].exp != -1)        //exp = -1, 可繼續輸入 exp
-                    if (j != ps->input_new_end)
-                        if (ps->termArray[j+1].coef < 0)
-                            printf(" ");
-                        else printf(" +");
-                    else printf("\n");
+                    if (j == ps->input_new_end)
+                        printf("\n");
+                    else if (ps->termArray[j+1].coef < 0)
+                        printf(" ");
+                    else
+                        printf(" +");
                 break;
             default:
                 fprintf(stderr, "ERROR: unable to identify mode code\n");
