@@ -106,7 +106,7 @@ void print_poly(polynomial_system *ps, polynomial x, int mode){
         }
         switch (mode){
             case 0:
-                if (j == x.end) 
+                if (j == x.end)
                     printf("\n");
                 else if (ps->termArray[j+1].coef < 0)
                     printf(" ");
