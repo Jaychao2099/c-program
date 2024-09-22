@@ -19,13 +19,13 @@ void print_sm(Matrix *m){
     node *current = m->head_first->next->right;
     int i = 0;
     while (current != m->head_first){
-        if (current->head == true){
-            current = current->next;
+        if (current->head){
+            current = current->next->right;
         }
         else {
-            current = current->right;
             printf("%s[%d] = ", m->name, i);
-            printf("<%4d, %4d> = %4d\n", current->row, current->col, current->value);
+            printf("[%d, %d] = %3d\n", current->row, current->col, current->value);
+            current = current->right;
             i++;
         }
     }
@@ -37,26 +37,32 @@ void print_sm(Matrix *m){
 
 void print_matrix(Matrix *m){
     printf("%s =\n", m->name);
-    for (node *current_row = m->head_first->next; current_row != m->head_first; current_row = current_row->next){   // H0 起始
+    node *current_row = m->head_first->next;
+    for (int i = 0; i < m->head_first->row; i++){   // H0 起始
         printf("[");
+        current_row->col = m->head_first->col;      // 給予 head node col 總數
         int zero_size = -1;
-        node *current_col = current_row->right;
-        do {     // 印出一 row
+        node *current_col = current_row->right;     // 歷遍 col
+        int j = 0;
+        while (j < m->head_first->col){             // 印出一 row
             zero_size = current_col->col - zero_size - 1;           // 與上一個元素的 col 差距
-            for (int i = 0; i < zero_size; i++){
-                printf("    0");
-                if (i < m->head_first->col - 1)
+            for (int k = 0; k < zero_size; k++){
+                printf("   0");
+                if (j < m->head_first->col - 1)
                     printf(",");
+                j++;
             }
             if (current_col != current_row){
                 printf("%4d", current_col->value);
-                if (!current_col->head)
+                if (j < m->head_first->col - 1)
                     printf(",");
+                j++;
             }
-            zero_size = current_col->value;
+            zero_size = current_col->col;
             current_col = current_col->right;
-        } while (current_col != current_row->right);
+        }
         printf(" ]\n");
+        current_row = current_row->next;
     }
 }
 
@@ -84,32 +90,33 @@ node *create_node(int row, int col, int value, bool head, Matrix *freelist){
 void append_node(Matrix *m, node *newnode, Matrix *freelist){
     // if m is empty, create head head node
     if (m->head_first == NULL){
-        m->head_first = m->head_last = create_node(0, 0, 0, 1, freelist);
+        m->head_first = m->head_last = create_node(0, 0, 0, true, freelist);
     }
     // append head node
     while (m->head_first->row < newnode->row + 1 || m->head_first->col < newnode->col + 1){
-        node *new_head = create_node(0, 0, 0, 1, freelist);
-        m->head_last->next = new_head;
+        node *new_head = create_node(0, 0, 0, true, freelist);
         new_head->next = m->head_first;
+        m->head_last->next = new_head;
+        m->head_last = new_head;
         if (m->head_first->row < newnode->row + 1) m->head_first->row++;
         if (m->head_first->col < newnode->col + 1) m->head_first->col++;
     }
     // append entry node
     node *ptr_head = m->head_first;
     for (int i = 0; i <= newnode->row; i++) ptr_head = ptr_head->next;    // 指標指到該 row
-    node **ptr_entry = &ptr_head;
-    while ((*ptr_entry)->right != ptr_head)   // 指標指到該 row 最後一個元素
-        ptr_entry = &(*ptr_entry)->right;
+    node *ptr_entry = ptr_head;
+    while (ptr_entry->right != ptr_head)   // 指標指到該 row 最後一個元素
+        ptr_entry = ptr_entry->right;
     newnode->right = ptr_head;
-    (*ptr_entry)->right = newnode;      // 用 指標的指標 修改最後一個元素的 ->right 指向
+    ptr_entry->right = newnode;      // 修改最後一個元素的 ->right 指向
 
     ptr_head = m->head_first;
     for (int i = 0; i <= newnode->col; i++) ptr_head = ptr_head->next;      // 指標指到該 col
-    ptr_entry = &ptr_head;
-    while ((*ptr_entry)->down != ptr_head)   // 指標指到該 col 最後一個元素
-        ptr_entry = &(*ptr_entry)->down;
+    ptr_entry = ptr_head;
+    while (ptr_entry->down != ptr_head)   // 指標指到該 col 最後一個元素
+        ptr_entry = ptr_entry->down;
     newnode->down = ptr_head;
-    (*ptr_entry)->down = newnode;      // 用 指標的指標 修改最後一個元素的 ->down 指向
+    ptr_entry->down = newnode;      // 修改最後一個元素的 ->down 指向
 
     m->head_first->value++;     // 總 entry 增加
 }
@@ -185,10 +192,14 @@ int main(){
             fprintf(stderr, "ERROR: unable to identify input_mode\n");
             return 1;
     }
-    
     print_sm(&smA);
     printf("\n");
     print_sm(&smB);
+    printf("\n");
+
+    print_matrix(&smA);
+    printf("\n");
+    print_matrix(&smB);
     printf("\n");
 
     append_list(&freelist, &smA);
