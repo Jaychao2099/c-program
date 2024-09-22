@@ -216,7 +216,6 @@ sparse_matrix sm_Mult(sparse_matrix a, sparse_matrix b, char *name){
 }
 
 int main(){
-    int rows_B, cols_B, terms_B;
     int input_mode, print_mode;
     
     printf("Matrix transpose A^T\n");
