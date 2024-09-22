@@ -1,6 +1,5 @@
 # include <stdio.h>
 # include <stdlib.h>
-# define MaxTerms 100   // 一個 poly 的最多容量
 
 typedef struct term{
     double coef;        // 係數
@@ -25,12 +24,14 @@ int print_list(List *list, int inputing){
                 default: printf("x^%d", ptr->exp); break;
             }
             if (ptr->next){
-                if (ptr->next->coef < 0){
+                if (ptr->next->coef < 0)
                     printf(" ");
-                } else printf(" +");
-            } else if (inputing){
+                else
+                    printf(" +");
+            } else if (inputing)
                 printf(" +");
-            } else printf("\n");
+            else
+                printf("\n");
         }
     }
 }
@@ -142,21 +143,26 @@ void remove_list(List *list){
 List input_poly(char *name, List *freelist){
     List list = {NULL, NULL, name};
     printf("\nPolynomial %s: ", list.name);
-    printf("Form: \"coef ('space') exp\", enter 'e' to end:\n");
+    printf("Form: \"coef ('space') exp\", enter '0' to end:\n");
     printf("%s = ", list.name);
     term *ptr = list.head;
+    int pre_e = INT_MAX;
     while (1) {
-        char input[20];
-        if (fgets(input, sizeof(input), stdin) == NULL) break;
-        if (input[0] == 'e' && (input[1] == '\n' || input[1] == '\0')) break;   // 檢查是否只輸入了 'e'
         double c;
         int e;
-        if (sscanf(input, "%lf %d", &c, &e) == 2){
+        scanf("%lf", &c);
+        if (c == 0) break;
+        scanf("%d", &e);
+        if (e >= pre_e)
+            printf("ERROR: Please enter exp in descending order\n");
+        else {
             append_node(&list, create_node(c, e, freelist));
             print_list(&list, 1);
-        } else printf("Invalid input. Please enter a double followed by an integer.\n");
+            pre_e = e;
+        }
     }
     print_list(&list, 0);
+    setbuf(stdin, '\0');    //清空 stdin
     return list;
 }
 
