@@ -175,7 +175,7 @@ Matrix *transpose(Matrix *m, char *name, Matrix *freelist) {
             current = current->next->right;
         }
         else {
-            append_entry_node(m, create_node(current->col, current->row, current->value, false, freelist));
+            append_node(t, create_node(current->col, current->row, current->value, false, freelist), freelist);
             current = current->right;
         }
     }
@@ -241,8 +241,8 @@ int main(){
             return 1;
     }
 
-    // Matrix *smAT = transpose(smA, "A^T", &freelist);
-    // Matrix *smBT = transpose(smB, "B^T", &freelist);
+    Matrix *smAT = transpose(smA, "A^T", &freelist);
+    Matrix *smBT = transpose(smB, "B^T", &freelist);
 
     // Matrix smC = sm_Add(smA, smB, "A+B", &freelist);
     // Matrix smD = sm_Multi(smA, smB, "AB", &freelist);
@@ -259,12 +259,12 @@ int main(){
             print_sm(smA);     //印出 smA
             printf("\n");
             print_sm(smB);     //印出 smB
-            // printf("\n");
-            // print_sm(smAT);     //印出 smAT
-            // append_list(&freelist, smAT);
-            // printf("\n");
-            // print_sm(smBT);     //印出 smBT
-            // append_list(&freelist, smBT);
+            printf("\n");
+            print_sm(smAT);     //印出 smAT
+            append_list(&freelist, smAT);
+            printf("\n");
+            print_sm(smBT);     //印出 smBT
+            append_list(&freelist, smBT);
 
             // printf("\n");
             // print_sm(&smC);      //印出 smC
@@ -276,12 +276,13 @@ int main(){
             print_matrix(smA);     //印出 smA
             printf("\n");
             print_matrix(smB);     //印出 smB
-            // printf("\n");
-            // print_matrix(smAT);     //印出 smAT
-            // append_list(&freelist, smAT);
-            // printf("\n");
-            // print_matrix(smBT);     //印出 smBT
-            // append_list(&freelist, smBT);
+            printf("\n");
+            print_matrix(smAT);     //印出 smAT
+            append_list(&freelist, smAT);
+            printf("\n");
+            print_matrix(smBT);     //印出 smBT
+            append_list(&freelist, smBT);
+
             // printf("\n");
             // print_matrix(&smC);      //印出 smC
             // printf("\n");
