@@ -66,7 +66,7 @@ void print_matrix(Matrix *m){
     }
 }
 
-Matrix input_sm(){}
+void input_sm(Matrix *m){}
 
 // create node
 node *create_node(int row, int col, int value, bool head, Matrix *freelist){
@@ -144,18 +144,72 @@ void remove_list(Matrix *M){
     M->head_last = NULL; 
 }
 
+Matrix transpose(const Matrix *m, char *name, Matrix *freelist){        // time = O(entry數 + head數)
+    Matrix t = {NULL, NULL, name};
+    // 如果輸入矩陣為空,直接返回空矩陣
+    if (m->head_first == NULL) return t;
+    
+    // 創建轉置矩陣的頭節點
+    t.head_first = t.head_last = create_node(m->head_first->col, m->head_first->row, m->head_first->value, true, freelist);
+    
+    // 如果輸入矩陣只有頭節點,直接返回
+    if (m->head_first->value == 0) return t;
+    
+    // 創建一個數組來存儲每列的當前節點
+    node **col_current = (node **)calloc(m->head_first->col, sizeof(node *));
+    if (col_current == NULL) {
+        fprintf(stderr, "ERROR: unable to allocate required memory in transpose\n");
+        exit(1);
+    }
+    
+    // 初始化每 col 的 head node
+    for (int i = 0; i < m->head_first->col; i++) {
+        col_current[i] = create_node(i, 0, 0, true, freelist);
+        append_node(&t, col_current[i], freelist);
+    }
+    
+    // 遍歷原矩陣的所有 entry
+    node *current = m->head_first->next->right;
+    while (current != m->head_first->next) {
+        if (!current->head) {
+            // 創建新節點,行列互換
+            node *new_node = create_node(current->col, current->row, current->value, false, freelist);
+            
+            // 將新節點添加到對應列的鏈表中
+            new_node->right = col_current[current->col]->right;
+            col_current[current->col]->right = new_node;
+            col_current[current->col] = new_node;
+            
+            t.head_first->value++;  // 增加非零元素計數
+        }
+        current = current->right;
+    }
+    free(col_current);
+    return t;
+}
+
+Matrix sm_Add(Matrix *a, Matrix *b, char *name, Matrix *freelist){
+    Matrix s = {NULL, NULL, name};
+    return s;
+}
+
+Matrix sm_Multi(Matrix *a, Matrix *b, char *name, Matrix *freelist){
+    Matrix m = {NULL, NULL, name};
+    return m;
+}
+
 int main(){
     int input_mode, print_mode;
 
     printf("Matrix transpose A^T\n");
     printf("Matrix transpose B^T\n");
-    printf("Matrix Addition A + B = C\n");
-    printf("Matrix Multiplication AB = D\n\n");
+    printf("Matrix Addition A + B\n");
+    printf("Matrix Multiplication AB\n\n");
     while (1){
         printf("Input mode 1.user mode, 2.test mode (1/2): ");
         scanf("%d", &input_mode);
         if (input_mode == 1 || input_mode == 2) break;
-        else printf("ERROR: invalid mode\n");
+        else printf("ERROR: invalid input mode\n");
     }
 
     Matrix freelist = {NULL, NULL};
@@ -164,8 +218,8 @@ int main(){
 
     switch (input_mode){
         case 1:
-            smA = input_sm();
-            smB = input_sm();
+            input_sm(&smA);
+            input_sm(&smB);
             break;
         case 2:
             append_node(&smA, create_node(0, 0,  15, 0, &freelist), &freelist);
@@ -192,15 +246,56 @@ int main(){
             fprintf(stderr, "ERROR: unable to identify input_mode\n");
             return 1;
     }
-    print_sm(&smA);
-    printf("\n");
-    print_sm(&smB);
-    printf("\n");
 
-    print_matrix(&smA);
-    printf("\n");
-    print_matrix(&smB);
-    printf("\n");
+    Matrix smAT = transpose(&smA, "A^T", &freelist);
+    Matrix smBT = transpose(&smB, "B^T", &freelist);
+
+    // Matrix smC = sm_Add(&smA, &smB, "A+B", &freelist);
+    // Matrix smD = sm_Multi(&smA, &smB, "AB", &freelist);
+
+    while (1){
+        printf("Print mode: 1.sparse mode, 2.normal mode (1/2): ");
+        scanf("%d", &print_mode);
+        if (print_mode == 1 || print_mode == 2) break;
+        else printf("ERROR: invalid print mode\n");
+    }
+    switch (print_mode){
+        case 1:
+            printf("\n");
+            print_sm(&smA);     //印出 smA
+            printf("\n");
+            print_sm(&smB);     //印出 smB
+            printf("\n");
+            print_sm(&smAT);     //印出 smAT
+            append_list(&freelist, &smAT);
+            printf("\n");
+            print_sm(&smBT);     //印出 smBT
+            append_list(&freelist, &smBT);
+
+            // printf("\n");
+            // print_sm(&smC);      //印出 smC
+            // printf("\n");
+            // print_sm(&smD);      //印出 smD
+            break;
+        case 2:
+            printf("\n");
+            print_matrix(&smA);     //印出 smA
+            printf("\n");
+            print_matrix(&smB);     //印出 smB
+            printf("\n");
+            print_matrix(&smAT);     //印出 smAT
+            append_list(&freelist, &smAT);
+            printf("\n");
+            print_matrix(&smBT);     //印出 smBT
+            append_list(&freelist, &smBT);
+            // printf("\n");
+            // print_matrix(&smC);      //印出 smC
+            // printf("\n");
+            // print_matrix(&smD);      //印出 smD
+            break;
+        default:
+            fprintf(stderr, "ERROR: unable to identify print_mode\n");
+    }
 
     append_list(&freelist, &smA);
     append_list(&freelist, &smB);
