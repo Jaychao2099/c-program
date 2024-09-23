@@ -86,21 +86,25 @@ node *create_node(int row, int col, int value, bool head, Matrix *freelist){
     return newnode;
 }
 
-// append node
-void append_node(Matrix *m, node *newnode, Matrix *freelist){
+void append_head_node(Matrix *m, node *newnode, Matrix *freelist){
     // if m is empty, create head head node
     if (m->head_first == NULL){
         m->head_first = m->head_last = create_node(0, 0, 0, true, freelist);
     }
     // append head node
+    int head_index = 0;
     while (m->head_first->row < newnode->row + 1 || m->head_first->col < newnode->col + 1){
-        node *new_head = create_node(0, 0, 0, true, freelist);
+        node *new_head = create_node(0, 0, head_index, true, freelist);
         new_head->next = m->head_first;
         m->head_last->next = new_head;
         m->head_last = new_head;
         if (m->head_first->row < newnode->row + 1) m->head_first->row++;
         if (m->head_first->col < newnode->col + 1) m->head_first->col++;
+        head_index++;
     }
+}
+
+void append_entry_node(Matrix *m, node *newnode){
     // append entry node
     node *ptr_head = m->head_first;
     for (int i = 0; i <= newnode->row; i++) ptr_head = ptr_head->next;    // 指標指到該 row
@@ -121,6 +125,14 @@ void append_node(Matrix *m, node *newnode, Matrix *freelist){
     m->head_first->value++;     // 總 entry 增加
 }
 
+// append node
+void append_node(Matrix *m, node *newnode, Matrix *freelist){
+    // append head node
+    append_head_node(m, newnode, freelist);
+    // append entry node
+    append_entry_node(m, newnode);
+}
+
 // concatenating M -> newlist
 void append_list(Matrix *M, Matrix *newlist){
     if (M->head_first == NULL){
@@ -130,61 +142,43 @@ void append_list(Matrix *M, Matrix *newlist){
     else {
         M->head_last->next = newlist->head_first;
         M->head_last = newlist->head_last;
+        M->head_last->next = M->head_first;
     }
     newlist->head_first = newlist->head_last = NULL;     // 讓 newlist 消失
 }
 
 // delete whole M
-void remove_list(Matrix *M){
-    node *next;
-    for (;M->head_first != NULL; M->head_first = next){
-        next = M->head_first->next;
-        free(M->head_first);
+void remove_list(Matrix *m){
+    node *current = m->head_first->next->right;
+    while (current != m->head_first){
+        node *temp;
+        if (current->head)
+            temp = current->next->right;
+        else temp = current->right;
+        free(current);
+        current = temp;
     }
-    M->head_last = NULL; 
+    free(current);
 }
 
-Matrix transpose(const Matrix *m, char *name, Matrix *freelist){        // time = O(entry數 + head數)
-    Matrix t = {NULL, NULL, name};
-    // 如果輸入矩陣為空,直接返回空矩陣
-    if (m->head_first == NULL) return t;
-    
-    // 創建轉置矩陣的頭節點
-    t.head_first = t.head_last = create_node(m->head_first->col, m->head_first->row, m->head_first->value, true, freelist);
-    
-    // 如果輸入矩陣只有頭節點,直接返回
-    if (m->head_first->value == 0) return t;
-    
-    // 創建一個數組來存儲每列的當前節點
-    node **col_current = (node **)calloc(m->head_first->col, sizeof(node *));
-    if (col_current == NULL) {
-        fprintf(stderr, "ERROR: unable to allocate required memory in transpose\n");
-        exit(1);
-    }
-    
-    // 初始化每 col 的 head node
-    for (int i = 0; i < m->head_first->col; i++) {
-        col_current[i] = create_node(i, 0, 0, true, freelist);
-        append_node(&t, col_current[i], freelist);
-    }
-    
-    // 遍歷原矩陣的所有 entry
+// 轉置函數
+Matrix *transpose(Matrix *m, char *name, Matrix *freelist) {
+    if (!m || !m->head_first) return NULL;
+
+    // 創建轉置矩陣
+    Matrix *t = (Matrix *)malloc(sizeof(Matrix));
+    *t = (Matrix){NULL, NULL, name};
+
     node *current = m->head_first->next->right;
-    while (current != m->head_first->next) {
-        if (!current->head) {
-            // 創建新節點,行列互換
-            node *new_node = create_node(current->col, current->row, current->value, false, freelist);
-            
-            // 將新節點添加到對應列的鏈表中
-            new_node->right = col_current[current->col]->right;
-            col_current[current->col]->right = new_node;
-            col_current[current->col] = new_node;
-            
-            t.head_first->value++;  // 增加非零元素計數
+    while (current != m->head_first){
+        if (current->head){
+            current = current->next->right;
         }
-        current = current->right;
+        else {
+            append_entry_node(m, create_node(current->col, current->row, current->value, false, freelist));
+            current = current->right;
+        }
     }
-    free(col_current);
     return t;
 }
 
@@ -213,45 +207,45 @@ int main(){
     }
 
     Matrix freelist = {NULL, NULL};
-    Matrix smA = {NULL, NULL, "A"};
-    Matrix smB = {NULL, NULL, "B"};
+    Matrix *smA = (Matrix *)malloc(sizeof(Matrix)); *smA = (Matrix){NULL, NULL, "A"};
+    Matrix *smB = (Matrix *)malloc(sizeof(Matrix)); *smB = (Matrix){NULL, NULL, "B"};
 
     switch (input_mode){
         case 1:
-            input_sm(&smA);
-            input_sm(&smB);
+            input_sm(smA);
+            input_sm(smB);
             break;
         case 2:
-            append_node(&smA, create_node(0, 0,  15, 0, &freelist), &freelist);
-            append_node(&smA, create_node(0, 3,  22, 0, &freelist), &freelist);
-            append_node(&smA, create_node(0, 5, -15, 0, &freelist), &freelist);
-            append_node(&smA, create_node(1, 1,  11, 0, &freelist), &freelist);
-            append_node(&smA, create_node(1, 2,   3, 0, &freelist), &freelist);
-            append_node(&smA, create_node(2, 3,  -6, 0, &freelist), &freelist);
-            append_node(&smA, create_node(4, 0,  91, 0, &freelist), &freelist);
-            append_node(&smA, create_node(5, 2,  28, 0, &freelist), &freelist);
+            append_node(smA, create_node(0, 0,  15, 0, &freelist), &freelist);
+            append_node(smA, create_node(0, 3,  22, 0, &freelist), &freelist);
+            append_node(smA, create_node(0, 5, -15, 0, &freelist), &freelist);
+            append_node(smA, create_node(1, 1,  11, 0, &freelist), &freelist);
+            append_node(smA, create_node(1, 2,   3, 0, &freelist), &freelist);
+            append_node(smA, create_node(2, 3,  -6, 0, &freelist), &freelist);
+            append_node(smA, create_node(4, 0,  91, 0, &freelist), &freelist);
+            append_node(smA, create_node(5, 2,  28, 0, &freelist), &freelist);
             
-            append_node(&smB, create_node(1, 0,  15, 0, &freelist), &freelist);
-            append_node(&smB, create_node(1, 2,  -3, 0, &freelist), &freelist);
-            append_node(&smB, create_node(2, 1,  11, 0, &freelist), &freelist);
-            append_node(&smB, create_node(3, 1,   3, 0, &freelist), &freelist);
-            append_node(&smB, create_node(3, 5,  28, 0, &freelist), &freelist);
-            append_node(&smB, create_node(4, 0,  22, 0, &freelist), &freelist);
-            append_node(&smB, create_node(4, 2,  -6, 0, &freelist), &freelist);
-            append_node(&smB, create_node(5, 0, -15, 0, &freelist), &freelist);
-            append_node(&smB, create_node(5, 1,  61, 0, &freelist), &freelist);
-            append_node(&smB, create_node(5, 5,  17, 0, &freelist), &freelist);
+            append_node(smB, create_node(1, 0,  15, 0, &freelist), &freelist);
+            append_node(smB, create_node(1, 2,  -3, 0, &freelist), &freelist);
+            append_node(smB, create_node(2, 1,  11, 0, &freelist), &freelist);
+            append_node(smB, create_node(3, 1,   3, 0, &freelist), &freelist);
+            append_node(smB, create_node(3, 5,  28, 0, &freelist), &freelist);
+            append_node(smB, create_node(4, 0,  22, 0, &freelist), &freelist);
+            append_node(smB, create_node(4, 2,  -6, 0, &freelist), &freelist);
+            append_node(smB, create_node(5, 0, -15, 0, &freelist), &freelist);
+            append_node(smB, create_node(5, 1,  61, 0, &freelist), &freelist);
+            append_node(smB, create_node(5, 5,  17, 0, &freelist), &freelist);
             break;
         default:
             fprintf(stderr, "ERROR: unable to identify input_mode\n");
             return 1;
     }
 
-    Matrix smAT = transpose(&smA, "A^T", &freelist);
-    Matrix smBT = transpose(&smB, "B^T", &freelist);
+    // Matrix *smAT = transpose(smA, "A^T", &freelist);
+    // Matrix *smBT = transpose(smB, "B^T", &freelist);
 
-    // Matrix smC = sm_Add(&smA, &smB, "A+B", &freelist);
-    // Matrix smD = sm_Multi(&smA, &smB, "AB", &freelist);
+    // Matrix smC = sm_Add(smA, smB, "A+B", &freelist);
+    // Matrix smD = sm_Multi(smA, smB, "AB", &freelist);
 
     while (1){
         printf("Print mode: 1.sparse mode, 2.normal mode (1/2): ");
@@ -262,15 +256,15 @@ int main(){
     switch (print_mode){
         case 1:
             printf("\n");
-            print_sm(&smA);     //印出 smA
+            print_sm(smA);     //印出 smA
             printf("\n");
-            print_sm(&smB);     //印出 smB
-            printf("\n");
-            print_sm(&smAT);     //印出 smAT
-            append_list(&freelist, &smAT);
-            printf("\n");
-            print_sm(&smBT);     //印出 smBT
-            append_list(&freelist, &smBT);
+            print_sm(smB);     //印出 smB
+            // printf("\n");
+            // print_sm(smAT);     //印出 smAT
+            // append_list(&freelist, smAT);
+            // printf("\n");
+            // print_sm(smBT);     //印出 smBT
+            // append_list(&freelist, smBT);
 
             // printf("\n");
             // print_sm(&smC);      //印出 smC
@@ -279,15 +273,15 @@ int main(){
             break;
         case 2:
             printf("\n");
-            print_matrix(&smA);     //印出 smA
+            print_matrix(smA);     //印出 smA
             printf("\n");
-            print_matrix(&smB);     //印出 smB
-            printf("\n");
-            print_matrix(&smAT);     //印出 smAT
-            append_list(&freelist, &smAT);
-            printf("\n");
-            print_matrix(&smBT);     //印出 smBT
-            append_list(&freelist, &smBT);
+            print_matrix(smB);     //印出 smB
+            // printf("\n");
+            // print_matrix(smAT);     //印出 smAT
+            // append_list(&freelist, smAT);
+            // printf("\n");
+            // print_matrix(smBT);     //印出 smBT
+            // append_list(&freelist, smBT);
             // printf("\n");
             // print_matrix(&smC);      //印出 smC
             // printf("\n");
@@ -297,8 +291,8 @@ int main(){
             fprintf(stderr, "ERROR: unable to identify print_mode\n");
     }
 
-    append_list(&freelist, &smA);
-    append_list(&freelist, &smB);
+    append_list(&freelist, smA);
+    append_list(&freelist, smB);
     remove_list(&freelist);
     return 0;
 }
