@@ -115,11 +115,13 @@ sparse_matrix transpose(sparse_matrix x, char *name){
 }
 
 sparse_matrix sm_Add(sparse_matrix a, sparse_matrix b, char *name){
+    sparse_matrix c;
     if (a.rows != b.rows || a.cols != b.cols){
         fprintf(stderr,"ERROR: size of %s(%d x %d) and %s(%d x %d) is not the same (in Addition)\n", a.name, a.rows, a.cols, b.name, b.rows, b.cols);
-        exit(1);
+        c.rows = c.cols = c.terms = 0;
+        c.name = name;
+        return c;
     }
-    sparse_matrix c;
     c.rows = a.rows;
     c.cols = a.cols;
     c.name = name;
@@ -168,11 +170,13 @@ sparse_matrix sm_Add(sparse_matrix a, sparse_matrix b, char *name){
 }
 
 sparse_matrix sm_Mult(sparse_matrix a, sparse_matrix b, char *name){
+    sparse_matrix m;
     if (a.cols != b.rows){
         fprintf(stderr,"ERROR: Columns of %s must = Rows of %s (in Multiplication)\n", a.name, b.name);
-        exit(1);
+        m.rows = m.cols = m.terms = 0;
+        m.name = name;
+        return m;
     }
-    sparse_matrix m;
     m.rows = a.rows;
     m.cols = b.cols;
     m.name = name;
