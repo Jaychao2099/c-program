@@ -63,6 +63,7 @@ void print_matrix(Matrix *m){
             current_col = current_col->right;
         }
         printf(" ]\n");
+        current_row->col = 0;
         current_row = current_row->next;
     }
 }
@@ -83,7 +84,7 @@ node *create_node(int row, int col, int value, bool head, Matrix *freelist){
             exit(1);
         }
     }
-    *newnode = (node){row, col, value, newnode, newnode, NULL, head};
+    *newnode = (node){row, col, value, newnode, newnode, NULL, head};   // down, right 指向自己
     return newnode;
 }
 
@@ -93,7 +94,6 @@ void append_head_node(Matrix *m, node *newnode, Matrix *freelist){
         m->head_first = m->head_last = create_node(0, 0, 0, true, freelist);
     }
     // append head node
-    int head_index = 0;
     while (m->head_first->row < newnode->row + 1 || m->head_first->col < newnode->col + 1){
         node *new_head = create_node(0, 0, 0, true, freelist);
         new_head->next = m->head_first;
@@ -101,7 +101,6 @@ void append_head_node(Matrix *m, node *newnode, Matrix *freelist){
         m->head_last = new_head;
         if (m->head_first->row < newnode->row + 1) m->head_first->row++;
         if (m->head_first->col < newnode->col + 1) m->head_first->col++;
-        head_index++;
     }
 }
 
@@ -170,12 +169,11 @@ void remove_list(Matrix *m){
 }
 
 // 轉置函數，建立新矩陣
-Matrix *transpose(Matrix *m, char *name, Matrix *freelist){
+Matrix *transpose(Matrix *m, Matrix *freelist){
     if (!m || !m->head_first) return NULL;
 
     // 創建轉置矩陣
-    Matrix *t = malloc(sizeof(Matrix));
-    *t = (Matrix){NULL, NULL, name};
+    Matrix *t = calloc(1, sizeof(Matrix));
 
     node *current = m->head_first->next->right;
     while (current != m->head_first){
@@ -187,6 +185,17 @@ Matrix *transpose(Matrix *m, char *name, Matrix *freelist){
             current = current->right;
         }
     }
+    // 更改名字
+    char *str = malloc((strlen(m->name) + 5) * sizeof(char));
+    if (str == NULL){
+        puts("\nERROR: unable to change name\n");
+        return t;
+    }
+    strcpy(str, "(");
+    strcat(str, m->name);
+    strcat(str, ")^T");
+    t->name = str;
+
     return t;
 }
 
@@ -221,13 +230,74 @@ void transpose_change_pointer(Matrix *m){
     m->name = str;
 }
 
-Matrix *sm_Add(Matrix *a, Matrix *b, char *name, Matrix *freelist){
+Matrix *sm_Add(Matrix *a, Matrix *b, Matrix *freelist){
     if (a->head_first->row != b->head_first->row || a->head_first->col != b->head_first->col){
-        fprintf(stderr,"ERROR: size of %s(%d x %d) and %s(%d x %d) is not the same (in Addition)\n", a->name, a->head_first->row, a->head_first->col, b->name, b->head_first->row, b->head_first->col);
+        printf("ERROR: size of %s(%d x %d) and %s(%d x %d) is not the same (in Addition)\n", a->name, a->head_first->row, a->head_first->col, b->name, b->head_first->row, b->head_first->col);
         return NULL;
     }
-    Matrix *s = malloc(sizeof(Matrix));
-    *s = (Matrix){NULL, NULL, name};
+    Matrix *s = calloc(1, sizeof(Matrix));
+    if (s == NULL){
+        printf("ERROR: unable to allocate required memory in \"sm_Add\"\n");
+        exit(1);
+    }
+
+    node *a_now = a->head_first->next->right;
+    node *b_now = b->head_first->next->right;
+    while (a_now != a->head_first && b_now != b->head_first){
+        while (a_now->head && a_now != a->head_first) a_now = a_now->next->right;
+        while (b_now->head && b_now != b->head_first) b_now = b_now->next->right;
+        if      (a_now == a->head_first);
+        else if (b_now == b->head_first);
+        else if (a_now->row < b_now->row || (a_now->row == b_now->row && a_now->col < b_now->col)){
+            if (a_now->value){      // 檢查value是否為0
+                append_node(s, create_node(a_now->row, a_now->col, a_now->value, false, freelist), freelist);
+            }
+            a_now = a_now->right;
+        }
+        else if (b_now->row < a_now->row || (b_now->row == a_now->row && b_now->col < a_now->col)){
+            if (b_now->value){      // 檢查value是否為0
+                append_node(s, create_node(b_now->row, b_now->col, b_now->value, false, freelist), freelist);
+            }
+            b_now = b_now->right;
+        } else {
+            if (a_now->value + b_now->value){   // 檢查value是否為0
+                append_node(s, create_node(a_now->row, a_now->col, a_now->value + b_now->value, false, freelist), freelist);
+            }
+            a_now = a_now->right;
+            b_now = b_now->right;
+        }
+    }
+    
+    // 處理剩餘元素
+    while (a_now != a->head_first){
+        while (a_now->head && a_now != a->head_first) a_now = a_now->next->right;
+        if (a_now == a->head_first);
+        else if (a_now->value){      // 檢查value是否為0
+            append_node(s, create_node(a_now->row, a_now->col, a_now->value, false, freelist), freelist);
+        }
+        a_now = a_now->right;
+    }
+    while (b_now != b->head_first){
+        while (b_now->head && b_now != b->head_first) b_now = b_now->next->right;
+        if (b_now == b->head_first);
+        else if (b_now->value){      // 檢查value是否為0
+            append_node(s, create_node(b_now->row, b_now->col, b_now->value, false, freelist), freelist);
+        }
+        b_now = b_now->right;
+    }
+
+    // 更改名字
+    s->name = malloc((strlen(a->name) + strlen(b->name) + 6) * sizeof(char));
+    if (s->name == NULL){
+        puts("\nERROR: unable to change name\n");
+        return s;
+    }
+    strcpy(s->name, "(");
+    strcat(s->name, a->name);
+    strcat(s->name, " + ");
+    strcat(s->name, b->name);
+    strcat(s->name, ")");
+
     return s;
 }
 
@@ -252,8 +322,8 @@ int main(){
     }
 
     Matrix freelist = {NULL, NULL};
-    Matrix *smA = (Matrix *)malloc(sizeof(Matrix)); *smA = (Matrix){NULL, NULL, "A"};
-    Matrix *smB = (Matrix *)malloc(sizeof(Matrix)); *smB = (Matrix){NULL, NULL, "B"};
+    Matrix *smA = (Matrix *)calloc(1, sizeof(Matrix)); smA->name = "A";
+    Matrix *smB = (Matrix *)calloc(1, sizeof(Matrix)); smB->name = "B";
 
     switch (input_mode){
         case 1:
@@ -286,11 +356,11 @@ int main(){
             return 1;
     }
 
-    Matrix *smAT = transpose(smA, "A^T", &freelist);
-    Matrix *smBT = transpose(smB, "B^T", &freelist);
+    Matrix *smAT = transpose(smA, &freelist);
+    Matrix *smBT = transpose(smB, &freelist);
 
-    Matrix *smC = sm_Add(smA, smB, "A+B", &freelist);
-    // Matrix smD = sm_Multi(smA, smB, "AB", &freelist);
+    Matrix *smS = sm_Add(smA, smB, &freelist);
+    // Matrix smM = sm_Multi(smA, smB, "AB", &freelist);
 
     while (1){
         printf("Print mode: 1.sparse mode, 2.normal mode, 3.pointer transpose mode (1/2/3): ");
@@ -313,9 +383,9 @@ int main(){
             append_list(&freelist, smBT);
 
             printf("\n");
-            print_sm(smC);      //印出 smC
+            print_sm(smS);      //印出 smS
             // printf("\n");
-            // print_sm(&smD);      //印出 smD
+            // print_sm(&smM);      //印出 smM
             break;
         case 2:
             printf("\n");
@@ -331,10 +401,10 @@ int main(){
             append_list(&freelist, smBT);
 
             printf("\n");
-            print_matrix(smC);      //印出 smC
-            append_list(&freelist, smC);
+            print_matrix(smS);      //印出 smS
+            append_list(&freelist, smS);
             // printf("\n");
-            // print_matrix(&smD);      //印出 smD
+            // print_matrix(&smM);      //印出 smM
             break;
         case 3:
             printf("\n");
