@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <stdbool.h>
+# include <string.h>
 
 typedef struct node{
     int row, col, value;            // entry node 的所在 row, col, 值
@@ -47,15 +48,15 @@ void print_matrix(Matrix *m){
         while (j < m->head_first->col){             // 印出一 row
             zero_size = current_col->col - zero_size - 1;           // 與上一個元素的 col 差距
             for (int k = 0; k < zero_size; k++){
-                printf("   0");
-                if (j < m->head_first->col - 1)
-                    printf(",");
+                printf("  0");
+                // if (j < m->head_first->col - 1)
+                //     printf(",");
                 j++;
             }
             if (current_col != current_row){
-                printf("%4d", current_col->value);
-                if (j < m->head_first->col - 1)
-                    printf(",");
+                printf("%3d", current_col->value);
+                // if (j < m->head_first->col - 1)
+                //     printf(",");
                 j++;
             }
             zero_size = current_col->col;
@@ -94,7 +95,7 @@ void append_head_node(Matrix *m, node *newnode, Matrix *freelist){
     // append head node
     int head_index = 0;
     while (m->head_first->row < newnode->row + 1 || m->head_first->col < newnode->col + 1){
-        node *new_head = create_node(0, 0, head_index, true, freelist);
+        node *new_head = create_node(0, 0, 0, true, freelist);
         new_head->next = m->head_first;
         m->head_last->next = new_head;
         m->head_last = new_head;
@@ -161,12 +162,12 @@ void remove_list(Matrix *m){
     free(current);
 }
 
-// 轉置函數
-Matrix *transpose(Matrix *m, char *name, Matrix *freelist) {
+// 轉置函數，建立新矩陣
+Matrix *transpose(Matrix *m, char *name, Matrix *freelist){
     if (!m || !m->head_first) return NULL;
 
     // 創建轉置矩陣
-    Matrix *t = (Matrix *)malloc(sizeof(Matrix));
+    Matrix *t = malloc(sizeof(Matrix));
     *t = (Matrix){NULL, NULL, name};
 
     node *current = m->head_first->next->right;
@@ -182,13 +183,48 @@ Matrix *transpose(Matrix *m, char *name, Matrix *freelist) {
     return t;
 }
 
-Matrix sm_Add(Matrix *a, Matrix *b, char *name, Matrix *freelist){
-    Matrix s = {NULL, NULL, name};
+// 轉置函數，原矩陣改變 pointer
+void transpose_change_pointer(Matrix *m){
+    node *current = m->head_first;
+    do {
+        int temp_int = current->row;
+        current->row = current->col;
+        current->col = temp_int;
+
+        if (current->head)
+            current = current->next->right;
+        else
+            current = current->down;
+
+        node *temp = current->right;
+        current->right = current->down;
+        current->down = temp;
+    } while (current != m->head_first);
+    
+    char *str = malloc((strlen(m->name) + 5) * sizeof(char));
+    if (str == NULL){
+        puts("\nERROR: unable to change name\n");
+        return;
+    }
+    strcpy(str, "(");
+    strcat(str, m->name);
+    strcat(str, ")^T");
+    m->name = str;
+}
+
+Matrix *sm_Add(Matrix *a, Matrix *b, char *name, Matrix *freelist){
+    if (a->head_first->row != b->head_first->row || a->head_first->col != b->head_first->col){
+        fprintf(stderr,"ERROR: size of %s(%d x %d) and %s(%d x %d) is not the same (in Addition)\n", a->name, a->head_first->row, a->head_first->col, b->name, b->head_first->row, b->head_first->col);
+        return NULL;
+    }
+    Matrix *s = malloc(sizeof(Matrix));
+    *s = (Matrix){NULL, NULL, name};
     return s;
 }
 
-Matrix sm_Multi(Matrix *a, Matrix *b, char *name, Matrix *freelist){
-    Matrix m = {NULL, NULL, name};
+Matrix *sm_Multi(Matrix *a, Matrix *b, char *name, Matrix *freelist){
+    Matrix *m = malloc(sizeof(Matrix));
+    *m = (Matrix){NULL, NULL, name};
     return m;
 }
 
@@ -244,13 +280,13 @@ int main(){
     Matrix *smAT = transpose(smA, "A^T", &freelist);
     Matrix *smBT = transpose(smB, "B^T", &freelist);
 
-    // Matrix smC = sm_Add(smA, smB, "A+B", &freelist);
+    Matrix *smC = sm_Add(smA, smB, "A+B", &freelist);
     // Matrix smD = sm_Multi(smA, smB, "AB", &freelist);
 
     while (1){
-        printf("Print mode: 1.sparse mode, 2.normal mode (1/2): ");
+        printf("Print mode: 1.sparse mode, 2.normal mode, 3.pointer transpose mode (1/2/3): ");
         scanf("%d", &print_mode);
-        if (print_mode == 1 || print_mode == 2) break;
+        if (print_mode == 1 || print_mode == 2 || print_mode == 3) break;
         else printf("ERROR: invalid print mode\n");
     }
     switch (print_mode){
@@ -259,6 +295,7 @@ int main(){
             print_sm(smA);     //印出 smA
             printf("\n");
             print_sm(smB);     //印出 smB
+
             printf("\n");
             print_sm(smAT);     //印出 smAT
             append_list(&freelist, smAT);
@@ -266,8 +303,8 @@ int main(){
             print_sm(smBT);     //印出 smBT
             append_list(&freelist, smBT);
 
-            // printf("\n");
-            // print_sm(&smC);      //印出 smC
+            printf("\n");
+            print_sm(smC);      //印出 smC
             // printf("\n");
             // print_sm(&smD);      //印出 smD
             break;
@@ -276,6 +313,7 @@ int main(){
             print_matrix(smA);     //印出 smA
             printf("\n");
             print_matrix(smB);     //印出 smB
+
             printf("\n");
             print_matrix(smAT);     //印出 smAT
             append_list(&freelist, smAT);
@@ -283,10 +321,25 @@ int main(){
             print_matrix(smBT);     //印出 smBT
             append_list(&freelist, smBT);
 
-            // printf("\n");
-            // print_matrix(&smC);      //印出 smC
+            printf("\n");
+            print_matrix(smC);      //印出 smC
+            append_list(&freelist, smC);
             // printf("\n");
             // print_matrix(&smD);      //印出 smD
+            break;
+        case 3:
+            printf("\n");
+            print_matrix(smA);     //印出 smA
+            printf("\n");
+            print_matrix(smB);     //印出 smB
+
+            transpose_change_pointer(smA);
+            transpose_change_pointer(smB);
+
+            printf("\n");
+            print_matrix(smA);     //印出 smAT
+            printf("\n");
+            print_matrix(smB);     //印出 smBT
             break;
         default:
             fprintf(stderr, "ERROR: unable to identify print_mode\n");
