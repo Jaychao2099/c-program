@@ -106,31 +106,37 @@ void append_head_node(Matrix *m, node *newnode, Matrix *freelist){
 }
 
 void append_entry_node(Matrix *m, node *newnode){
-    // append entry node
     node *ptr_head = m->head_first;
-    for (int i = 0; i <= newnode->row; i++) ptr_head = ptr_head->next;    // 指標指到該 row
+    
+    // 調整 right 指標
+    for (int i = 0; i <= newnode->row; i++){    // 指標指到該 row
+        ptr_head = ptr_head->next;
+    }
     node *ptr_entry = ptr_head;
-    while (ptr_entry->right != ptr_head)   // 指標指到該 row 最後一個元素
+    while (ptr_entry->right != ptr_head){       // 指標指到該 row 最後一個元素
         ptr_entry = ptr_entry->right;
+    }
     newnode->right = ptr_head;
-    ptr_entry->right = newnode;      // 修改最後一個元素的 ->right 指向
-
+    ptr_entry->right = newnode;                 // 修改最後一個元素的 ->right 指向
+    
+    // 調整 down 指標
     ptr_head = m->head_first;
-    for (int i = 0; i <= newnode->col; i++) ptr_head = ptr_head->next;      // 指標指到該 col
+    for (int i = 0; i <= newnode->col; i++){    // 指標指到該 col
+        ptr_head = ptr_head->next;
+    }
     ptr_entry = ptr_head;
-    while (ptr_entry->down != ptr_head)   // 指標指到該 col 最後一個元素
+    while (ptr_entry->down != ptr_head){        // 指標指到該 col 最後一個元素
         ptr_entry = ptr_entry->down;
+    }
     newnode->down = ptr_head;
-    ptr_entry->down = newnode;      // 修改最後一個元素的 ->down 指向
+    ptr_entry->down = newnode;                  // 修改最後一個元素的 ->down 指向
 
     m->head_first->value++;     // 總 entry 增加
 }
 
 // append node
 void append_node(Matrix *m, node *newnode, Matrix *freelist){
-    // append head node
     append_head_node(m, newnode, freelist);
-    // append entry node
     append_entry_node(m, newnode);
 }
 
@@ -153,8 +159,9 @@ void remove_list(Matrix *m){
     node *current = m->head_first->next->right;
     while (current != m->head_first){
         node *temp;
-        if (current->head)
+        if (current->head){
             temp = current->next->right;
+        }
         else temp = current->right;
         free(current);
         current = temp;
@@ -186,21 +193,23 @@ Matrix *transpose(Matrix *m, char *name, Matrix *freelist){
 // 轉置函數，原矩陣改變 pointer
 void transpose_change_pointer(Matrix *m){
     node *current = m->head_first;
-    do {
+    do {    // 交換 row, col 數字
         int temp_int = current->row;
         current->row = current->col;
         current->col = temp_int;
-
-        if (current->head)
+            // 移動 current
+        if (current->head){
             current = current->next->right;
+        }
         else
             current = current->down;
-
+            // 交換 down, right 指標
         node *temp = current->right;
         current->right = current->down;
         current->down = temp;
     } while (current != m->head_first);
     
+    // 更改名字
     char *str = malloc((strlen(m->name) + 5) * sizeof(char));
     if (str == NULL){
         puts("\nERROR: unable to change name\n");
