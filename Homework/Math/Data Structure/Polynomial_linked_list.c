@@ -68,29 +68,6 @@ void append_node(List *list, term *newnode){
     newnode->next = NULL;
 }
 
-// insert term
-// void insert_node(List *list, term *target, term *newnode){
-//     term **ptr = &target;
-//     if (target == NULL){
-//         *ptr = newnode;
-//         list->last = newnode;
-//         return;
-//     }
-//     newnode->next = target->next;
-//     target->next = newnode;
-// }
-
-// delete target term to freelist
-// void remove_node(List *list, term *target, List *freelist){
-//     term **ptr = &(list->head);
-//     while (*ptr != target)      // (ptr 指向的 "term->next指標") 指向目標時 停止
-//         ptr = &((*ptr)->next);  // &(*ptr)->next
-//     *ptr = target->next;        // (指向 target 的 前一個 term->next) 改指向 target->next
-//     if (list->last == target)   // if 剛好 target 是最後一個
-//         list->last = *ptr;
-//     append_node(freelist, target);  // 資源回收
-// }
-
 // concatenating list -> newlist
 void append_list(List *list, List *newlist){
     if (list->head == NULL){
@@ -104,18 +81,6 @@ void append_list(List *list, List *newlist){
     newlist->head = newlist->last = NULL;     // 讓 newlist 消失
 }
 
-// insert after target
-// void insert_list(List *list, term *target, List *newlist){
-//     if (target->next == NULL){
-//         list->last = newlist->last;
-//         if (list->head == target)           // target == list->head == null
-//             list->head = newlist->head;
-//     }
-//     newlist->last->next = target->next;
-//     target->next = newlist->head;
-//     newlist->head = newlist->last = NULL;   // 讓 newlist 消失
-// }
-
 // delete whole list
 void remove_list(List *list){
     term *next;
@@ -125,20 +90,6 @@ void remove_list(List *list){
     }
     list->last = NULL; 
 }
-
-// inverting list
-// void invert_list(List *list){
-//     if (list->head == NULL) return;
-//     term *current = list->head, *prev_1 = NULL, *prev_2;
-//     list->last = list->head;
-//     while (current != NULL){
-//         prev_2 = prev_1;
-//         prev_1 = current;
-//         current = current->next;
-//         prev_1->next = prev_2;
-//     }
-//     list->head = prev_1;
-// }
 
 List input_poly(char *name, List *freelist){
     List list = {NULL, NULL, name};
