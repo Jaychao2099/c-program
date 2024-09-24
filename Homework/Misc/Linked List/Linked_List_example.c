@@ -3,7 +3,7 @@
 
 typedef struct node{
     char value;
-    struct node* next;
+    struct node *next;
 }node;
 
 typedef struct{
@@ -50,12 +50,8 @@ void append_node(List *list, node *newnode){
 
 // insert node
 void insert_node(List *list, node *target, node *newnode){
-    node **ptr = &target;
-    if (target == NULL){
-        *ptr = newnode;
+    if (target->next == NULL)
         list->last = newnode;
-        return;
-    }
     newnode->next = target->next;
     target->next = newnode;
 }
@@ -108,7 +104,9 @@ void remove_list(List *list){
 // inverting list
 void invert_list(List *list){
     if (list->head == NULL) return;
-    node *current = list->head, *prev_1 = NULL, *prev_2;
+    node *prev_2;
+    node *prev_1 = NULL;
+    node *current = list->head;
     list->last = list->head;
     while (current != NULL){
         prev_2 = prev_1;
