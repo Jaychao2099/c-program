@@ -41,20 +41,20 @@ void print_matrix(Matrix *m){
     node *current_row = m->head_first->next;
     for (int i = 0; i < m->head_first->row; i++){   // H0 起始
         printf("[");
-        current_row->col = m->head_first->col;      // 給予 head node col 總數
+        current_row->col = m->head_first->col;      // 給予 head node col 總數，以便計算 zero_size
         int zero_size = -1;
         node *current_col = current_row->right;     // 歷遍 col
         int j = 0;
         while (j < m->head_first->col){             // 印出一 row
             zero_size = current_col->col - zero_size - 1;           // 與上一個元素的 col 差距
             for (int k = 0; k < zero_size; k++){
-                printf("  0");
+                printf("   0");
                 // if (j < m->head_first->col - 1)
                 //     printf(",");
                 j++;
             }
             if (current_col != current_row){
-                printf("%3d", current_col->value);
+                printf("%4d", current_col->value);
                 // if (j < m->head_first->col - 1)
                 //     printf(",");
                 j++;
@@ -63,7 +63,7 @@ void print_matrix(Matrix *m){
             current_col = current_col->right;
         }
         printf(" ]\n");
-        current_row->col = 0;
+        current_row->col = 0;           // head node 的 col 數歸零
         current_row = current_row->next;
     }
 }
@@ -301,9 +301,43 @@ Matrix *sm_Add(Matrix *a, Matrix *b, Matrix *freelist){
     return s;
 }
 
-Matrix *sm_Multi(Matrix *a, Matrix *b, char *name, Matrix *freelist){
-    Matrix *m = malloc(sizeof(Matrix));
-    *m = (Matrix){NULL, NULL, name};
+Matrix *sm_Multi(Matrix *a, Matrix *b, Matrix *freelist){
+    Matrix *m = calloc(1, sizeof(Matrix));
+
+    int temp_a_row = 0;     // 臨時計算 當前 a row
+    for (node *i = a->head_first->next; i != a->head_first; i = i->next){
+        // while (i->head) i = i->next->right;
+        // if (i = a->head_first) break;
+        int temp_b_col = 0;     // 臨時計算 當前 b col
+        for (node *j = b->head_first->next; j != b->head_first; j = j->next){
+            int sum = 0;
+            for (node *ka = i->right; ka != i; ka = ka->right){
+                for (node *kb = j->down; kb != j; kb = kb->down){
+                    if (ka->col == kb->row){
+                        sum += ka->value * kb->value;
+                    }
+                }
+            }
+            if (sum){
+                append_node(m, create_node(temp_a_row, temp_b_col, sum, false, freelist), freelist);
+            }
+            temp_b_col++;
+        }
+        temp_a_row++;
+    }
+
+    // 更改名字
+    m->name = malloc((strlen(a->name) + strlen(b->name) + 4) * sizeof(char));
+    if (m->name == NULL){
+        puts("\nERROR: unable to change name\n");
+        return m;
+    }
+    strcpy(m->name, "(");
+    strcat(m->name, a->name);
+    strcat(m->name, "*");
+    strcat(m->name, b->name);
+    strcat(m->name, ")");
+
     return m;
 }
 
@@ -352,7 +386,7 @@ int main(){
             append_node(smB, create_node(5, 5,  17, 0, &freelist), &freelist);
             break;
         default:
-            fprintf(stderr, "ERROR: unable to identify input_mode\n");
+            printf("ERROR: unable to identify input_mode\n");
             return 1;
     }
 
@@ -360,7 +394,7 @@ int main(){
     Matrix *smBT = transpose(smB, &freelist);
 
     Matrix *smS = sm_Add(smA, smB, &freelist);
-    // Matrix smM = sm_Multi(smA, smB, "AB", &freelist);
+    Matrix *smM = sm_Multi(smA, smB, &freelist);
 
     while (1){
         printf("Print mode: 1.sparse mode, 2.normal mode, 3.pointer transpose mode (1/2/3): ");
@@ -384,8 +418,10 @@ int main(){
 
             printf("\n");
             print_sm(smS);      //印出 smS
-            // printf("\n");
-            // print_sm(&smM);      //印出 smM
+            append_list(&freelist, smS);
+            printf("\n");
+            print_sm(smM);      //印出 smM
+            append_list(&freelist, smM);
             break;
         case 2:
             printf("\n");
@@ -403,8 +439,9 @@ int main(){
             printf("\n");
             print_matrix(smS);      //印出 smS
             append_list(&freelist, smS);
-            // printf("\n");
-            // print_matrix(&smM);      //印出 smM
+            printf("\n");
+            print_matrix(smM);      //印出 smM
+            append_list(&freelist, smM);
             break;
         case 3:
             printf("\n");
@@ -421,7 +458,7 @@ int main(){
             print_matrix(smB);     //印出 smBT
             break;
         default:
-            fprintf(stderr, "ERROR: unable to identify print_mode\n");
+            printf("ERROR: unable to identify print_mode\n");
     }
 
     append_list(&freelist, smA);
