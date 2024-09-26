@@ -3,6 +3,8 @@
 # include <stdbool.h>
 # include <string.h>
 
+# define MAXHEAD 1000
+
 typedef struct node{
     int row, col, value;            // entry node 的所在 row, col, 值
     struct node *down, *right;      // 把同一 col, row 連起來
@@ -67,8 +69,6 @@ void print_matrix(Matrix *m){
         current_row = current_row->next;
     }
 }
-
-void input_sm(Matrix *m){}
 
 // create node
 node *create_node(int row, int col, int value, bool head, Matrix *freelist){
@@ -166,6 +166,40 @@ void remove_list(Matrix *m){
         current = temp;
     }
     free(current);
+}
+
+void input_sm(Matrix *m, Matrix *freelist){
+    node *entry;
+    printf("(Enter -1 to stop)\n");
+    printf("%s =\n", m->name);
+    for (int i = 0; i < MAXHEAD * MAXHEAD; i++){
+        int row = 0, col = 0, value;
+        while (1){
+            printf("%d. ", i + 1);
+            scanf("%d", &row);
+            if (row == -1) return;      // 輸入 -1 停止輸入
+            scanf("%d%d", &col, &value);
+            if (row >= MAXHEAD || row < 0 || col >= MAXHEAD || col < 0)
+                printf("ERROR: row and col must be 0 ~ %d", MAXHEAD);
+            else if (i == 0 || ((entry->row == row && entry->col < col) || (entry->row < row)))    // 檢查是否由上到下，由左到右輸入
+                break;
+            else printf("ERROR: please enter terms by order\n");
+        }
+
+        append_node(m, create_node(row, col, value, false, freelist), freelist);
+        node *current = m->head_first;
+        do {
+            while (current->head){
+                current = current->next->right;
+                if (current == m->head_first) break;
+            }
+            while (!current->head){
+                entry = current;
+                current = current->right;
+            }
+        } while (current != m->head_first);
+        printf("%d. [%d, %d] = %d\n", i + 1, entry->row, entry->col, entry->value);     // 印出檢查
+    }
 }
 
 // 轉置函數，建立新矩陣
@@ -361,8 +395,8 @@ int main(){
 
     switch (input_mode){
         case 1:
-            input_sm(smA);
-            input_sm(smB);
+            input_sm(smA, &freelist);
+            input_sm(smB, &freelist);
             break;
         case 2:
             append_node(smA, create_node(0, 0,  15, 0, &freelist), &freelist);
