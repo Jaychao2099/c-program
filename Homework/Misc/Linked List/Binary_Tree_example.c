@@ -39,6 +39,9 @@ void print_postorder_rec(node *current){      // tree->root
 }
 
 void print_inorder_iter(Tree *tree, int length){
+    if (tree == NULL || tree->root == NULL){
+        return;
+    }
     node **stack = malloc(length * sizeof(node *));
     int top = -1;
     node *current = tree->root;
@@ -59,6 +62,9 @@ void print_inorder_iter(Tree *tree, int length){
 }
 
 void print_preorder_iter(Tree *tree, int length){
+    if (tree == NULL || tree->root == NULL){
+        return;
+    }
     node **stack = malloc(length * sizeof(node *));
     int top = -1;
     node *current = tree->root;
@@ -78,22 +84,31 @@ void print_preorder_iter(Tree *tree, int length){
 }
 
 void print_postorder_iter(Tree *tree, int length){
+    if (tree == NULL || tree->root == NULL){
+        return;
+    }
+
     node **stack = malloc(length * sizeof(node *));
     int top = -1;
     node *current = tree->root;
-    while (1){
-        while (current){
+
+    node *lastVisited = NULL;
+    while (current || top > -1){
+        if (current) {
             stack[++top] = current;
-            current = current->left;
+            current = current->left;            // L
         }
-        if (top > -1){
-            while (top > -1 && current == stack[top]->right){
-                current = stack[top--];
-                printf("%c", current->value);
+        else {
+            node *peekNode = stack[top];
+            if (peekNode->right && lastVisited != peekNode->right){
+                current = peekNode->right;      // R
             }
-            if (top > -1) current = stack[top]->right;
+            else {
+                printf("%c", peekNode->value);  // V
+                lastVisited = peekNode;
+                top--;
+            }
         }
-        else break;
     }
 
     printf("\n");
