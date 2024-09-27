@@ -9,6 +9,7 @@ typedef struct node{
 
 typedef struct{
     node *root;
+    int count;
 }Tree;
 
 // LVR
@@ -38,11 +39,13 @@ void print_postorder_rec(node *current){      // tree->root
     }
 }
 
-void print_inorder_iter(Tree *tree, int length){
+void print_inorder_iter(Tree *tree){
+    printf("In-order:\t");
     if (tree == NULL || tree->root == NULL){
+        printf("(non)");
         return;
     }
-    node **stack = malloc(length * sizeof(node *));
+    node **stack = malloc(tree->count * sizeof(node *));
     int top = -1;
     node *current = tree->root;
     while (1){
@@ -61,11 +64,13 @@ void print_inorder_iter(Tree *tree, int length){
     free(stack);
 }
 
-void print_preorder_iter(Tree *tree, int length){
+void print_preorder_iter(Tree *tree){
+    printf("Pre-order:\t");
     if (tree == NULL || tree->root == NULL){
+        printf("(non)");
         return;
     }
-    node **stack = malloc(length * sizeof(node *));
+    node **stack = malloc(tree->count * sizeof(node *));
     int top = -1;
     node *current = tree->root;
     while (1){
@@ -83,12 +88,13 @@ void print_preorder_iter(Tree *tree, int length){
     free(stack);
 }
 
-void print_postorder_iter(Tree *tree, int length){
+void print_postorder_iter(Tree *tree){
+    printf("Post-order:\t");
     if (tree == NULL || tree->root == NULL){
+        printf("(non)");
         return;
     }
-
-    node **stack = malloc(length * sizeof(node *));
+    node **stack = malloc(tree->count * sizeof(node *));
     int top = -1;
     node *current = tree->root;
 
@@ -110,9 +116,28 @@ void print_postorder_iter(Tree *tree, int length){
             }
         }
     }
-
     printf("\n");
     free(stack);
+}
+
+void print_levelorder(Tree *tree){
+    printf("Level-order:\t");
+    if (tree == NULL || tree->root == NULL){
+        printf("(non)");
+        return;
+    }
+    node **queue = malloc(tree->count * sizeof(node *));
+    int front = 0, rear = -1;
+    queue[++rear] = tree->root;
+    node *level_start = tree->root;
+    while (rear - front >= 0){      // queue 空 -> 結束
+        if (queue[front]->left) queue[++rear] = queue[front]->left;     // 下一 level 左邊加入 queue
+        if (queue[front]->right) queue[++rear] = queue[front]->right;   // 下一 level 右邊加入 queue
+        if (queue[front])
+            printf("%c", queue[front++]->value);        // 印出當前這 level
+    }
+    printf("\n");
+    free(queue);
 }
 
 
@@ -135,10 +160,20 @@ node *create_node(char var, Tree *freelist){
     return newnode;
 }
 
-node *append_root_node(node *new_root, node *left_root, node *right_root){
-    new_root->left = left_root;
-    new_root->right = right_root;
-    return new_root;
+void *append_root_node(Tree *tree, node *new_root, node *left_root, node *right_root){
+    if (!new_root){
+        printf("ERROR: invalid new root in append_root_node");
+        exit(1);
+    }
+    if (left_root){
+        new_root->left = left_root;
+        tree->count++;
+    }
+    if (right_root){
+        new_root->right = right_root;
+        tree->count++;
+    }
+    tree->root = new_root;
 }
 
 // void append_tree(){}
@@ -157,31 +192,47 @@ void remove_tree_rec(node *current){      // tree->root
     }
 }
 
-// 釋放記憶體，post-order iterative 法
-void remove_tree_iter(node *current){      // tree->root
-    
+// 釋放記憶體，level-order iterative 法
+void remove_tree_iter(Tree *tree){
+    if (tree == NULL || tree->root == NULL){
+        return;
+    }
+    node **queue = malloc(tree->count * sizeof(node *));
+    int front = 0, rear = -1;
+    queue[++rear] = tree->root;
+    node *level_start = tree->root;
+    while (rear - front >= 0){
+        if (queue[front]->left) queue[++rear] = queue[front]->left;
+        if (queue[front]->right) queue[++rear] = queue[front]->right;
+        if (queue[front])
+            free(queue[front++]);
+    }
+    printf("\n");
+    free(queue);
 }
 
 int main(){
     Tree freelist = {NULL};
-    Tree *a = malloc(sizeof(Tree));
+    Tree *a = calloc(1, sizeof(Tree));
     a->root = create_node('A', &freelist);
-    a->root = append_root_node(create_node('/', &freelist), a->root, create_node('B', &freelist));
-    a->root = append_root_node(create_node('*', &freelist), a->root, create_node('C', &freelist));
-    a->root = append_root_node(create_node('*', &freelist), a->root, create_node('D', &freelist));
-    a->root = append_root_node(create_node('+', &freelist), a->root, create_node('E', &freelist));
+    append_root_node(a, create_node('/', &freelist), a->root, create_node('B', &freelist));
+    append_root_node(a, create_node('*', &freelist), a->root, create_node('C', &freelist));
+    append_root_node(a, create_node('*', &freelist), a->root, create_node('D', &freelist));
+    append_root_node(a, create_node('+', &freelist), a->root, create_node('E', &freelist));
 
-    print_inorder_rec(a->root);
-    printf("\n");
-    print_inorder_iter(a, 9);
+    // print_inorder_rec(a->root);
+    // printf("\n");
+    print_inorder_iter(a);
 
-    print_preorder_rec(a->root);
-    printf("\n");
-    print_preorder_iter(a, 9);
+    // print_preorder_rec(a->root);
+    // printf("\n");
+    print_preorder_iter(a);
 
-    print_postorder_rec(a->root);
-    printf("\n");
-    print_postorder_iter(a, 9);
+    // print_postorder_rec(a->root);
+    // printf("\n");
+    print_postorder_iter(a);
+
+    print_levelorder(a);
 
     remove_tree_rec(a->root);
     free(a);
