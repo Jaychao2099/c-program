@@ -1,5 +1,8 @@
 # include <stdio.h>
 # include <stdlib.h>
+# include <string.h>
+
+# define EXPRESSION "A+B*(C-D)/E"
 
 typedef struct node{
     struct node *left;
@@ -42,7 +45,7 @@ void print_postorder_rec(node *current){      // tree->root
 void print_inorder_iter(Tree *tree){
     printf("In-order:\t");
     if (tree == NULL || tree->root == NULL){
-        printf("(non)");
+        printf("(non)\n");
         return;
     }
     node **stack = malloc(tree->count * sizeof(node *));
@@ -67,7 +70,7 @@ void print_inorder_iter(Tree *tree){
 void print_preorder_iter(Tree *tree){
     printf("Pre-order:\t");
     if (tree == NULL || tree->root == NULL){
-        printf("(non)");
+        printf("(non)\n");
         return;
     }
     node **stack = malloc(tree->count * sizeof(node *));
@@ -91,7 +94,7 @@ void print_preorder_iter(Tree *tree){
 void print_postorder_iter(Tree *tree){
     printf("Post-order:\t");
     if (tree == NULL || tree->root == NULL){
-        printf("(non)");
+        printf("(non)\n");
         return;
     }
     node **stack = malloc(tree->count * sizeof(node *));
@@ -123,13 +126,12 @@ void print_postorder_iter(Tree *tree){
 void print_levelorder(Tree *tree){
     printf("Level-order:\t");
     if (tree == NULL || tree->root == NULL){
-        printf("(non)");
+        printf("(non)\n");
         return;
     }
     node **queue = malloc(tree->count * sizeof(node *));
     int front = 0, rear = -1;
     queue[++rear] = tree->root;
-    node *level_start = tree->root;
     while (rear - front >= 0){      // queue 空 -> 結束
         if (queue[front]->left) queue[++rear] = queue[front]->left;     // 下一 level 左邊加入 queue
         if (queue[front]->right) queue[++rear] = queue[front]->right;   // 下一 level 右邊加入 queue
@@ -160,29 +162,6 @@ node *create_node(char var, Tree *freelist){
     return newnode;
 }
 
-void *append_root_node(Tree *tree, node *new_root, node *left_root, node *right_root){
-    if (!new_root){
-        printf("ERROR: invalid new root in append_root_node");
-        exit(1);
-    }
-    if (left_root){
-        new_root->left = left_root;
-        tree->count++;
-    }
-    if (right_root){
-        new_root->right = right_root;
-        tree->count++;
-    }
-    tree->root = new_root;
-}
-
-// void append_tree(){}
-
-// Tree *input_tree(char *text){
-//     Tree *tree;
-//     tree->root;
-// }
-
 // 釋放記憶體，post-order recursive 法
 void remove_tree_rec(node *current){      // tree->root
     if (current){
@@ -211,27 +190,179 @@ void remove_tree_iter(Tree *tree){
     free(queue);
 }
 
+int priority(const char x, char *mode){
+    switch (x){
+        case '!': return 1;
+        case '^': return 2;
+        case '*': case '/': case '%': return 3;
+        case '+': case '-': return 4;
+        case '>': case '<': return 5;
+        case '(': return mode == "isp" ? 8 : 0;
+        default:
+            printf("\nERROR: invalid operator\n");
+            exit(1);
+    }
+}
+
+_Bool isOperand(const char x){
+    return (x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z') || (x >= '0' && x <= '9');
+}
+
+Tree *input_tree(char *text, Tree *freelist) {
+    if (text == NULL || freelist == NULL) {
+        printf("ERROR: Input parameters cannot be NULL\n");
+        return NULL;
+    }
+
+    int length = strlen(text);
+    if (length == 0) {
+        printf("ERROR: Input expression cannot be empty\n");
+        return NULL;
+    }
+
+    node **node_stack = malloc(length * sizeof(node *));
+    char *op_stack = malloc(length * sizeof(char));
+    if (node_stack == NULL || op_stack == NULL) {
+        printf("ERROR: Memory allocation failed\n");
+        free(node_stack);
+        free(op_stack);
+        return NULL;
+    }
+
+    int node_top = -1, op_top = -1;
+    Tree *tree = calloc(1, sizeof(Tree));
+    if (tree == NULL) {
+        printf("ERROR: Tree structure memory allocation failed\n");
+        free(node_stack);
+        free(op_stack);
+        return NULL;
+    }
+
+    int parentheses_count = 0;  // 用於檢查括號是否匹配
+
+    for (int i = 0; i < length; i++) {
+        if (text[i] == ' ') continue;   // 跳過空格
+
+        if (isOperand(text[i])) {       // 處理 運算元
+            node *new_node = create_node(text[i], freelist);
+            if (new_node == NULL) {
+                printf("ERROR: Unable to create new node\n");
+                goto cleanup;
+            }
+            node_stack[++node_top] = new_node;
+            tree->count++;
+        } else if (text[i] == '(') {    // 處理'('
+            op_stack[++op_top] = text[i];
+            parentheses_count++;
+        } else if (text[i] == ')') {    // 處理')'
+            parentheses_count--;
+            if (parentheses_count < 0) {
+                printf("ERROR: Mismatched '(' and ')'\n");
+                goto cleanup;
+            }
+            while (op_top >= 0 && op_stack[op_top] != '(') {
+                if (node_top < 1) {
+                    printf("ERROR: Invalid expression format\n");
+                    goto cleanup;
+                }
+                node *right = node_stack[node_top--];
+                node *left = node_stack[node_top--];
+                node *op_node = create_node(op_stack[op_top--], freelist);
+                if (op_node == NULL) {
+                    printf("ERROR: Unable to create operator node\n");
+                    goto cleanup;
+                }
+                op_node->left = left;
+                op_node->right = right;
+                node_stack[++node_top] = op_node;
+                tree->count++;
+            }
+            if (op_top >= 0 && op_stack[op_top] == '(') {
+                op_top--;  // 彈出 '('
+            } else {
+                printf("ERROR: Missing '('\n");
+                goto cleanup;
+            }
+        } else if (strchr("!^*/%+-><", text[i])) {  // 處理運算符
+            while (op_top >= 0 && priority(op_stack[op_top], "isp") <= priority(text[i], "icp")) {
+                if (node_top < 1) {
+                    printf("ERROR: Invalid expression format\n");
+                    goto cleanup;
+                }
+                node *right = node_stack[node_top--];
+                node *left = node_stack[node_top--];
+                node *op_node = create_node(op_stack[op_top--], freelist);
+                if (op_node == NULL) {
+                    printf("ERROR: Unable to create operator node\n");
+                    goto cleanup;
+                }
+                op_node->left = left;
+                op_node->right = right;
+                node_stack[++node_top] = op_node;
+                tree->count++;
+            }
+            op_stack[++op_top] = text[i];
+        } else {
+            printf("ERROR: Invalid character '%c'\n", text[i]);
+            goto cleanup;
+        }
+    }
+
+    if (parentheses_count != 0) {
+        printf("ERROR: Mismatched parentheses\n");
+        goto cleanup;
+    }
+
+    // 處理剩餘的運算符
+    while (op_top >= 0) {
+        if (node_top < 1) {
+            printf("ERROR: Invalid expression format\n");
+            goto cleanup;
+        }
+        node *right = node_stack[node_top--];
+        node *left = node_stack[node_top--];
+        node *op_node = create_node(op_stack[op_top--], freelist);
+        if (op_node == NULL) {
+            printf("ERROR: Unable to create operator node\n");
+            goto cleanup;
+        }
+        op_node->left = left;
+        op_node->right = right;
+        node_stack[++node_top] = op_node;
+        tree->count++;
+    }
+
+    if (node_top != 0) {
+        printf("ERROR: Invalid expression format\n");
+        goto cleanup;
+    }
+
+    tree->root = node_stack[0];
+    free(node_stack);
+    free(op_stack);
+    return tree;
+
+cleanup:
+    // 清理資源並返回 NULL
+    while (node_top >= 0) {
+        remove_tree_rec(node_stack[node_top--]);
+    }
+    free(node_stack);
+    free(op_stack);
+    free(tree);
+    return NULL;
+}
+
 int main(){
     Tree freelist = {NULL};
-    Tree *a = calloc(1, sizeof(Tree));
-    a->root = create_node('A', &freelist);
-    append_root_node(a, create_node('/', &freelist), a->root, create_node('B', &freelist));
-    append_root_node(a, create_node('*', &freelist), a->root, create_node('C', &freelist));
-    append_root_node(a, create_node('*', &freelist), a->root, create_node('D', &freelist));
-    append_root_node(a, create_node('+', &freelist), a->root, create_node('E', &freelist));
 
-    // print_inorder_rec(a->root);
-    // printf("\n");
+    printf("Input expression = %s\n", EXPRESSION);
+    
+    Tree *a = input_tree(EXPRESSION, &freelist);
+
     print_inorder_iter(a);
-
-    // print_preorder_rec(a->root);
-    // printf("\n");
     print_preorder_iter(a);
-
-    // print_postorder_rec(a->root);
-    // printf("\n");
     print_postorder_iter(a);
-
     print_levelorder(a);
 
     remove_tree_rec(a->root);
