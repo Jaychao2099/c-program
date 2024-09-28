@@ -5,6 +5,7 @@
 # define print_inorder_rec(a) do {printf("In-order:\t"); _print_inorder_rec(a->root); printf("\n");} while (0)
 # define print_preorder_rec(a) do {printf("pre-order:\t"); _print_preorder_rec(a->root); printf("\n");} while (0)
 # define print_postorder_rec(a) do {printf("post-order:\t"); _print_postorder_rec(a->root); printf("\n");} while(0)
+# define remove_tree_rec(a) do {_remove_tree_rec(a->root);} while(0)
 
 # define EXPRESSION "A+B*(C-D)/E"
 
@@ -167,10 +168,10 @@ node *create_node(char var, Tree *freelist){
 }
 
 // 釋放記憶體，post-order recursive 法
-void remove_tree_rec(node *current){      // tree->root
+void _remove_tree_rec(node *current){      // tree->root
     if (current){
-        remove_tree_rec(current->left);
-        remove_tree_rec(current->right);
+        _remove_tree_rec(current->left);
+        _remove_tree_rec(current->right);
         free(current);
     }
 }
@@ -349,7 +350,7 @@ Tree *input_tree(char *text, Tree *freelist) {
 cleanup:
     // 清理資源並返回 NULL
     while (node_top >= 0) {
-        remove_tree_rec(node_stack[node_top--]);
+        _remove_tree_rec(node_stack[node_top--]);
     }
     free(node_stack);
     free(op_stack);
@@ -373,7 +374,7 @@ int main(){
     print_preorder_rec(a);
     print_postorder_rec(a);
 
-    remove_tree_rec(a->root);
+    remove_tree_rec(a);
     free(a);
 
     return 0;
