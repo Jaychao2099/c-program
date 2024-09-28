@@ -2,6 +2,10 @@
 # include <stdlib.h>
 # include <string.h>
 
+# define print_inorder_rec(a) do {printf("In-order:\t"); _print_inorder_rec(a->root); printf("\n");} while (0)
+# define print_preorder_rec(a) do {printf("pre-order:\t"); _print_preorder_rec(a->root); printf("\n");} while (0)
+# define print_postorder_rec(a) do {printf("post-order:\t"); _print_postorder_rec(a->root); printf("\n");} while(0)
+
 # define EXPRESSION "A+B*(C-D)/E"
 
 typedef struct node{
@@ -16,28 +20,28 @@ typedef struct{
 }Tree;
 
 // LVR
-void print_inorder_rec(node *current){      // tree->root
+void _print_inorder_rec(node *current){      // tree->root
     if (current){
-        print_inorder_rec(current->left);
+        _print_inorder_rec(current->left);
         printf("%c", current->value);
-        print_inorder_rec(current->right);
+        _print_inorder_rec(current->right);
     }
 }
 
 // VLR
-void print_preorder_rec(node *current){      // tree->root
+void _print_preorder_rec(node *current){      // tree->root
     if (current){
         printf("%c", current->value);
-        print_preorder_rec(current->left);
-        print_preorder_rec(current->right);
+        _print_preorder_rec(current->left);
+        _print_preorder_rec(current->right);
     }
 }
 
 // LRV
-void print_postorder_rec(node *current){      // tree->root
+void _print_postorder_rec(node *current){      // tree->root
     if (current){
-        print_postorder_rec(current->left);
-        print_postorder_rec(current->right);
+        _print_postorder_rec(current->left);
+        _print_postorder_rec(current->right);
         printf("%c", current->value);
     }
 }
@@ -364,6 +368,10 @@ int main(){
     print_preorder_iter(a);
     print_postorder_iter(a);
     print_levelorder(a);
+
+    print_inorder_rec(a);
+    print_preorder_rec(a);
+    print_postorder_rec(a);
 
     remove_tree_rec(a->root);
     free(a);
