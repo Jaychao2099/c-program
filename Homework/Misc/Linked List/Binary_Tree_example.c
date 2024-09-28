@@ -1,6 +1,21 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <stdbool.h>
+
+# define print_inorder_rec(a) do {printf("In-order:\t"); _print_inorder_rec(a->root); printf("\n");} while (0)
+# define print_preorder_rec(a) do {printf("pre-order:\t"); _print_preorder_rec(a->root); printf("\n");} while (0)
+# define print_postorder_rec(a) do {printf("post-order:\t"); _print_postorder_rec(a->root); printf("\n");} while (0)
+
+# define copy_tree(a, b, new_name, freelist)        \
+do {                                                \
+        b = malloc(sizeof(Tree));                   \
+        b->name = new_name;                         \
+        b->root = _copy_tree(a->root, freelist);    \
+} while (0)
+
+# define equal(a, b) _equal(a->root, b->root)
+# define remove_tree_rec(a) _remove_tree_rec(a->root)
 
 # define EXPRESSION "A+B*(C-D)/E"
 
@@ -13,31 +28,32 @@ typedef struct node{
 typedef struct{
     node *root;
     int count;
+    char *name;
 }Tree;
 
 // LVR
-void print_inorder_rec(node *current){      // tree->root
+void _print_inorder_rec(node *current){      // tree->root
     if (current){
-        print_inorder_rec(current->left);
+        _print_inorder_rec(current->left);
         printf("%c", current->value);
-        print_inorder_rec(current->right);
+        _print_inorder_rec(current->right);
     }
 }
 
 // VLR
-void print_preorder_rec(node *current){      // tree->root
+void _print_preorder_rec(node *current){      // tree->root
     if (current){
         printf("%c", current->value);
-        print_preorder_rec(current->left);
-        print_preorder_rec(current->right);
+        _print_preorder_rec(current->left);
+        _print_preorder_rec(current->right);
     }
 }
 
 // LRV
-void print_postorder_rec(node *current){      // tree->root
+void _print_postorder_rec(node *current){      // tree->root
     if (current){
-        print_postorder_rec(current->left);
-        print_postorder_rec(current->right);
+        _print_postorder_rec(current->left);
+        _print_postorder_rec(current->right);
         printf("%c", current->value);
     }
 }
@@ -142,7 +158,6 @@ void print_levelorder(Tree *tree){
     free(queue);
 }
 
-
 node *create_node(char var, Tree *freelist){
     node *newnode;
     if (freelist->root){                    // 可用 freelist 的空間
@@ -162,11 +177,31 @@ node *create_node(char var, Tree *freelist){
     return newnode;
 }
 
+node *_copy_tree(node *orig_node, Tree *freelist){
+    if (orig_node){
+        node *temp = create_node(orig_node->value, freelist);
+        temp->left = _copy_tree(orig_node->left, freelist);
+        temp->right = _copy_tree(orig_node->right, freelist);
+        return temp;
+    }
+    else return NULL;
+}
+
+_Bool _equal(const node *a, const node *b){
+    if (!a && !b) return 1;
+    if (a && b &&
+        (a->value == b->value) &&
+        _equal(a->left, b->left) &&
+        _equal(a->right, b->right))
+        return 1;
+    return 0;
+}
+
 // 釋放記憶體，post-order recursive 法
-void remove_tree_rec(node *current){      // tree->root
+void _remove_tree_rec(node *current){      // tree->root
     if (current){
-        remove_tree_rec(current->left);
-        remove_tree_rec(current->right);
+        _remove_tree_rec(current->left);
+        _remove_tree_rec(current->right);
         free(current);
     }
 }
@@ -208,7 +243,7 @@ _Bool isOperand(const char x){
     return (x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z') || (x >= '0' && x <= '9');
 }
 
-Tree *input_tree(char *text, Tree *freelist) {
+Tree *input_tree(char *text, char *name, Tree *freelist) {
     if (text == NULL || freelist == NULL) {
         printf("ERROR: Input parameters cannot be NULL\n");
         return NULL;
@@ -340,12 +375,13 @@ Tree *input_tree(char *text, Tree *freelist) {
     tree->root = node_stack[0];
     free(node_stack);
     free(op_stack);
+    tree->name = name;
     return tree;
 
 cleanup:
     // 清理資源並返回 NULL
     while (node_top >= 0) {
-        remove_tree_rec(node_stack[node_top--]);
+        _remove_tree_rec(node_stack[node_top--]);
     }
     free(node_stack);
     free(op_stack);
@@ -353,19 +389,17 @@ cleanup:
     return NULL;
 }
 
+
 int main(){
     Tree freelist = {NULL};
-
-    printf("Input expression = %s\n", EXPRESSION);
     
-    Tree *a = input_tree(EXPRESSION, &freelist);
+    Tree *a = input_tree(EXPRESSION, "a", &freelist);
 
-    print_inorder_iter(a);
-    print_preorder_iter(a);
-    print_postorder_iter(a);
-    print_levelorder(a);
+    Tree *b;
+    copy_tree(a, b, "b", &freelist);
+    printf("%s and %s is %s\n", a->name, b->name, equal(a, b) ? "Equal" : "Not equal");
 
-    remove_tree_rec(a->root);
+    remove_tree_rec(a);
     free(a);
 
     return 0;
