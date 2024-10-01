@@ -15,13 +15,17 @@ do {                                                \
 } while (0)
 
 # define equal(a, b) _equal(a->root, b->root)
+# define swap_node(a) _swap_node(a->root)
+# define count_node(a) _count_node(a->root)
+# define count_leaf(a) _count_leaf(a->root)
+# define tree_height(a) _tree_height(a->root)
 # define remove_tree_rec(a) _remove_tree_rec(a->root)
 
-# define EXPRESSION "A+B*(C-D)/E"
+# define EXPRESSION "A - (B/C + (D%E*F) / G) * H > (x+1)*(x^2-2*x+1)"
 
 typedef struct node{
     struct node *left;
-    char value;
+    char data;
     struct node *right;
 }node;
 
@@ -35,7 +39,7 @@ typedef struct{
 void _print_inorder_rec(node *current){      // tree->root
     if (current){
         _print_inorder_rec(current->left);
-        printf("%c", current->value);
+        printf("%c", current->data);
         _print_inorder_rec(current->right);
     }
 }
@@ -43,7 +47,7 @@ void _print_inorder_rec(node *current){      // tree->root
 // VLR
 void _print_preorder_rec(node *current){      // tree->root
     if (current){
-        printf("%c", current->value);
+        printf("%c", current->data);
         _print_preorder_rec(current->left);
         _print_preorder_rec(current->right);
     }
@@ -54,7 +58,7 @@ void _print_postorder_rec(node *current){      // tree->root
     if (current){
         _print_postorder_rec(current->left);
         _print_postorder_rec(current->right);
-        printf("%c", current->value);
+        printf("%c", current->data);
     }
 }
 
@@ -74,7 +78,7 @@ void print_inorder_iter(Tree *tree){
         }
         if (top > -1){
             current = stack[top];
-            printf("%c", stack[top--]->value);  // V
+            printf("%c", stack[top--]->data);  // V
             current = current->right;           // R
         }
         else break;
@@ -94,7 +98,7 @@ void print_preorder_iter(Tree *tree){
     node *current = tree->root;
     while (1){
         while (current){
-            printf("%c", current->value);   // V
+            printf("%c", current->data);   // V
             stack[++top] = current;
             current = current->left;        // L
         }
@@ -129,7 +133,7 @@ void print_postorder_iter(Tree *tree){
                 current = peekNode->right;      // R
             }
             else {
-                printf("%c", peekNode->value);  // V
+                printf("%c", peekNode->data);  // V
                 lastVisited = peekNode;
                 top--;
             }
@@ -152,7 +156,7 @@ void print_levelorder(Tree *tree){
         if (queue[front]->left) queue[++rear] = queue[front]->left;     // 下一 level 左邊加入 queue
         if (queue[front]->right) queue[++rear] = queue[front]->right;   // 下一 level 右邊加入 queue
         if (queue[front])
-            printf("%c", queue[front++]->value);        // 印出當前這 level，進入 queue 中的下一個 node
+            printf("%c", queue[front++]->data);        // 印出當前這 level，進入 queue 中的下一個 node
     }
     printf("\n");
     free(queue);
@@ -171,7 +175,7 @@ node *create_node(char var, Tree *freelist){
             exit(1);
         }
     }
-    newnode->value = var;
+    newnode->data = var;
     newnode->left = NULL;
     newnode->right = NULL;
     return newnode;
@@ -179,21 +183,57 @@ node *create_node(char var, Tree *freelist){
 
 node *_copy_tree(node *orig_node, Tree *freelist){
     if (orig_node){
-        node *temp = create_node(orig_node->value, freelist);
+        node *temp = create_node(orig_node->data, freelist);
         temp->left = _copy_tree(orig_node->left, freelist);
         temp->right = _copy_tree(orig_node->right, freelist);
         return temp;
     }
-    else return NULL;
+    return NULL;
 }
 
 _Bool _equal(const node *a, const node *b){
     if (!a && !b) return 1;
     if (a && b &&
-        (a->value == b->value) &&
+        (a->data == b->data) &&
         _equal(a->left, b->left) &&
         _equal(a->right, b->right))
         return 1;
+    return 0;
+}
+
+// 左右互換
+void _swap_node(node *x){
+    if (x){
+        _swap_node(x->left);
+        _swap_node(x->right);
+        node *temp = x->left;
+        x->left = x->right;
+        x->right = temp;
+    }
+}
+
+int _count_node(node *x){
+    if (x)
+        return 1 + _count_node(x->left) + _count_node(x->right);
+    return 0;
+}
+
+int _count_leaf(node *x){
+    if (x){
+        int l = _count_leaf(x->left);
+        int r = _count_leaf(x->right);
+        if (l + r > 0) return l + r;
+        else return 1;      // 本身是 leaf
+    }
+    return 0;
+}
+
+int _tree_height(node *x){
+    if (x){
+        int l = _tree_height(x->left);
+        int r = _tree_height(x->right);
+        return 1 + __max(l, r);
+    }
     return 0;
 }
 
@@ -399,8 +439,22 @@ int main(){
     copy_tree(a, b, "b", &freelist);
     printf("%s and %s is %s\n", a->name, b->name, equal(a, b) ? "Equal" : "Not equal");
 
+    swap_node(b);
+    int count_b = count_node(b);
+    printf("%s's count (%d) and %s's count (%d) is %s\n", a->name, a->count, b->name, count_b, a->count == count_b ? "Equal" : "Not equal");
+
+    int leaf_a = count_leaf(a);
+    int leaf_b = count_leaf(b);
+    printf("%s's leaf (%d) and %s's leaf (%d) is %s\n", a->name, leaf_a, b->name, leaf_b, leaf_a == leaf_b ? "Equal" : "Not equal");
+
+    int height_a = tree_height(a);
+    int height_b = tree_height(b);
+    printf("%s's height (%d) and %s's height (%d) is %s\n", a->name, height_a, b->name, height_b, height_a == height_b ? "Equal" : "Not equal");
+
     remove_tree_rec(a);
+    remove_tree_rec(b);
     free(a);
+    free(b);
 
     return 0;
 }
