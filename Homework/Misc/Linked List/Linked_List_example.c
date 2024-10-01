@@ -2,7 +2,7 @@
 # include <stdlib.h>
 
 typedef struct node{
-    char value;
+    char data;
     struct node *next;
 }node;
 
@@ -13,7 +13,7 @@ typedef struct{
 
 void print_list(List *list){
     for (node *ptr = list->head; ptr != NULL; ptr = ptr->next)
-        printf("%c ", ptr->value);
+        printf("%c ", ptr->data);
     printf("\n");
 }
 
@@ -32,7 +32,7 @@ node *create_node(char var, List *freelist){
         }
     }
 
-    newnode->value = var;
+    newnode->data = var;
     newnode->next = NULL;
     return newnode;
 }
