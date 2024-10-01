@@ -137,11 +137,11 @@ void print_levelorder(Tree *tree){
     node **queue = malloc(tree->count * sizeof(node *));
     int front = 0, rear = -1;
     queue[++rear] = tree->root;
-    while (rear - front >= 0){      // queue 空 -> 結束
+    while (rear >= front){      // queue 空 -> 結束
         if (queue[front]->left) queue[++rear] = queue[front]->left;     // 下一 level 左邊加入 queue
         if (queue[front]->right) queue[++rear] = queue[front]->right;   // 下一 level 右邊加入 queue
         if (queue[front])
-            printf("%c", queue[front++]->value);        // 印出當前這 level
+            printf("%c", queue[front++]->value);        // 印出當前這 level，進入 queue 中的下一個 node
     }
     printf("\n");
     free(queue);
