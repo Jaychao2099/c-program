@@ -2,18 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 
 #define print_inorder_rec(a) do {printf("In-order:\t"); _print_inorder_rec(a->root); printf("\n");} while (0)
 #define print_preorder_rec(a) do {printf("pre-order:\t"); _print_preorder_rec(a->root); printf("\n");} while (0)
 #define print_postorder_rec(a) do {printf("post-order:\t"); _print_postorder_rec(a->root); printf("\n");} while(0)
 #define remove_tree_rec(a) do {_remove_tree_rec(a->root);} while(0)
 
-#define EXPRESSION "3+4*(5-2)/2"
+#define postorder_eval(a) _postorder_eval(a->root)
+#define EXPRESSION "3.14 - (69/420 + (399%4*0.69) / 9.8) * 74"
 
 typedef struct node {
     struct node *left;
     char data;
-    double result;
+    double value;
     struct node *right;
 } node;
 
@@ -28,7 +30,7 @@ void _print_inorder_rec(node *current) {
         if (current->data)
             printf("%c", current->data);
         else
-            printf("%.2f", current->result);
+            printf("%.2f", current->value);
         _print_inorder_rec(current->right);
     }
 }
@@ -38,7 +40,7 @@ void _print_preorder_rec(node *current) {
         if (current->data)
             printf("%c", current->data);
         else
-            printf("%.2f", current->result);
+            printf("%.2f", current->value);
         _print_preorder_rec(current->left);
         _print_preorder_rec(current->right);
     }
@@ -51,7 +53,7 @@ void _print_postorder_rec(node *current) {
         if (current->data)
             printf("%c", current->data);
         else
-            printf("%.2f", current->result);
+            printf("%.2f", current->value);
     }
 }
 
@@ -72,7 +74,7 @@ void print_levelorder(Tree *tree) {
         if (current->data) {
             printf("%c ", current->data);        // 印出運算符
         } else {
-            printf("%.2f ", current->result);    // 印出運算元（數字）
+            printf("%.2f ", current->value);    // 印出運算元（數字）
         }
     }
     printf("\n");
@@ -93,7 +95,7 @@ node *create_node(char var, double value, Tree *freelist) {
         }
     }
     newnode->data = var;
-    newnode->result = value;
+    newnode->value = value;
     newnode->left = NULL;
     newnode->right = NULL;
     return newnode;
@@ -277,6 +279,33 @@ cleanup:
     return NULL;
 }
 
+void _postorder_eval(node *x){
+    if (x){
+        _postorder_eval(x->left);   // L
+        _postorder_eval(x->right);  // R
+        switch (x->data){           // V
+            case '^':
+                x->value = pow(x->left->value, x->right->value);
+                break;
+            case '*':
+                x->value = x->left->value * x->right->value;
+                break;
+            case '/':
+                x->value = x->left->value / x->right->value;
+                break;
+            case '%':
+                x->value = (int)x->left->value % (int)x->right->value;
+                break;
+            case '+':
+                x->value = x->left->value + x->right->value;
+                break;
+            case '-':
+                x->value = x->left->value - x->right->value;
+                break;
+        }
+    }
+}
+
 int main() {
     Tree freelist = {NULL};
 
@@ -288,6 +317,10 @@ int main() {
     print_preorder_rec(a);
     print_postorder_rec(a);
     print_levelorder(a);
+
+    postorder_eval(a);
+    double result = a->root->value;
+    printf("result = %lf\n", result);
 
     remove_tree_rec(a);
     free(a);
