@@ -294,6 +294,7 @@ Tree *input_tree(char *text, char *name){
         return NULL;
     }
 
+    // 建立 stack
     node **node_stack = malloc(length * sizeof(node *));
     char *op_stack = malloc(length * sizeof(char));
     if (node_stack == NULL || op_stack == NULL){
@@ -302,8 +303,9 @@ Tree *input_tree(char *text, char *name){
         free(op_stack);
         return NULL;
     }
-
     int node_top = -1, op_top = -1;
+
+    // 宣告 tree
     Tree *tree = calloc(1, sizeof(Tree));
     if (tree == NULL){
         printf("ERROR: Tree structure memory allocation failed\n");
@@ -415,8 +417,8 @@ Tree *input_tree(char *text, char *name){
     tree->name = name;
     return tree;
 
+// 清理資源並返回 NULL
 cleanup:
-    // 清理資源並返回 NULL
     while (node_top >= 0){
         _remove_tree_rec(node_stack[node_top--]);
     }
