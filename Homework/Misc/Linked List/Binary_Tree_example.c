@@ -2,14 +2,14 @@
 # include <stdlib.h>
 # include <string.h>
 
-# define print_inorder_rec(a) do {printf("In-order:\t"); _print_inorder_rec(a->root); printf("\n");} while (0)
-# define print_preorder_rec(a) do {printf("pre-order:\t"); _print_preorder_rec(a->root); printf("\n");} while (0)
-# define print_postorder_rec(a) do {printf("post-order:\t"); _print_postorder_rec(a->root); printf("\n");} while (0)
+# define print_inorder_rec(a) do {printf("\"%s\" In-order:\t", a->name); _print_inorder_rec(a->root); printf("\n");} while (0)
+# define print_preorder_rec(a) do {printf("\"%s\" pre-order:\t", a->name); _print_preorder_rec(a->root); printf("\n");} while (0)
+# define print_postorder_rec(a) do {printf("\"%s\" post-order:\t", a->name); _print_postorder_rec(a->root); printf("\n");} while (0)
 
 # define copy_tree(a, b, new_name)        \
-do {                                                \
-        b = malloc(sizeof(Tree));                   \
-        b->name = new_name;                         \
+do {                                      \
+        b = malloc(sizeof(Tree));         \
+        b->name = new_name;               \
         b->root = _copy_tree(a->root);    \
 } while (0)
 
@@ -62,7 +62,7 @@ void _print_postorder_rec(node *current){      // tree->root
 }
 
 void print_inorder_iter(Tree *tree){
-    printf("In-order:\t");
+    printf("\"%s\" In-order:\t", tree->name);
     if (tree == NULL || tree->root == NULL){
         printf("(non)\n");
         return;
@@ -87,7 +87,7 @@ void print_inorder_iter(Tree *tree){
 }
 
 void print_preorder_iter(Tree *tree){
-    printf("Pre-order:\t");
+    printf("\"%s\" Pre-order:\t", tree->name);
     if (tree == NULL || tree->root == NULL){
         printf("(non)\n");
         return;
@@ -111,7 +111,7 @@ void print_preorder_iter(Tree *tree){
 }
 
 void print_postorder_iter(Tree *tree){
-    printf("Post-order:\t");
+    printf("\"%s\" Post-order:\t", tree->name);
     if (tree == NULL || tree->root == NULL){
         printf("(non)\n");
         return;
@@ -143,7 +143,7 @@ void print_postorder_iter(Tree *tree){
 }
 
 void print_levelorder(Tree *tree){
-    printf("Level-order:\t");
+    printf("\"%s\" Level-order:\t", tree->name);
     if (tree == NULL || tree->root == NULL){
         printf("(non)\n");
         return;
@@ -433,18 +433,23 @@ int main(){
 
     Tree *b;
     copy_tree(a, b, "b");
+    print_inorder_rec(a);
+    print_inorder_rec(b);
     printf("%s and %s is %s\n", a->name, b->name, equal(a, b) ? "Equal" : "Not equal");
 
     swap_node(b);
-    int count_b = count_node(b);
+    printf("After swap node:\n");
+    print_inorder_rec(b);
+
+    int count_b = count_node(b);    // to test count_node function
     printf("%s's count (%d) and %s's count (%d) is %s\n", a->name, a->count, b->name, count_b, a->count == count_b ? "Equal" : "Not equal");
 
     int leaf_a = count_leaf(a);
-    int leaf_b = count_leaf(b);
+    int leaf_b = count_leaf(b);     // to test count_leaf function
     printf("%s's leaf (%d) and %s's leaf (%d) is %s\n", a->name, leaf_a, b->name, leaf_b, leaf_a == leaf_b ? "Equal" : "Not equal");
 
     int height_a = tree_height(a);
-    int height_b = tree_height(b);
+    int height_b = tree_height(b);  // to test tree_height function
     printf("%s's height (%d) and %s's height (%d) is %s\n", a->name, height_a, b->name, height_b, height_a == height_b ? "Equal" : "Not equal");
 
     remove_tree_rec(a);
