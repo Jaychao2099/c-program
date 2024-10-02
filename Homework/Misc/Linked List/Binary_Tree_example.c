@@ -281,6 +281,7 @@ _Bool isOperand(const char x){
     return (x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z') || (x >= '0' && x <= '9');
 }
 
+// 只能處理 二元運算子
 Tree *input_tree(char *text, char *name){
     if (text == NULL){
         printf("ERROR: Input parameters cannot be NULL\n");
@@ -315,8 +316,7 @@ Tree *input_tree(char *text, char *name){
 
     for (int i = 0; i < length; i++){
         if (text[i] == ' ') continue;   // 跳過空格
-
-        if (isOperand(text[i])){       // 處理 運算元
+        if (isOperand(text[i])){        // 處理 運算元，放進 node_stack
             node *new_node = create_node(text[i]);
             if (new_node == NULL){
                 printf("ERROR: Unable to create new node\n");
@@ -324,16 +324,16 @@ Tree *input_tree(char *text, char *name){
             }
             node_stack[++node_top] = new_node;
             tree->count++;
-        } else if (text[i] == '('){    // 處理'('
+        } else if (text[i] == '('){    // 處理'('，放進 op_stack
             op_stack[++op_top] = text[i];
             parentheses_count++;
         } else if (text[i] == ')'){    // 處理')'
             parentheses_count--;
-            if (parentheses_count < 0){
+            if (parentheses_count < 0){     // 括號不匹配
                 printf("ERROR: Mismatched '(' and ')'\n");
                 goto cleanup;
             }
-            while (op_top >= 0 && op_stack[op_top] != '('){
+            while (op_top >= 0 && op_stack[op_top] != '('){     // 括號內的 (a_node + b_node) 組成二階tree，放進 node_stack
                 if (node_top < 1){
                     printf("ERROR: Invalid expression format\n");
                     goto cleanup;
@@ -350,13 +350,13 @@ Tree *input_tree(char *text, char *name){
                 node_stack[++node_top] = op_node;
                 tree->count++;
             }
-            if (op_top >= 0 && op_stack[op_top] == '('){
-                op_top--;  // 彈出 '('
+            if (op_top >= 0 && op_stack[op_top] == '('){        // 最後彈出 '('
+                op_top--;
             } else {
                 printf("ERROR: Missing '('\n");
                 goto cleanup;
             }
-        } else if (strchr("!^*/%+-><", text[i])){  // 處理運算符
+        } else if (strchr("!^*/%+-><", text[i])){               // 處理 運算子，node_stack 拿出 2 個 node，組成二階樹，放回 node_stack
             while (op_top >= 0 && priority(op_stack[op_top], "isp") <= priority(text[i], "icp")){
                 if (node_top < 1){
                     printf("ERROR: Invalid expression format\n");
@@ -381,13 +381,12 @@ Tree *input_tree(char *text, char *name){
         }
     }
 
-    if (parentheses_count != 0){
+    if (parentheses_count != 0){        // 括號不匹配
         printf("ERROR: Mismatched parentheses\n");
         goto cleanup;
     }
 
-    // 處理剩餘的運算符
-    while (op_top >= 0){
+    while (op_top >= 0){                // 處理剩餘的 運算子，node_stack 拿出 2 個 node，組成二階樹，放回 node_stack
         if (node_top < 1){
             printf("ERROR: Invalid expression format\n");
             goto cleanup;
@@ -405,7 +404,7 @@ Tree *input_tree(char *text, char *name){
         tree->count++;
     }
 
-    if (node_top != 0){
+    if (node_top != 0){                 // 最後應只剩一個 node，就是 root
         printf("ERROR: Invalid expression format\n");
         goto cleanup;
     }
