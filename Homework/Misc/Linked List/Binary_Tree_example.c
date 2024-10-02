@@ -1,7 +1,6 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
-# include <stdbool.h>
 
 # define print_inorder_rec(a) do {printf("In-order:\t"); _print_inorder_rec(a->root); printf("\n");} while (0)
 # define print_preorder_rec(a) do {printf("pre-order:\t"); _print_preorder_rec(a->root); printf("\n");} while (0)
