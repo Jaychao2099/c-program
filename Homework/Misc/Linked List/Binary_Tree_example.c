@@ -123,7 +123,7 @@ void print_postorder_iter(Tree *tree){
 
     node *lastVisited = NULL;
     while (current || top > -1){
-        if (current) {
+        if (current){
             stack[++top] = current;
             current = current->left;            // L
         }
@@ -162,6 +162,7 @@ void print_levelorder(Tree *tree){
     free(queue);
 }
 
+// 建立節點
 node *create_node(char var){
     node *newnode = malloc(sizeof(node));    // 請求一個新空間
     if (newnode == NULL){
@@ -174,6 +175,7 @@ node *create_node(char var){
     return newnode;
 }
 
+// 複製一棵樹
 node *_copy_tree(node *orig_node){
     if (orig_node){
         node *temp = create_node(orig_node->data);
@@ -184,6 +186,7 @@ node *_copy_tree(node *orig_node){
     return NULL;
 }
 
+// 判斷兩樹是否相等
 _Bool _equal(const node *a, const node *b){
     if (!a && !b) return 1;
     if (a && b &&
@@ -205,12 +208,14 @@ void _swap_node(node *x){
     }
 }
 
+// 計算 node 數量
 int _count_node(node *x){
     if (x)
         return 1 + _count_node(x->left) + _count_node(x->right);
     return 0;
 }
 
+// 計算 leaf 數量
 int _count_leaf(node *x){
     if (x){
         int l = _count_leaf(x->left);
@@ -221,6 +226,7 @@ int _count_leaf(node *x){
     return 0;
 }
 
+// 計算高度
 int _tree_height(node *x){
     if (x){
         int l = _tree_height(x->left);
@@ -276,21 +282,21 @@ _Bool isOperand(const char x){
     return (x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z') || (x >= '0' && x <= '9');
 }
 
-Tree *input_tree(char *text, char *name) {
-    if (text == NULL) {
+Tree *input_tree(char *text, char *name){
+    if (text == NULL){
         printf("ERROR: Input parameters cannot be NULL\n");
         return NULL;
     }
 
     int length = strlen(text);
-    if (length == 0) {
+    if (length == 0){
         printf("ERROR: Input expression cannot be empty\n");
         return NULL;
     }
 
     node **node_stack = malloc(length * sizeof(node *));
     char *op_stack = malloc(length * sizeof(char));
-    if (node_stack == NULL || op_stack == NULL) {
+    if (node_stack == NULL || op_stack == NULL){
         printf("ERROR: Memory allocation failed\n");
         free(node_stack);
         free(op_stack);
@@ -299,7 +305,7 @@ Tree *input_tree(char *text, char *name) {
 
     int node_top = -1, op_top = -1;
     Tree *tree = calloc(1, sizeof(Tree));
-    if (tree == NULL) {
+    if (tree == NULL){
         printf("ERROR: Tree structure memory allocation failed\n");
         free(node_stack);
         free(op_stack);
@@ -308,35 +314,35 @@ Tree *input_tree(char *text, char *name) {
 
     int parentheses_count = 0;  // 用於檢查括號是否匹配
 
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < length; i++){
         if (text[i] == ' ') continue;   // 跳過空格
 
-        if (isOperand(text[i])) {       // 處理 運算元
+        if (isOperand(text[i])){       // 處理 運算元
             node *new_node = create_node(text[i]);
-            if (new_node == NULL) {
+            if (new_node == NULL){
                 printf("ERROR: Unable to create new node\n");
                 goto cleanup;
             }
             node_stack[++node_top] = new_node;
             tree->count++;
-        } else if (text[i] == '(') {    // 處理'('
+        } else if (text[i] == '('){    // 處理'('
             op_stack[++op_top] = text[i];
             parentheses_count++;
-        } else if (text[i] == ')') {    // 處理')'
+        } else if (text[i] == ')'){    // 處理')'
             parentheses_count--;
-            if (parentheses_count < 0) {
+            if (parentheses_count < 0){
                 printf("ERROR: Mismatched '(' and ')'\n");
                 goto cleanup;
             }
-            while (op_top >= 0 && op_stack[op_top] != '(') {
-                if (node_top < 1) {
+            while (op_top >= 0 && op_stack[op_top] != '('){
+                if (node_top < 1){
                     printf("ERROR: Invalid expression format\n");
                     goto cleanup;
                 }
                 node *right = node_stack[node_top--];
                 node *left = node_stack[node_top--];
                 node *op_node = create_node(op_stack[op_top--]);
-                if (op_node == NULL) {
+                if (op_node == NULL){
                     printf("ERROR: Unable to create operator node\n");
                     goto cleanup;
                 }
@@ -345,22 +351,22 @@ Tree *input_tree(char *text, char *name) {
                 node_stack[++node_top] = op_node;
                 tree->count++;
             }
-            if (op_top >= 0 && op_stack[op_top] == '(') {
+            if (op_top >= 0 && op_stack[op_top] == '('){
                 op_top--;  // 彈出 '('
             } else {
                 printf("ERROR: Missing '('\n");
                 goto cleanup;
             }
-        } else if (strchr("!^*/%+-><", text[i])) {  // 處理運算符
-            while (op_top >= 0 && priority(op_stack[op_top], "isp") <= priority(text[i], "icp")) {
-                if (node_top < 1) {
+        } else if (strchr("!^*/%+-><", text[i])){  // 處理運算符
+            while (op_top >= 0 && priority(op_stack[op_top], "isp") <= priority(text[i], "icp")){
+                if (node_top < 1){
                     printf("ERROR: Invalid expression format\n");
                     goto cleanup;
                 }
                 node *right = node_stack[node_top--];
                 node *left = node_stack[node_top--];
                 node *op_node = create_node(op_stack[op_top--]);
-                if (op_node == NULL) {
+                if (op_node == NULL){
                     printf("ERROR: Unable to create operator node\n");
                     goto cleanup;
                 }
@@ -376,21 +382,21 @@ Tree *input_tree(char *text, char *name) {
         }
     }
 
-    if (parentheses_count != 0) {
+    if (parentheses_count != 0){
         printf("ERROR: Mismatched parentheses\n");
         goto cleanup;
     }
 
     // 處理剩餘的運算符
-    while (op_top >= 0) {
-        if (node_top < 1) {
+    while (op_top >= 0){
+        if (node_top < 1){
             printf("ERROR: Invalid expression format\n");
             goto cleanup;
         }
         node *right = node_stack[node_top--];
         node *left = node_stack[node_top--];
         node *op_node = create_node(op_stack[op_top--]);
-        if (op_node == NULL) {
+        if (op_node == NULL){
             printf("ERROR: Unable to create operator node\n");
             goto cleanup;
         }
@@ -400,7 +406,7 @@ Tree *input_tree(char *text, char *name) {
         tree->count++;
     }
 
-    if (node_top != 0) {
+    if (node_top != 0){
         printf("ERROR: Invalid expression format\n");
         goto cleanup;
     }
@@ -413,7 +419,7 @@ Tree *input_tree(char *text, char *name) {
 
 cleanup:
     // 清理資源並返回 NULL
-    while (node_top >= 0) {
+    while (node_top >= 0){
         _remove_tree_rec(node_stack[node_top--]);
     }
     free(node_stack);
