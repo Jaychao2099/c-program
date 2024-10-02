@@ -7,11 +7,11 @@
 # define print_preorder_rec(a) do {printf("pre-order:\t"); _print_preorder_rec(a->root); printf("\n");} while (0)
 # define print_postorder_rec(a) do {printf("post-order:\t"); _print_postorder_rec(a->root); printf("\n");} while (0)
 
-# define copy_tree(a, b, new_name, freelist)        \
+# define copy_tree(a, b, new_name)        \
 do {                                                \
         b = malloc(sizeof(Tree));                   \
         b->name = new_name;                         \
-        b->root = _copy_tree(a->root, freelist);    \
+        b->root = _copy_tree(a->root);    \
 } while (0)
 
 # define equal(a, b) _equal(a->root, b->root)
@@ -162,18 +162,11 @@ void print_levelorder(Tree *tree){
     free(queue);
 }
 
-node *create_node(char var, Tree *freelist){
-    node *newnode;
-    if (freelist->root){                    // 可用 freelist 的空間
-        newnode = freelist->root;                   // 用 freelist 的第一個空間
-        freelist->root = freelist->root->right;     // freelist 向右增長，似 stack
-    }
-    else {
-        newnode = malloc(sizeof(node));    // 請求一個新空間
-        if (newnode == NULL){
-            printf("ERROR: unable to allocate required memory in create_node\n");
-            exit(1);
-        }
+node *create_node(char var){
+    node *newnode = malloc(sizeof(node));    // 請求一個新空間
+    if (newnode == NULL){
+        printf("ERROR: unable to allocate required memory in create_node\n");
+        exit(1);
     }
     newnode->data = var;
     newnode->left = NULL;
@@ -181,11 +174,11 @@ node *create_node(char var, Tree *freelist){
     return newnode;
 }
 
-node *_copy_tree(node *orig_node, Tree *freelist){
+node *_copy_tree(node *orig_node){
     if (orig_node){
-        node *temp = create_node(orig_node->data, freelist);
-        temp->left = _copy_tree(orig_node->left, freelist);
-        temp->right = _copy_tree(orig_node->right, freelist);
+        node *temp = create_node(orig_node->data);
+        temp->left = _copy_tree(orig_node->left);
+        temp->right = _copy_tree(orig_node->right);
         return temp;
     }
     return NULL;
@@ -283,8 +276,8 @@ _Bool isOperand(const char x){
     return (x >= 'A' && x <= 'Z') || (x >= 'a' && x <= 'z') || (x >= '0' && x <= '9');
 }
 
-Tree *input_tree(char *text, char *name, Tree *freelist) {
-    if (text == NULL || freelist == NULL) {
+Tree *input_tree(char *text, char *name) {
+    if (text == NULL) {
         printf("ERROR: Input parameters cannot be NULL\n");
         return NULL;
     }
@@ -319,7 +312,7 @@ Tree *input_tree(char *text, char *name, Tree *freelist) {
         if (text[i] == ' ') continue;   // 跳過空格
 
         if (isOperand(text[i])) {       // 處理 運算元
-            node *new_node = create_node(text[i], freelist);
+            node *new_node = create_node(text[i]);
             if (new_node == NULL) {
                 printf("ERROR: Unable to create new node\n");
                 goto cleanup;
@@ -342,7 +335,7 @@ Tree *input_tree(char *text, char *name, Tree *freelist) {
                 }
                 node *right = node_stack[node_top--];
                 node *left = node_stack[node_top--];
-                node *op_node = create_node(op_stack[op_top--], freelist);
+                node *op_node = create_node(op_stack[op_top--]);
                 if (op_node == NULL) {
                     printf("ERROR: Unable to create operator node\n");
                     goto cleanup;
@@ -366,7 +359,7 @@ Tree *input_tree(char *text, char *name, Tree *freelist) {
                 }
                 node *right = node_stack[node_top--];
                 node *left = node_stack[node_top--];
-                node *op_node = create_node(op_stack[op_top--], freelist);
+                node *op_node = create_node(op_stack[op_top--]);
                 if (op_node == NULL) {
                     printf("ERROR: Unable to create operator node\n");
                     goto cleanup;
@@ -396,7 +389,7 @@ Tree *input_tree(char *text, char *name, Tree *freelist) {
         }
         node *right = node_stack[node_top--];
         node *left = node_stack[node_top--];
-        node *op_node = create_node(op_stack[op_top--], freelist);
+        node *op_node = create_node(op_stack[op_top--]);
         if (op_node == NULL) {
             printf("ERROR: Unable to create operator node\n");
             goto cleanup;
@@ -430,13 +423,11 @@ cleanup:
 }
 
 
-int main(){
-    Tree freelist = {NULL};
-    
-    Tree *a = input_tree(EXPRESSION, "a", &freelist);
+int main(){    
+    Tree *a = input_tree(EXPRESSION, "a");
 
     Tree *b;
-    copy_tree(a, b, "b", &freelist);
+    copy_tree(a, b, "b");
     printf("%s and %s is %s\n", a->name, b->name, equal(a, b) ? "Equal" : "Not equal");
 
     swap_node(b);
