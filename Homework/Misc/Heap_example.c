@@ -69,7 +69,7 @@ void create_maxheap_bottom_up(heap *h, int *data){
     for (int i = h->size / 2 - 1; i > -1; i--){     // 先到最後一個parent
         adjust(data, i, h->size);
     }
-    memcpy(h->array, data, h->size * sizeof(int));
+    memmove(h->array, data, h->size * sizeof(int));
 }
 
 int delete_maxheap(heap *h){
@@ -78,8 +78,21 @@ int delete_maxheap(heap *h){
         return 0;
     }
     int x = h->array[0];   // 返回值
-    adjust(h->array, 0, --h->size);
+    h->array[0] = h->array[--h->size];
+    adjust(h->array, 0, h->size);
     return x;
+}
+
+void heapsort(heap *h){
+    create_maxheap_bottom_up(h, h->array);
+    int *sorted = malloc(h->size * sizeof(int));
+    int tempsize = h->size;
+    for (int i = 0; i < tempsize; i++){
+        sorted[i] = delete_maxheap(h);
+    }
+    free(h->array);
+    h->size = tempsize;
+    h->array = sorted;
 }
 
 int main(){
@@ -97,6 +110,10 @@ int main(){
     printf("\n");
     delete_maxheap(h);
     print_heap(h);
+
+    printf("\n");
+    heapsort(h);
+    for (int i = 0; i < h->size; i++) printf("%d ", h->array[i]);
 
     free(h->array);
     free(h);
