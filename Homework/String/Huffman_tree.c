@@ -40,8 +40,8 @@ void create_heap_bottom_up(node *data, int size){
 
 node *delete_heap(node *heap, int *size){
     node *x = malloc(sizeof(node));
-    memcpy(x, &heap[0], sizeof(node));
-    // *x = heap[0];   // 返回值
+    // memcpy(x, &heap[0], sizeof(node));
+    *x = heap[0];   // 返回值
     heap[0] = heap[--(*size)];
     adjust_min(heap, 0, *size);
     return x;
@@ -62,7 +62,7 @@ node *build_queue(char *m, int *size){
         if (temp_freq[i]){
             queue[*size].chart = (char)i;
             queue[*size].freq = temp_freq[i];
-            printf("queue[%d] = (%c, %d)\n", *size, queue[*size].chart, queue[*size].freq);  // ok
+            // printf("queue[%d] = (%c, %d)\n", *size, queue[*size].chart, queue[*size].freq);  // ok
             // queue[*size].left = queue[*size].right = NULL;
             (*size)++;
         }
@@ -71,7 +71,7 @@ node *build_queue(char *m, int *size){
         queue[i].password = calloc(*size, sizeof(char));
     }
     create_heap_bottom_up(queue, *size);             // O(N)
-    printf("queue size = %d\n", *size);
+    // printf("queue size = %d\n", *size);
     free(temp_freq);
     return queue;
 }
@@ -79,30 +79,19 @@ node *build_queue(char *m, int *size){
 void Huffman(node *queue, int size){
     int ori_size = size;
     for (int i = 0; i < ori_size - 1; i++){                 // O(N log N)
-        printf("i = %d\t", i);
-        printf("size = %d ", size);
         node t;
         t.left = delete_heap(queue, &size);
-        // t.left->password = calloc(ori_size, sizeof(char));
-        // t.freq = t.left->freq;
-        printf("-> %d ", size);
-
         t.right = delete_heap(queue, &size);
-        // t.right->password = calloc(ori_size, sizeof(char));
-        // t.freq += t.right->freq;
-        printf("-> %d\t", size);
         
         t.freq = t.left->freq + t.right->freq;
         t.chart = '\0';
         t.password = calloc(ori_size, sizeof(char));
-        printf("insert (%c, %d): (%c, %d)(%c, %d)\n", t.chart, t.freq, t.left->chart, t.left->freq, t.right->chart, t.right->freq);
         insert_minheap(queue, t, &size);
-        // printf("-> %d\t", size);
     }
 }
 
 void print_levelorder(node *root, int size){
-    node **queue = malloc(size * sizeof(node *));
+    node **queue = malloc(size * 2 * sizeof(node *));
     int front = 0, rear = -1;
     queue[++rear] = root;
     while (rear >= front){      // queue 空 -> 結束
@@ -110,8 +99,8 @@ void print_levelorder(node *root, int size){
         if (queue[front]->right) queue[++rear] = queue[front]->right;   // 下一 level 右邊加入 queue
         if (queue[front]){
             printf("(%c, %d)", queue[front]->chart, queue[front]->freq);        // 印出當前這 level，進入 queue 中的下一個 node
-            front++;
         }
+        front++;
     }
     printf("\n");
     free(queue);
@@ -122,12 +111,9 @@ int inorder_iter(node *h_tree, int leaf_size, char **table){
     printf("leaf = %d\n", leaf_size);
     node **stack = calloc((leaf_size * 2 - 1), sizeof(node *));     // 所有node數
     int top = -1;
-    
-    // h_tree->password = calloc(leaf_size, sizeof(char));     // 為根節點分配 password
 
     node *current = h_tree;
     while (1){
-        printf("top = %d\n", top);
         node *prev = current;
         while (current){
             stack[++top] = current;
@@ -136,27 +122,24 @@ int inorder_iter(node *h_tree, int leaf_size, char **table){
             if (current){
                 strcpy(current->password, prev->password);
                 int last = strchr(current->password, '\0') - current->password;
-                printf("last = %d\n\n", last);
                 current->password[last] = '0';
                 current->password[last+1] = '\0';
             }
         }
 
         if (top > -1){
-            if (prev->chart){
+            if (prev && prev->chart){
                 table[(int)prev->chart] = prev->password;   // 建立對照表
                 password_length += (strlen(prev->password) * prev->freq);     // 加總密碼長度
-                printf("chart = %c\n", prev->chart);
-                printf("password = %s\n", prev->password);
-                printf("freq = %d\n", prev->freq);
-                printf("length = %d\n\n", password_length);
+                // printf("('%c', %d, %s)\n", prev->chart, prev->freq, prev->password);
+                // printf("total length = %d\n\n", password_length);
             }
             current = stack[top--];
             prev = current;
             current = current->right;           // R
             if (current){
                 strcpy(current->password, prev->password);
-                int last = strchr(current->password, '\0') - current->password + 1;
+                int last = strchr(current->password, '\0') - current->password;
                 current->password[last] = '1';
                 current->password[last+1] = '\0';
             }
@@ -211,19 +194,15 @@ int main(){
     printf("Message = %s\n", message);
 
     node *queue = build_queue(message, &size);      // size 變 char num = tree leaf num
-    for (int i = 0; i < size; i++){
-        printf("heap[%d] = (%c, %d)\n", i, queue[i].chart, queue[i].freq);
-    }
+
     Huffman(queue, size);
     node *h_tree = &queue[0]; // Huffman 樹的根節點
-
-    print_levelorder(h_tree, size);
 
     char **table = malloc(('~' + 1) * sizeof(char*));
     char *encode = encoding(h_tree, size, table, message);
 
     for (int i = ' '; i <= '~'; i++){
-        if (table[i]){
+        if (table[i][0]){
             printf("%c = %s\n", (char)i, table[i]);
             free(table[i]);  // 釋放每個字符的編碼
         }
