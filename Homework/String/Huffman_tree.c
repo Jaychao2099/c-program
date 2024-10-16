@@ -2,6 +2,8 @@
 # include <stdlib.h>
 # include <string.h>
 
+# define MAXCODE 10000
+
 typedef struct node{
     char *password;
     char chart;
@@ -147,7 +149,7 @@ char *encoding(node *h_tree_root, int size, char **table, char *message){
 }
 
 char *decoding(char *encode, node *h_tree){
-    char *decode = malloc(1000 *sizeof(char));
+    char *decode = malloc(MAXCODE *sizeof(char));
     int last = 0;
     node *current = h_tree;
     for (int i = 0; encode[i]; i++){
@@ -169,7 +171,7 @@ char *decoding(char *encode, node *h_tree){
 }
 
 int main(){ 
-    char message[] = "Availability - readiness for correct service";
+    char message[] = "Trump Media & Technology Group stock (DJT) extended its massive rally early on Tuesday, rising as much as 11% in premarket trading as investors bet on former President Donald Trump's improved odds of winning the November election.";
     int size = strlen(message);
     printf("Message = %s\n", message);
 
