@@ -61,31 +61,39 @@ node *build_queue(char *m, int *size){
         if (temp_freq[i]){
             queue[*size].chart = (char)i;
             queue[*size].freq = temp_freq[i];
-            printf("'%c' freq = %d\n", queue[*size].chart, queue[*size].freq);  // ok
+            // printf("'%c' freq = %d\n", queue[*size].chart, queue[*size].freq);  // ok
             queue[*size].left = queue[*size].right = NULL;
             (*size)++;
         }
     }
     create_heap_bottom_up(queue, *size);             // O(N)
-    printf("queue size = %d\n", *size);
+    // printf("queue size = %d\n", *size);
     free(temp_freq);
     return queue;
 }
 
 void Huffman(node *queue, int size){
     int ori_size = size;
-    for (int i = 0; i < size; i++){                 // O(N log N)
+    for (int i = 0; i < ori_size; i++){                 // O(N log N)
+        if (size == 1) break;
+        // printf("i = %d\t", i);
+        // printf("size = %d ", size);
         node t;
         t.left = delete_heap(queue, &size);
         t.left->password = calloc(ori_size, sizeof(char));
+        // t.freq = t.left->freq;
+        // printf("-> %d ", size);
 
         t.right = delete_heap(queue, &size);
         t.right->password = calloc(ori_size, sizeof(char));
+        // t.freq += t.right->freq;
+        // printf("-> %d ", size);
         
         t.freq = t.left->freq + t.right->freq;
         t.chart = '\0';
         t.password = calloc(ori_size, sizeof(char));
         insert_minheap(queue, t, &size);
+        // printf("-> %d\n", size);
     }
 }
 
@@ -96,7 +104,7 @@ int inorder_iter(node *h_tree, int leaf_size, char **table){
     int top = -1;
     node *current = h_tree;
     while (1){
-        printf("top = %d\n", top);
+        // printf("top = %d\n", top);
         node *prev = current;
         while (current){
             stack[++top] = current;
@@ -105,7 +113,7 @@ int inorder_iter(node *h_tree, int leaf_size, char **table){
             if (current){
                 strcpy(current->password, prev->password);
                 int last = strchr(current->password, '\0') - current->password;
-                printf("last = %d\n\n", last);
+                // printf("last = %d\n\n", last);
                 current->password[last] = '0';
                 current->password[last+1] = '\0';
             }
@@ -115,10 +123,10 @@ int inorder_iter(node *h_tree, int leaf_size, char **table){
             if (prev->chart){
                 table[(int)prev->chart] = prev->password;   // 建立對照表
                 password_length += (strlen(prev->password) * prev->freq);     // 加總密碼長度
-                printf("chart = %c\n", prev->chart);
-                printf("password = %s\n", prev->password);
-                printf("freq = %d\n", prev->freq);
-                printf("length = %d\n\n", password_length);
+                // printf("chart = %c\n", prev->chart);
+                // printf("password = %s\n", prev->password);
+                // printf("freq = %d\n", prev->freq);
+                // printf("length = %d\n\n", password_length);
             }
             current = stack[top--];
             prev = current;
