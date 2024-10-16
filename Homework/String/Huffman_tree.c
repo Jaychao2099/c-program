@@ -90,22 +90,6 @@ void Huffman(node *queue, int size){
     }
 }
 
-void print_levelorder(node *root, int size){
-    node **queue = malloc(size * 2 * sizeof(node *));
-    int front = 0, rear = -1;
-    queue[++rear] = root;
-    while (rear >= front){      // queue 空 -> 結束
-        if (queue[front]->left) queue[++rear] = queue[front]->left;     // 下一 level 左邊加入 queue
-        if (queue[front]->right) queue[++rear] = queue[front]->right;   // 下一 level 右邊加入 queue
-        if (queue[front]){
-            printf("(%c, %d)", queue[front]->chart, queue[front]->freq);        // 印出當前這 level，進入 queue 中的下一個 node
-        }
-        front++;
-    }
-    printf("\n");
-    free(queue);
-}
-
 int inorder_iter(node *h_tree, int leaf_size, char **table){
     int password_length = 0;
     printf("leaf = %d\n", leaf_size);
@@ -131,8 +115,6 @@ int inorder_iter(node *h_tree, int leaf_size, char **table){
             if (prev && prev->chart){
                 table[(int)prev->chart] = prev->password;   // 建立對照表
                 password_length += (strlen(prev->password) * prev->freq);     // 加總密碼長度
-                // printf("('%c', %d, %s)\n", prev->chart, prev->freq, prev->password);
-                // printf("total length = %d\n\n", password_length);
             }
             current = stack[top--];
             prev = current;
@@ -167,20 +149,18 @@ char *encoding(node *h_tree_root, int size, char **table, char *message){
 char *decoding(char *encode, node *h_tree){
     char *decode = malloc(1000 *sizeof(char));
     int last = 0;
-    node *current = h_tree, *prev;
+    node *current = h_tree;
     for (int i = 0; encode[i]; i++){
         switch (encode[i]){
         case '0':
-            prev = current;
             current = current->left;
             break;
         case '1':
-            prev = current;
             current = current->right;
             break;
         }
-        if (!current){
-            decode[last++] = prev->chart;
+        if (!current->left){
+            decode[last++] = current->chart;
             current = h_tree;
         }
     }
