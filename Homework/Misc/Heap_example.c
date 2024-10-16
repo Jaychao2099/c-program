@@ -54,9 +54,8 @@ void insert_maxheap(heap *h, int var){
 void adjust(int *data, int subroot_index, int size){
     int temp = data[subroot_index];             // 先暫存，之後放到正確位置
     int child = 2 * subroot_index + 1;
-    while(child < size){         // 還有child
-        if (child < size - 1)
-            if (data[child] < data[child + 1]) child++;
+    while (child < size){         // 還有child
+        if (child < size - 1 && data[child] < data[child + 1]) child++; // 變right child
         if (temp > data[child]) break;          // 比完了
         data[(child - 1) / 2] = data[child];    // 沒比贏，下面換上來
         child = 2 * child + 1;      // to left child

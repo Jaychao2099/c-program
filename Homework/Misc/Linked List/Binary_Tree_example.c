@@ -148,7 +148,7 @@ void print_levelorder(Tree *tree){
         printf("(non)\n");
         return;
     }
-    node **queue = malloc(tree->count * sizeof(node *));
+    node **queue = malloc(tree->count * 2 * sizeof(node *));
     int front = 0, rear = -1;
     queue[++rear] = tree->root;
     while (rear >= front){      // queue 空 -> 結束
