@@ -171,7 +171,7 @@ char *decoding(char *encode, node *h_tree){
 }
 
 int main(){ 
-    char message[] = "Trump Media & Technology Group stock (DJT) extended its massive rally early on Tuesday, rising as much as 11% in premarket trading as investors bet on former President Donald Trump's improved odds of winning the November election.";
+    char message[] = "The final token amount will be available in the token allocation checker, which we'll share on our socials soon!";
     int size = strlen(message);
     printf("Message = %s\n", message);
 
