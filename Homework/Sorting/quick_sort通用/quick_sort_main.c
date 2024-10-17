@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "\Users\joshu\文件\程式\c progrom\作業\排序法\quick_sort通用\quick_sort.h"  // 包含泛型快速排序的標頭文件
+#include "C:\Users\joshu\文件\程式\c progrom\Homework\Sorting\quick_sort通用\quick_sort.h"  // 包含泛型快速排序的標頭文件
 
 // 整數的比較函數
 int int_cmp(const void* a, const void* b) {
