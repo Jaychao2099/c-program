@@ -1,17 +1,16 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-void swap(int v[], int k){
-    int temp;
-    temp = v[k];
-    v[k] = v[k+1];
-    v[k+1] = temp;
+void swap(int *v, int k, int l){
+    int temp = v[k];
+    v[k] = v[l];
+    v[l] = temp;
 }
 
-void sort (int v[], int n){
-    for (int i = 0; i < n; i++) {
+void sort(int *v, int n){
+    for (int i = 0; i < n; i++){
         for (int j = i - 1; j >= 0 && v[j] > v[j + 1]; j--){
-            swap(v,j);
+            swap(v,j, j + 1);
         }
     }
 }
