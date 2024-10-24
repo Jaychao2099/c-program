@@ -1,6 +1,7 @@
 # Dotfiles
 .vscode
 .DS_Store
+.mips
 
 # Prerequisites
 *.d
@@ -54,5 +55,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
 Steal from net/
 leetcode/
