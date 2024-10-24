@@ -1,7 +1,7 @@
 # Dotfiles
 .vscode
 .DS_Store
-.mips
+*.mips
 
 # Prerequisites
 *.d
