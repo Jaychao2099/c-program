@@ -7,10 +7,10 @@ void swap(int *v, int k, int l){
     v[l] = temp;
 }
 
-void sort(int *v, int n){
-    for (int i = 0; i < n; i++){
-        for (int j = i - 1; j >= 0 && v[j] > v[j + 1]; j--){
-            swap(v,j, j + 1);
+void insertion_sort(int *list, int n){
+    for (int i = 1; i < n; i++){
+        for (int j = i - 1; j >= 0 && list[j] > list[j + 1]; j--){
+            swap(list, j, j + 1);
         }
     }
 }
@@ -20,14 +20,14 @@ int main(){
     printf("Enter the number of list: ");
     scanf("%d", &count);
 
-    int *list = malloc( (count) * sizeof(int) );
+    int *list = malloc(count * sizeof(int));
 
-    printf("Enter the list: \n");
+    printf("Enter the list: ");
     for(int i = 0; i < count; i++){
         scanf("%d", &list[i]);
     }
 
-    sort(list, count);
+    insertion_sort(list, count);
     
     printf("Sorted list:");
     for(int i = 0; i < count; i++){
