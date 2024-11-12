@@ -1,23 +1,17 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-static inline void swap(int *v, int k, int l){
-    int temp = v[k];
-    v[k] = v[l];
-    v[l] = temp;
-}
-
-void bubble_sort(int *list, int n){
-    for (int i = 0; i < n; i++){
-        // _Bool noswap = 1;
-        for (int j = n-1; j > i; j--){
-            if (list[j] < list[j-1]){
-                swap(list, j, j-1);
-                // noswap = 0;
+void shell_sort(int *list, int n){
+	int i, j;
+	int temp;
+	for (int gap = n >> 1; gap > 0; gap >>= 1)
+		for (i = gap; i < n; i++){
+			temp = list[i];
+			for (j = i - gap; j >= 0 && list[j] > temp; j -= gap){
+				list[j + gap] = list[j];
             }
-        }
-        // if (noswap) return;
-    }
+			list[j + gap] = temp;
+		}
 }
 
 int main(){
@@ -32,7 +26,7 @@ int main(){
         scanf("%d", &list[i]);
     }
 
-    bubble_sort(list, count);
+    shell_sort(list, count);
 
     printf("Sorted list:");
     for(int i = 0; i < count; i++){
