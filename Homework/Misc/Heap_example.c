@@ -51,7 +51,7 @@ void insert_maxheap(heap *h, int var){
     h->array[i] = var;
 }
 
-void adjust(int *data, int subroot_index, int size){
+void adjust_max(int *data, int subroot_index, int size){
     int temp = data[subroot_index];             // 先暫存，之後放到正確位置
     int child = 2 * subroot_index + 1;
     while (child < size){         // 還有child
@@ -66,7 +66,7 @@ void adjust(int *data, int subroot_index, int size){
 void create_maxheap_bottom_up(heap *h, int *data){
     h->array = malloc(MAXSIZE * sizeof(int));
     for (int i = h->size / 2 - 1; i > -1; i--){     // 先到最後一個parent
-        adjust(data, i, h->size);
+        adjust_max(data, i, h->size);
     }
     memmove(h->array, data, h->size * sizeof(int));
 }
@@ -78,7 +78,7 @@ int delete_maxheap(heap *h){
     }
     int x = h->array[0];   // 返回值
     h->array[0] = h->array[--h->size];
-    adjust(h->array, 0, h->size);
+    adjust_max(h->array, 0, h->size);
     return x;
 }
 
