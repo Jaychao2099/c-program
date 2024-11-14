@@ -31,12 +31,12 @@ void counting_sort(int *list, int n, int min, int max){
 }
 
 int main(){
-    int count, range_1, range_2;
+    int count, min, max;
     printf("Enter the number of list: ");
     scanf("%d", &count);
 
-    printf("Enter the range of list: (start end)");
-    scanf("%d%d", &range_1, &range_2);
+    printf("Enter the range of list: (min max)");
+    scanf("%d%d", &min, &max);
 
     int *list = malloc(count * sizeof(int));
 
@@ -45,7 +45,7 @@ int main(){
         scanf("%d", &list[i]);
     }
 
-    counting_sort(list, count, range_1, range_2);
+    counting_sort(list, count, min, max);
 
     printf("Sorted list:\n");
     for(int i = 0; i < count; i++){

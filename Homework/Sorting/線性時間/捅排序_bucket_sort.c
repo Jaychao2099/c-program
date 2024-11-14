@@ -54,7 +54,7 @@ int main(){
     printf("Enter the number of list: ");
     scanf("%d", &count);
 
-    printf("Enter the range of list: (start end)");
+    printf("Enter the range of list: (min max)");
     scanf("%d%d", &range_1, &range_2);
 
     int *list = malloc(count * sizeof(int));
