@@ -1,6 +1,5 @@
 # include <stdio.h>
 # include <stdlib.h>
-# include <string.h>
 
 void adjust_max(int *data, int subroot_index, int size){
     int temp = data[subroot_index];             // 先暫存，之後放到正確位置
