@@ -10,12 +10,8 @@ void merge(int *list, int *temp, int now_L, int end_L, int end_R){
             temp[now_temp++] = list[now_L++];
         } else temp[now_temp++] = list[now_R++];
     }
-    while(now_L <= end_L){
-        temp[now_temp++] = list[now_L++];
-    }
-    while(now_R <= end_R){
-        temp[now_temp++] = list[now_R++];
-    }
+    while(now_L <= end_L) temp[now_temp++] = list[now_L++];
+    while(now_R <= end_R) temp[now_temp++] = list[now_R++];
     for (int i = 0; i < count; i++, end_R--){
         list[end_R] = temp[end_R];
     }
