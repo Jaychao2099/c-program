@@ -25,7 +25,7 @@ void merge_sort(int *list, int *temp, int start, int end){
     merge(list, temp, start, center, end);
 }
 
-void _merge_sort(int *list, int n){
+void _counting_inversion(int *list, int n){
     int *temp = malloc(n * sizeof(int));
     merge_sort(list, temp, 0, n-1);
     free(temp);
@@ -43,7 +43,7 @@ int main(){
         scanf("%d", &list[i]);
     }
 
-    _merge_sort(list, count);
+    _counting_inversion(list, count);
 
     printf("Sorted list: ");
     for(int i = 0; i < count; i++){
