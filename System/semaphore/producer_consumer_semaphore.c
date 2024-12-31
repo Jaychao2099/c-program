@@ -6,7 +6,7 @@
 #define N 5
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-sem_t entry;
+sem_t empty;
 sem_t full;
 
 void wait_(sem_t *sem){
@@ -22,7 +22,7 @@ void producer(void *arg){
     int in = 0;
     int item = 0;
     while(1){
-        wait_(&entry);
+        wait_(&empty);
         pthread_mutex_lock(&mutex);
         buffer[in] = item;
         in = (in + 1) % N;
@@ -42,7 +42,7 @@ void consumer(void *arg){
         item = buffer[out];
         out = (out + 1) % N;
         pthread_mutex_unlock(&mutex);
-        signal_(&entry);
+        signal_(&empty);
         printf("Consumer: %d\n", item);
     }
 }
@@ -51,7 +51,7 @@ int main(){
     int *buffer = malloc(N * sizeof(int));
     pthread_t producer_thread, consumer_thread;
 
-    sem_init(&entry, 1, N);
+    sem_init(&empty, 1, N);
     sem_init(&full, 1, 0);
 
     pthread_create(&producer_thread, NULL, (void *)producer, (void *)buffer);
@@ -60,7 +60,7 @@ int main(){
     pthread_join(producer_thread, NULL);
     pthread_join(consumer_thread, NULL);
 
-    sem_destroy(&entry);
+    sem_destroy(&empty);
     sem_destroy(&full);
     free(buffer);
     return 0;
