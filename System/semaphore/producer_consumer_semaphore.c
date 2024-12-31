@@ -25,6 +25,7 @@ void producer(void *arg){
         wait_(&empty);
         pthread_mutex_lock(&mutex);
         buffer[in] = item;
+        printf("Producer: produced item %d at index %d\n", item, in);
         in = (in + 1) % N;
         pthread_mutex_unlock(&mutex);
         signal_(&full);
@@ -40,10 +41,10 @@ void consumer(void *arg){
         wait_(&full);
         pthread_mutex_lock(&mutex);
         item = buffer[out];
+        printf("Consumer: %d\n", item);
         out = (out + 1) % N;
         pthread_mutex_unlock(&mutex);
         signal_(&empty);
-        printf("Consumer: %d\n", item);
     }
 }
 
@@ -51,8 +52,8 @@ int main(){
     int *buffer = malloc(N * sizeof(int));
     pthread_t producer_thread, consumer_thread;
 
-    sem_init(&empty, 1, N);
-    sem_init(&full, 1, 0);
+    sem_init(&empty, 0, N);
+    sem_init(&full, 0, 0);
 
     pthread_create(&producer_thread, NULL, (void *)producer, (void *)buffer);
     pthread_create(&consumer_thread, NULL, (void *)consumer, (void *)buffer);
