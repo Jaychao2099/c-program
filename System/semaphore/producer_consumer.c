@@ -9,11 +9,11 @@ pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 sem_t empty;
 sem_t full;
 
-void wait_(sem_t *sem){
+static inline void wait_(sem_t *sem){
     sem_wait(sem);
 }
 
-void signal_(sem_t *sem){
+static inline void signal_(sem_t *sem){
     sem_post(sem);
 }
 
