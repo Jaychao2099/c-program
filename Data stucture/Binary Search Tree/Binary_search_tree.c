@@ -46,35 +46,29 @@ node *insert(node *root, int x){
     }
 }
 
-static inline void replace_child(node *parent, node *old_child, node *new_child){
+void replace_child(node *parent, node *old_child, node *new_child){
     if (parent->l_child == old_child) parent->l_child = new_child;
     else parent->r_child = new_child;
     if (new_child) new_child->parent = parent;
 }
 
-void delete(node *root, int x){
-    node *temp = search(root, x);
-    while(1){
-        if (!temp) return;
-        if (!temp->l_child && !temp->r_child){
-            replace_child(temp->parent, temp, NULL);
-            free(temp);
-            return;
+void delete(node **root, int x){
+    node *temp = search(*root, x);
+    if (!temp) return;
+    if (!temp->l_child || !temp->r_child){  // 只有一個子節點或無子節點
+        node *child = temp->l_child ? temp->l_child : temp->r_child;
+        if (temp->parent){
+            replace_child(temp->parent, temp, child);
+        } else {
+            *root = child;  // 若刪除的是根節點，更新 root
+            if (child) child->parent = NULL;
         }
-        if (temp->l_child && !temp->r_child){
-            replace_child(temp->parent, temp, temp->l_child);
-            free(temp);
-            return;
-        }
-        if (!temp->l_child && temp->r_child){
-            replace_child(temp->parent, temp, temp->r_child);
-            free(temp);
-            return;
-        }
+        free(temp);
+    } else { // 兩個子節點，找左子樹最大值 (或右子樹最小值)
         node *l_max = temp->l_child;
         while (l_max->r_child) l_max = l_max->r_child;
-        temp->data = l_max->data;
-        temp = l_max;
+        temp->data = l_max->data;   // 用左子樹最大值覆蓋
+        delete(&l_max, l_max->data);  // 遞迴刪除該節點
     }
 }
 
@@ -105,7 +99,8 @@ int main(){
     inorder(root);
     printf("\n");
 
-    delete(root, 10);
+    delete(&root, 10);
+    delete(&root, 15);
 
     inorder(root);
     printf("\n");
