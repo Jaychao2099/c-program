@@ -31,8 +31,9 @@ node *search(node *root, int x){
 
 void update_height(node *root){
     while (root){
-        root->height = 1;
-        int temp = max(root->l_child->height, root->r_child->height) + 1;
+        int l_height = root->l_child ? root->l_child->height : 0;
+        int r_height = root->r_child ? root->r_child->height : 0;
+        int temp = max(l_height, r_height) + 1;
         root->height = max(root->height, temp);
         root = root->parent;
     }
@@ -40,13 +41,12 @@ void update_height(node *root){
 
 void rotate_LL(node *x){
     node *p = x->parent;
-    node *c = c->l_child;
+    node *c = x->l_child;
     x->parent = p->parent;
     if (p->parent){
         if (p->parent->l_child == p)
             p->parent->l_child = x;
         else p->parent->r_child = x;
-        x->parent = p->parent;
     }
     if (x->r_child){
         p->l_child = x->r_child;
@@ -59,13 +59,12 @@ void rotate_LL(node *x){
 
 void rotate_RR(node *x){
     node *p = x->parent;
-    node *c = c->r_child;
+    node *c = x->r_child;
     x->parent = p->parent;
     if (p->parent){
         if (p->parent->l_child == p)
             p->parent->l_child = x;
         else p->parent->r_child = x;
-        x->parent = p->parent;
     }
     if (x->l_child){
         p->r_child = x->l_child;
@@ -77,27 +76,77 @@ void rotate_RR(node *x){
 }
 
 void rotate_LR(node *x){
-    rotate_RR(x->l_child);
-    rotate_LL(x);
+    node *p = x->parent;
+    node *c = x->r_child;
+    c->parent = p->parent;
+    if (p->parent){
+        if (p->parent->l_child == p)
+            p->parent->l_child = c;
+        else p->parent->r_child = c;
+    }
+    if (c->l_child){
+        x->r_child = c->l_child;
+        x->r_child->parent = c;
+    }
+    if (c->r_child){
+        p->l_child = c->r_child;
+        p->l_child->parent = p;
+    }
+    c->l_child = x;
+    c->r_child = p;
+    x->parent = c;
+    p->parent = c;
+    x->height = max(x->l_child->height, x->r_child->height) + 1;
+    p->height = max(p->l_child->height, p->r_child->height) + 1;
+    update_height(c);
+    // rotate_RR(x->l_child);
+    // rotate_LL(x);
 }
 
 void rotate_RL(node *x){
-    rotate_LL(x->r_child);
-    rotate_RR(x);
+    node *p = x->parent;
+    node *c = x->l_child;
+    c->parent = p->parent;
+    if (p->parent){
+        if (p->parent->l_child == p)
+            p->parent->l_child = c;
+        else p->parent->r_child = c;
+    }
+    if (c->r_child){
+        x->l_child = c->r_child;
+        x->l_child->parent = c;
+    }
+    if (c->l_child){
+        p->r_child = c->l_child;
+        p->r_child->parent = p;
+    }
+    c->l_child = p;
+    c->r_child = x;
+    x->parent = c;
+    p->parent = c;
+    x->height = max(x->l_child->height, x->r_child->height) + 1;
+    p->height = max(p->l_child->height, p->r_child->height) + 1;
+    update_height(c);
+    // rotate_LL(x->r_child);
+    // rotate_RR(x);
 }
 
-_Bool legel_balance(node *x){
-    return abs(x->l_child->height - x->r_child->height) <= 1;
+_Bool legal_balance(node *x){
+    int l_height = x->l_child ? x->l_child->height : 0;
+    int r_height = x->r_child ? x->r_child->height : 0;
+    return abs(l_height - r_height) <= 1;
 }
 
 void rotate(node *x){
-    while (x->parent && legel_balance(x->parent)) x = x->parent;
+    while (x->parent && legal_balance(x->parent)) x = x->parent;
     node *p = x->parent;
+    if (!p) return;
     node *gp = p->parent;
-    if (x == p->l_child && p == gp->l_child) rotate_LL(x->parent);
-    else if (x == p->r_child && p == gp->r_child) rotate_RR(x->parent);
-    else if (x == p->l_child && p == gp->r_child) rotate_LR(x->parent);
-    else rotate_RL(x->parent);
+    if (!gp) return;
+    if (x == p->l_child && p == gp->l_child) rotate_LL(p);
+    else if (x == p->r_child && p == gp->r_child) rotate_RR(p);
+    else if (x == p->l_child && p == gp->r_child) rotate_LR(p);
+    else rotate_RL(p);
 }
 
 node *insert(node *root, int x){
