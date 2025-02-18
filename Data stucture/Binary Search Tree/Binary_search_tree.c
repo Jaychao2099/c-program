@@ -79,6 +79,19 @@ void inorder(node *root){
     inorder(root->r_child);
 }
 
+void level_order(node *root){
+    node **queue = malloc(100 * sizeof(node *));
+    int front = 0, rear = 0;
+    queue[rear++] = root;
+    while (front < rear){
+        node *current = queue[front++];
+        printf("%d ", current->data);
+        if (current->l_child) queue[rear++] = current->l_child;
+        if (current->r_child) queue[rear++] = current->r_child;
+    }
+    free(queue);
+}
+
 int main(){
     node *root = create_node(10, NULL);
     insert(root, 5);
@@ -98,11 +111,15 @@ int main(){
 
     inorder(root);
     printf("\n");
+    level_order(root);
+    printf("\n");
 
     delete(&root, 10);
     delete(&root, 15);
 
     inorder(root);
+    printf("\n");
+    level_order(root);
     printf("\n");
 
     return 0;
