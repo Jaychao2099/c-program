@@ -1,6 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
+# include <unistd.h>
 
 # define max(a, b) ((a) > (b) ? (a) : (b))
 
@@ -85,12 +86,12 @@ void rotate_LR(node *x){
             p->parent->l_child = c;
         else p->parent->r_child = c;
     }
-    if (c->l_child){
-        x->r_child = c->l_child;
+    x->r_child = c->l_child;
+    if (x->r_child){
         x->r_child->parent = x;
     }
-    if (c->r_child){
-        p->l_child = c->r_child;
+    p->l_child = c->r_child;
+    if (p->l_child){
         p->l_child->parent = p;
     }
     c->l_child = x;
@@ -113,12 +114,12 @@ void rotate_RL(node *x){
             p->parent->l_child = c;
         else p->parent->r_child = c;
     }
-    if (c->r_child){
-        x->l_child = c->r_child;
+    x->l_child = c->r_child;
+    if (x->l_child){
         x->l_child->parent = x;
     }
-    if (c->l_child){
-        p->r_child = c->l_child;
+    p->r_child = c->l_child;
+    if (p->r_child){
         p->r_child->parent = p;
     }
     c->l_child = p;
@@ -220,16 +221,16 @@ void level_order(node *root){
 
 int main(){
     node *root = NULL;
-    insert(&root, 2); printf("insert(2), level-order = "); level_order(root); printf("\n"); _sleep(1000);
-    insert(&root, 5); printf("insert(5), level-order = "); level_order(root); printf("\n"); _sleep(1000);
-    insert(&root, 8); printf("insert(8), level-order = "); level_order(root); printf("\n"); _sleep(1000);
-    insert(&root, 4); printf("insert(4), level-order = "); level_order(root); printf("\n"); _sleep(1000);
-    insert(&root, 3); printf("insert(3), level-order = "); level_order(root); printf("\n"); _sleep(1000);
-    insert(&root, 1); printf("insert(1), level-order = "); level_order(root); printf("\n"); _sleep(1000);
-    insert(&root, 9); printf("insert(9), level-order = "); level_order(root); printf("\n"); _sleep(1000);
-    insert(&root, 10); printf("insert(10), level-order = "); level_order(root); printf("\n"); _sleep(1000);
-    insert(&root, 7); printf("insert(7), level-order = "); level_order(root); printf("\n"); _sleep(1000);
-    insert(&root, 6); printf("insert(6), level-order = "); level_order(root); printf("\n"); _sleep(1000);
+    insert(&root, 2); printf("insert(2), level-order = "); level_order(root); printf("\n"); sleep(1);
+    insert(&root, 5); printf("insert(5), level-order = "); level_order(root); printf("\n"); sleep(1);
+    insert(&root, 8); printf("insert(8), level-order = "); level_order(root); printf("\n"); sleep(1);
+    insert(&root, 4); printf("insert(4), level-order = "); level_order(root); printf("\n"); sleep(1);
+    insert(&root, 3); printf("insert(3), level-order = "); level_order(root); printf("\n"); sleep(1);
+    insert(&root, 1); printf("insert(1), level-order = "); level_order(root); printf("\n"); sleep(1);
+    insert(&root, 9); printf("insert(9), level-order = "); level_order(root); printf("\n"); sleep(1);
+    insert(&root, 10); printf("insert(10), level-order = "); level_order(root); printf("\n"); sleep(1);
+    insert(&root, 7); printf("insert(7), level-order = "); level_order(root); printf("\n"); sleep(1);
+    insert(&root, 6); printf("insert(6), level-order = "); level_order(root); printf("\n"); sleep(1);
 
     printf("Root height: %d\n", root->height);
     inorder(root);
