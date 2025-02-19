@@ -33,8 +33,9 @@ void update_height(node *root){
     while (root){
         int l_height = root->l_child ? root->l_child->height : 0;
         int r_height = root->r_child ? root->r_child->height : 0;
-        int temp = max(l_height, r_height) + 1;
-        root->height = max(root->height, temp);
+        root->height = max(l_height, r_height) + 1;
+        // int temp = max(l_height, r_height) + 1;
+        // root->height = max(root->height, temp);
         root = root->parent;
     }
 }
@@ -48,8 +49,8 @@ void rotate_LL(node *x){
             p->parent->l_child = x;
         else p->parent->r_child = x;
     }
-    if (x->r_child){
-        p->l_child = x->r_child;
+    p->l_child = x->r_child;
+    if (p->l_child){
         p->l_child->parent = p;
     }
     x->r_child = p;
@@ -66,8 +67,8 @@ void rotate_RR(node *x){
             p->parent->l_child = x;
         else p->parent->r_child = x;
     }
-    if (x->l_child){
-        p->r_child = x->l_child;
+    p->r_child = x->l_child;
+    if (p->r_child){
         p->r_child->parent = p;
     }
     x->l_child = p;
@@ -86,7 +87,7 @@ void rotate_LR(node *x){
     }
     if (c->l_child){
         x->r_child = c->l_child;
-        x->r_child->parent = c;
+        x->r_child->parent = x;
     }
     if (c->r_child){
         p->l_child = c->r_child;
@@ -96,9 +97,9 @@ void rotate_LR(node *x){
     c->r_child = p;
     x->parent = c;
     p->parent = c;
-    x->height = max(x->l_child->height, x->r_child->height) + 1;
-    p->height = max(p->l_child->height, p->r_child->height) + 1;
-    update_height(c);
+    // x->height = max(x->l_child ? x->l_child->height : 0, x->r_child ? x->r_child->height : 0) + 1;
+    update_height(x);
+    update_height(p);
     // rotate_RR(x->l_child);
     // rotate_LL(x);
 }
@@ -114,7 +115,7 @@ void rotate_RL(node *x){
     }
     if (c->r_child){
         x->l_child = c->r_child;
-        x->l_child->parent = c;
+        x->l_child->parent = x;
     }
     if (c->l_child){
         p->r_child = c->l_child;
@@ -124,9 +125,9 @@ void rotate_RL(node *x){
     c->r_child = x;
     x->parent = c;
     p->parent = c;
-    x->height = max(x->l_child->height, x->r_child->height) + 1;
-    p->height = max(p->l_child->height, p->r_child->height) + 1;
-    update_height(c);
+    // x->height = max(x->l_child ? x->l_child->height : 0, x->r_child ? x->r_child->height : 0) + 1;
+    update_height(x);
+    update_height(p);
     // rotate_LL(x->r_child);
     // rotate_RR(x);
 }
@@ -138,32 +139,34 @@ _Bool legal_balance(node *x){
 }
 
 void rotate(node *x){
-    while (x->parent && legal_balance(x->parent)) x = x->parent;
+    while (x->parent->parent && legal_balance(x->parent->parent)) x = x->parent;
     node *p = x->parent;
     if (!p) return;
     node *gp = p->parent;
     if (!gp) return;
     if (x == p->l_child && p == gp->l_child) rotate_LL(p);
     else if (x == p->r_child && p == gp->r_child) rotate_RR(p);
-    else if (x == p->l_child && p == gp->r_child) rotate_LR(p);
-    else rotate_RL(p);
+    else if (x == p->l_child && p == gp->r_child) rotate_RL(p);
+    else rotate_LR(p);
 }
 
-node *insert(node *root, int x){
-    if (!root) return create_node(x, NULL);
+node *insert(node **root, int x){
+    if (!*root) return (*root) = create_node(x, NULL);
+    node *temp = *root; 
     while (1){
-        if (x == root->data) return root;   // 若已存在該值，直接回傳該節點
-        root->height++;
+        if (x == temp->data) return *root;   // 若已存在該值，直接回傳該節點
         node **child;
-        if (x < root->data) child = &root->l_child; // 決定要插入左子樹或右子樹
-        else child = &root->r_child;
+        if (x < temp->data) child = &(temp->l_child); // 決定要插入左子樹或右子樹
+        else child = &(temp->r_child);
 
         if (!*child){       // 若該子節點不存在，則建立新節點
-            *child = create_node(x, root);
+            *child = create_node(x, temp);
+            update_height(temp);
             rotate(*child);
+            for (*root = temp; (*root)->parent; *root = (*root)->parent);   // 更新 root
             return *child;
         }
-        root = *child;      // 若該子節點存在，繼續往下找
+        temp = *child;      // 若該子節點存在，繼續往下找
     }
 }
 
@@ -216,18 +219,19 @@ void level_order(node *root){
 }
 
 int main(){
-    node *root = create_node(10, NULL);
-    insert(root, 2);
-    insert(root, 5);
-    insert(root, 8);
-    insert(root, 4);
-    insert(root, 3);
-    insert(root, 1);
-    insert(root, 9);
-    insert(root, 10);
-    insert(root, 7);
-    insert(root, 6);
+    node *root = NULL;
+    insert(&root, 2); printf("insert(2), level-order = "); level_order(root); printf("\n"); _sleep(1000);
+    insert(&root, 5); printf("insert(5), level-order = "); level_order(root); printf("\n"); _sleep(1000);
+    insert(&root, 8); printf("insert(8), level-order = "); level_order(root); printf("\n"); _sleep(1000);
+    insert(&root, 4); printf("insert(4), level-order = "); level_order(root); printf("\n"); _sleep(1000);
+    insert(&root, 3); printf("insert(3), level-order = "); level_order(root); printf("\n"); _sleep(1000);
+    insert(&root, 1); printf("insert(1), level-order = "); level_order(root); printf("\n"); _sleep(1000);
+    insert(&root, 9); printf("insert(9), level-order = "); level_order(root); printf("\n"); _sleep(1000);
+    insert(&root, 10); printf("insert(10), level-order = "); level_order(root); printf("\n"); _sleep(1000);
+    insert(&root, 7); printf("insert(7), level-order = "); level_order(root); printf("\n"); _sleep(1000);
+    insert(&root, 6); printf("insert(6), level-order = "); level_order(root); printf("\n"); _sleep(1000);
 
+    printf("Root height: %d\n", root->height);
     inorder(root);
     printf("\n");
     level_order(root);
@@ -236,6 +240,7 @@ int main(){
     delete(&root, 5);
     delete(&root, 7);
 
+    printf("Root height: %d\n", root->height);
     inorder(root);
     printf("\n");
     level_order(root);
