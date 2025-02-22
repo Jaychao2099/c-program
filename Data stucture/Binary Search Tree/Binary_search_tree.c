@@ -80,6 +80,7 @@ void inorder(node *root){
 }
 
 void level_order(node *root){
+    if (!root) return;
     node **queue = malloc(100 * sizeof(node *));
     int front = 0, rear = 0;
     queue[rear++] = root;
