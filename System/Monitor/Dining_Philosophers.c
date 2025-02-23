@@ -6,8 +6,10 @@
 
 #define N 5 // 哲學家數量
 
+typedef enum {thinking, hungry, eating} state_t;
+
 typedef struct{
-    enum {thinking, hungry, eating} *state;
+    state_t *state;
     pthread_cond_t *self;
     pthread_mutex_t mutex;  // cv 用的 mutex
     void (*pickup)(int);
@@ -43,7 +45,7 @@ void test(int i){        // try to eat
 }
 
 void init(){
-    monitor.state = malloc(N * sizeof(enum{thinking, hungry, eating}));
+    monitor.state = malloc(N * sizeof(state_t));
     monitor.self = malloc(N * sizeof(sem_t));
     for (int i = 0; i < N; i++){
         monitor.state[i] = thinking;
@@ -66,7 +68,7 @@ void output(int now){      // 顯示每個哲學家的吃飯次數
 void *philosopher(void *arg){
     int i = *(int *)arg;
     while(1){
-        sleep(1);
+        // sleep(1);
         monitor.pickup(i);
         monitor.eating_count[i]++;  // 更新計數器
         monitor.output(i);          // 顯示計數器
