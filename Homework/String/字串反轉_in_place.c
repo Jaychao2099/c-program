@@ -43,7 +43,7 @@ char *reverse_rec_opt(char *s){
 }
 
 int main(){
-    char *str = "abcdefg";
+    char *str = "abcdefg";  // read-only
     char *str1 = memcpy(malloc(strlen(str) + 1), str, strlen(str) + 1);
     char *str2 = memcpy(malloc(strlen(str) + 1), str, strlen(str) + 1);
     char *str3 = memcpy(malloc(strlen(str) + 1), str, strlen(str) + 1);
