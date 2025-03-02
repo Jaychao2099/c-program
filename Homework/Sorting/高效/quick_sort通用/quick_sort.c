@@ -1,4 +1,4 @@
-#include "C:\Users\joshu\文件\程式\c progrom\Homework\Sorting\quick_sort通用\quick_sort.h"  // 包含自己的標頭文件
+#include "C:\Users\joshu\文件\程式\c program\Homework\Sorting\高效\quick_sort通用\quick_sort.h"  // 包含自己的標頭文件
 #include <string.h>      // 提供 memcpy 函數的定義
 
 // 泛型的交換函數，交換兩個元素的內容
