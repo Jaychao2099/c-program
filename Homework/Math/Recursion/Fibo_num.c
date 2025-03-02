@@ -24,36 +24,34 @@ int fibo_tail_rec(int x, int a, int b){
     return fibo_tail_rec(x - 1, b, a + b);
 }
 
-long long fibo_num_analysis(long long n){
-    return ((4 << (n * (3+n))) / ((4 << (2*n)) - (2 << n) - 1)) & ((2 << n) - 1);
-}
+// long long fibo_num_analysis(long long n){
+//     return ((4 << (n * (3+n))) / ((4 << (2*n)) - (2 << n) - 1)) & ((2 << n) - 1);
+// }
 
-int **matrix_multiply(int **a,int **b){
+int **matrix_multiply(int **a, int **b) {
     int **t = malloc(sizeof(int *) * 2);
-    for (int i = 0; i < 2; i++) t[i] = malloc(sizeof(int) * 2);
-    for (int i = 0 ; i < 2 ; i ++ )
-        for (int j = 0 ; j < 2 ; j ++ )
-            for (int k = 0 ; k < 2 ; k ++)
+    for (int i = 0; i < 2; i++) {
+        t[i] = malloc(sizeof(int) * 2);
+        t[i][0] = 0;
+        t[i][1] = 0;
+    }
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            for (int k = 0; k < 2; k++)
                 t[i][j] += a[i][k] * b[k][j];
     return t;
 }
 
-// 使用 Divide-and-Conquer 方法加速矩陣次方
-int **matrix_pow(int **a , int n) {
+int **matrix_pow(int **a, int n) {
     if (n == 1) return a;
     if (n % 2 == 0) {
-        int **t = malloc(sizeof(int *) * 2);
-        for (int i = 0; i < 2; i++) t[i] = malloc(sizeof(int) * 2);
-        t = matrix_pow(a , n >> 1);
-        return matrix_multiply(t , t);
+        int **t = matrix_pow(a, n >> 1);
+        return matrix_multiply(t, t);
+    } else {
+        int **t1 = matrix_pow(a, n >> 1);
+        int **t2 = matrix_multiply(t1, t1);
+        return matrix_multiply(t2, a);
     }
-    int **t1 = malloc(sizeof(int *) * 2);
-    for (int i = 0; i < 2; i++) t1[i] = malloc(sizeof(int) * 2);
-    int **t2 = malloc(sizeof(int *) * 2);
-    for (int i = 0; i < 2; i++) t2[i] = malloc(sizeof(int) * 2);
-    t1 = matrix_pow(a, n >> 1);
-    t2 = matrix_pow(a, (n >> 1) + 1);
-    return matrix_multiply(t1, t2);
 }
 
 int fibo_Q_matrix(int n) {
@@ -64,7 +62,17 @@ int fibo_Q_matrix(int n) {
     A1[1][0] = 1;   A1[1][1] = 0;
 
     int **result = matrix_pow(A1, n);
-    return result[0][1];
+    int fib_n = result[0][1];
+
+    // // 釋放記憶體
+    // for (int i = 0; i < 2; i++) {
+    //     free(A1[i]);
+    //     free(result[i]);
+    // }
+    // free(A1);
+    // free(result);
+
+    return fib_n;
 }
 
 int fibo_fast_doubling(int n) {
@@ -103,7 +111,7 @@ int main(){
     printf("Fibo[%d] = %d (iter)\n", num, fibo_iter(num));
     printf("Fibo[%d] = %d (recurse)\n", num, fibo_rec(num));
     printf("Fibo[%d] = %d (tail recurse)\n", num, fibo_tail_rec(num, 0, 1));
-    printf("Fibo[%d] = %d (number analysis)\n", num, fibo_num_analysis((long long)num));
+    // printf("Fibo[%d] = %d (number analysis)\n", num, fibo_num_analysis((long long)num));
     printf("Fibo[%d] = %d (Q matrix)\n", num, fibo_Q_matrix(num));
     printf("Fibo[%d] = %d (fast doubling)\n", num, fibo_fast_doubling(num));
     return 0;
