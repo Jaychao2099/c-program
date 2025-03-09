@@ -26,15 +26,15 @@ bool 結束_通訊或緊急處理 = false;
 // 函式原型宣告
 void grafcet0();
 void action0();
-void s430();
-void s431();
-void s432();
-void s433();
-void s434();
-void s435();
-void s436();
-void s437();
-void s438();
+static inline void s430();
+static inline void s431();
+static inline void s432();
+static inline void s433();
+static inline void s434();
+static inline void s435();
+static inline void s436();
+static inline void s437();
+static inline void s438();
 // 初始化影音/網路
 void grafcet1();
 void action1();
