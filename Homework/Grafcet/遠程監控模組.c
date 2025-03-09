@@ -63,18 +63,18 @@ void grafcet0() {
         st_431 = true;
     }
     // 從初始化完成到分析緊急情況
-    if(st_431) {
+    else if(st_431) {
         st_431 = false;
         st_432 = true;
     }
     // 從分析緊急情況到處理驗證請求
-    if(st_432) {
+    else if(st_432) {
         if(通訊請求) {
             通訊請求 = false;
             st_432 = false;
             st_433 = true;
         }
-        if(緊急到情況檢測) {
+        else if(緊急到情況檢測) {
             緊急到情況檢測 = false;
             st_432 = false;
             st_434 = true;
@@ -82,37 +82,40 @@ void grafcet0() {
         }
     }
     // 從處理驗證請求到顯示網路信息
-    if(st_433) {
+    else if(st_433) {
         if(通訊驗證失敗) {
             通訊驗證失敗 = false;
             st_433 = false;
             st_436 = true;    
         }
-        if(通訊驗證成功) {
+        else if(通訊驗證成功) {
             通訊驗證成功 = false;
             st_433 = false;
             st_437 = true;    
         }
     }
     // 從緊急系統到處理人員到場
-    if(st_434 && st_435 && 人員到場) {
+    else if(st_434 && st_435 && 人員到場) {
         人員到場 = false;
         st_434 = false;
         st_435 = false;
         st_438 = true;
     }
     // 從顯示網路信息返回到分析緊急情況
-    if(st_436 && 結束_通訊或緊急處理) {
+    else if(st_436 && 結束_通訊或緊急處理) {
+        結束_通訊或緊急處理 = false;
         st_436 = false;
         st_432 = true;
     }
     // 從處理成功通訊返回到分析緊急情況
-    if(st_437 && 結束_通訊或緊急處理) {
+    else if(st_437 && 結束_通訊或緊急處理) {
+        結束_通訊或緊急處理 = false;
         st_437 = false;
         st_432 = true;
     }
     // 從處理人員位置返回到分析緊急情況
-    if(st_438 && 結束_通訊或緊急處理) {
+    else if(st_438 && 結束_通訊或緊急處理) {
+        結束_通訊或緊急處理 = false;
         st_438 = false;
         st_432 = true;
     }
@@ -135,61 +138,61 @@ void action0() {
 }
 
 // 狀態動作函式
-void s430() {
-    printf("狀態 430: 系統啟動\n");
-    sleep(1); // 模擬 系統啟動
+static inline void s430() {
+    printf("state 430: System Startup\n");
+    sleep(1);   // 模擬 系統啟動
     系統啟動 = true;
 }
 
-void s431() {
-    printf("狀態 431: 初始化通訊監控與網路\n");
+static inline void s431() {
+    printf("state 431: Initialize monitoring and networking\n");
     grafcet1(); // 初始化影音/網路 sub-grafcet
     sleep(1);   // 模擬 初始化
 }
 
-void s432() {
-    printf("狀態 432: 分析並檢測緊急情況\n");
+static inline void s432() {
+    printf("state 432: Analyze and detect emergency situations\n");
     grafcet2(); // 分析檢測緊急情況 sub-grafcet
-    // 模擬是否有 通訊請求 或 檢測到緊急情況
-    sleep(1);
+    sleep(1);   // 模擬 通訊請求 或 檢測到緊急情況
     緊急到情況檢測 = (rand() % 2) == 1;
     通訊請求 = 緊急到情況檢測 ? false : true;
 }
 
-void s433() {
-    printf("狀態 433: 處理驗證請求\n");
-    // st_433
+static inline void s433() {
+    printf("state 433: Processing Validation Requests\n");
     sleep(1); // 模擬 處理驗證請求
     通訊驗證成功 = (rand() % 2) == 1;
     通訊驗證失敗 = 通訊驗證成功 ? false : true;
 }
 
-void s434() {
-    printf("狀態 434: 啟動緊急處置系統\n");
+static inline void s434() {
+    printf("state 434: Activation of the Emergency Response System\n");
     grafcet3(); // 緊急處置系統 sub-grafcet
+    sleep(1);   // 模擬 開啟緊急處置
     人員到場 = true;
 }
 
-void s435() {
-    printf("狀態 435: 發送緊急通知\n");
+static inline void s435() {
+    printf("state 435: Sending Emergency Notices\n");
     sleep(1); // 模擬 發送通知
     人員到場 = true;
 }
 
-void s436() {
-    printf("狀態 436: 顯示網路錯誤信息\n");
+static inline void s436() {
+    printf("state 436: Displaying Network Error Messages\n");
     sleep(1); // 模擬 顯示網路錯誤信息
     結束_通訊或緊急處理 = true;
 }
 
-void s437() {
-    printf("狀態 437: 處理成功的網路通訊\n");
+static inline void s437() {
+    printf("state 437: Network communication is in progress\n");
     grafcet4(); // 網路通訊系統 sub-grafcet
+    sleep(1); // 模擬 通訊中
     結束_通訊或緊急處理 = true;
 }
 
-void s438() {
-    printf("狀態 438: 等待人員處理完畢\n");
+static inline void s438() {
+    printf("state 438: Waiting for the relevant personnel to finish the process\n");
     sleep(1); // 模擬 等待人員回應
     結束_通訊或緊急處理 = true;
 }
