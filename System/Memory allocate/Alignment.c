@@ -34,6 +34,8 @@ typedef struct{
     int num[256];   // 1024 bytes
 } test2;
 
+
+
 void main(){
     test1 *struc1 = (test1 *)malloc(sizeof(test1));
     test2 *struc2 = (test2 *)malloc(sizeof(test2));;
