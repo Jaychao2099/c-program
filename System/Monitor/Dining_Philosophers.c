@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
-#include <semaphore.h>
 #include <unistd.h>
 
 #define N 5 // 哲學家數量
@@ -22,6 +21,16 @@ typedef struct{
 
 monitor_t monitor;
 
+void test(int i){        // try to eat
+    //No neighbors are eating and Pi is hungry
+    if ((monitor.state[(i+N-1)%N] != eating) && 
+        (monitor.state[(i+1)%N] != eating) && 
+        (monitor.state[i] == hungry)){
+        monitor.state[i] = eating;
+        pthread_cond_signal(&monitor.self[i]);
+    }
+}
+
 void pickup(int i){     // pickup chopsticks
     monitor.state[i] = hungry;
     monitor.test(i);    //try to eat
@@ -36,25 +45,25 @@ void putdown(int i){
     monitor.test((i+1)%N);
 }
 
-void test(int i){        // try to eat
-    //No neighbors are eating and Pi is hungry
-    if ((monitor.state[(i+N-1)%N] != eating) && (monitor.state[(i+1)%N] != eating) && (monitor.state[i] == hungry)){
-        monitor.state[i] = eating;
-        pthread_cond_signal(&monitor.self[i]);
-    }
-}
 
 void init(){
     monitor.state = malloc(N * sizeof(state_t));
-    monitor.self = malloc(N * sizeof(sem_t));
+    monitor.self = malloc(N * sizeof(pthread_cond_t));
     for (int i = 0; i < N; i++){
         monitor.state[i] = thinking;
         pthread_cond_init(&monitor.self[i], NULL);
-    }
-    pthread_mutex_init(&monitor.mutex, NULL);   // 初始化 mutex
-    for (int i = 0; i < N; i++) {
         monitor.eating_count[i] = 0;
     }
+    pthread_mutex_init(&monitor.mutex, NULL);   // 初始化 mutex
+}
+
+void cleanup(){     // 釋放資源(用不到)
+    for (int i = 0; i < N; i++){
+        pthread_cond_destroy(&monitor.self[i]);
+    }
+    pthread_mutex_destroy(&monitor.mutex);
+    free(monitor.state);
+    free(monitor.self);
 }
 
 void output(int now){      // 顯示每個哲學家的吃飯次數
@@ -73,7 +82,7 @@ void *philosopher(void *arg){
         monitor.eating_count[i]++;  // 更新計數器
         monitor.output(i);          // 顯示計數器
         sleep(1);
-        monitor.putdown(i);
+        monitor.putdown(i);     // Put down chopsticks
     }
 }
 
