@@ -119,6 +119,7 @@ int init_monitor(Monitor_t **monitor) {
 void cleanup_monitor(Monitor_t *monitor) {
     if (monitor == NULL) return;
     
+    printf("clenaup...\n");
     for (int i = 0; i < N; i++) {
         pthread_cond_destroy(&monitor->self[i]);
     }
@@ -127,6 +128,19 @@ void cleanup_monitor(Monitor_t *monitor) {
     free(monitor->state);
     free(monitor->self);
     free(monitor);
+    printf("Resources released\n");
+}
+
+/* 全域變數，用於信號處理 */
+static Monitor_t *g_monitor = NULL;
+
+/* 信號處理函數 */
+void signal_handler(int sig) {
+    printf("\nReceived SIGNAL %d (Ctrl+C), ending the process...\n", sig);
+    if (g_monitor != NULL) {
+        cleanup_monitor(g_monitor);
+    }
+    exit(0);
 }
 
 int main(int argc, char *argv[]) {
@@ -134,12 +148,18 @@ int main(int argc, char *argv[]) {
     params_t *params[N];                       // 參數陣列
     Monitor_t *monitor = NULL;
     
+    // 設置信號處理
+    signal(SIGINT, signal_handler);
+
     // 初始化 Monitor 物件
     if (init_monitor(&monitor) != 0) {
         fprintf(stderr, "Failed to initialize monitor\n");
         return -1;
     }
     
+    // 設置全域變數，供信號處理函數使用
+    g_monitor = monitor;
+
     // 建立哲學家執行緒
     for (int i = 0; i < N; i++) {
         params[i] = malloc(sizeof(params_t));
@@ -155,8 +175,9 @@ int main(int argc, char *argv[]) {
         free(params[i]);
     }
     
-    // 釋放 Monitor 資源
+    // 釋放 Monitor 資源（此處不會執行到，但保留為完整性）
     cleanup_monitor(monitor);
+    g_monitor = NULL;
     
     return 0;
 }
