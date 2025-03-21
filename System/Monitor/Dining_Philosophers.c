@@ -5,9 +5,10 @@
 
 #define N 5 // 哲學家數量
 
+typedef struct monitor monitor_t;
 typedef enum {thinking, hungry, eating} state_t;
 
-typedef struct{
+struct monitor{
     state_t *state;
     pthread_cond_t *self;
     pthread_mutex_t mutex;  // cv 用的 mutex
@@ -17,7 +18,7 @@ typedef struct{
     void (*init)();
     void (*output)(int);
     int eating_count[N];    // 計數器陣列
-} monitor_t;
+};
 
 monitor_t monitor;
 
@@ -89,12 +90,15 @@ void *philosopher(void *arg){
 int main(){
     pthread_t philosophers[N];
     int id[N];
+    
     monitor.pickup = pickup;
     monitor.putdown = putdown;
     monitor.test = test;
     monitor.init = init;
     monitor.output = output;
+    
     monitor.init();
+
     for (int i = 0; i < N; i++){
         id[i] = i;
         pthread_create(&philosophers[i], NULL, philosopher, (void *)&id[i]);
