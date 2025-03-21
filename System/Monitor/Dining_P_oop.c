@@ -70,7 +70,6 @@ void *philosopher(void *arg) {
     Monitor_t *monitor = ((params_t *)arg)->monitor;
     
     while(1) {
-        // pthread_mutex_lock(&monitor->mutex);
         monitor->pickup(monitor, i);
         monitor->eating_count[i]++;        // 更新計數器
         monitor->output(monitor, i);       // 顯示計數器
