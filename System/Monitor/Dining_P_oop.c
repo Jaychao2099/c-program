@@ -70,18 +70,12 @@ void *philosopher(void *arg) {
     Monitor_t *monitor = ((params_t *)arg)->monitor;
     
     while(1) {
-        pthread_mutex_lock(&monitor->mutex);
+        // pthread_mutex_lock(&monitor->mutex);
         monitor->pickup(monitor, i);
         monitor->eating_count[i]++;        // 更新計數器
         monitor->output(monitor, i);       // 顯示計數器
-        pthread_mutex_unlock(&monitor->mutex);
-        
         sleep(1);  // 吃飯時間
-        
-        pthread_mutex_lock(&monitor->mutex);
         monitor->putdown(monitor, i);      // 放下筷子
-        pthread_mutex_unlock(&monitor->mutex);
-        
         sleep(1);  // 思考時間
     }
 }
@@ -109,6 +103,8 @@ int init_monitor(Monitor_t **monitor) {
     (*monitor)->putdown = putdown_impl;
     (*monitor)->test = test_impl;
     (*monitor)->output = output_impl;
+
+    return 0;
 }
 
 /* 釋放 Monitor 資源 */
