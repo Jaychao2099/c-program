@@ -84,8 +84,6 @@ void *philosopher(void *arg) {
         
         sleep(1);  // 思考時間
     }
-    
-    return NULL;
 }
 
 /* Monitor 初始化函數 */
@@ -111,8 +109,6 @@ int init_monitor(Monitor_t **monitor) {
     (*monitor)->putdown = putdown_impl;
     (*monitor)->test = test_impl;
     (*monitor)->output = output_impl;
-    
-    return 0;
 }
 
 /* 釋放 Monitor 資源 */
