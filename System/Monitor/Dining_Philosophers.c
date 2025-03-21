@@ -15,7 +15,6 @@ struct monitor{
     void (*pickup)(int);
     void (*putdown)(int);
     void (*test)(int);
-    void (*init)();
     void (*output)(int);
     int eating_count[N];    // 計數器陣列
 };
@@ -46,27 +45,6 @@ void putdown(int i){
     monitor.test((i+1)%N);
 }
 
-
-void init(){
-    monitor.state = malloc(N * sizeof(state_t));
-    monitor.self = malloc(N * sizeof(pthread_cond_t));
-    for (int i = 0; i < N; i++){
-        monitor.state[i] = thinking;
-        pthread_cond_init(&monitor.self[i], NULL);
-        monitor.eating_count[i] = 0;
-    }
-    pthread_mutex_init(&monitor.mutex, NULL);   // 初始化 mutex
-}
-
-void cleanup(){     // 釋放資源(用不到)
-    for (int i = 0; i < N; i++){
-        pthread_cond_destroy(&monitor.self[i]);
-    }
-    pthread_mutex_destroy(&monitor.mutex);
-    free(monitor.state);
-    free(monitor.self);
-}
-
 void output(int now){      // 顯示每個哲學家的吃飯次數
     printf("[");
     for (int i = 0; i < N; i++){
@@ -87,17 +65,37 @@ void *philosopher(void *arg){
     }
 }
 
-int main(){
-    pthread_t philosophers[N];
-    int id[N];
-    
+void init_monitor(){
+    monitor.state = malloc(N * sizeof(state_t));
+    monitor.self = malloc(N * sizeof(pthread_cond_t));
+    for (int i = 0; i < N; i++){
+        monitor.state[i] = thinking;
+        pthread_cond_init(&monitor.self[i], NULL);
+        monitor.eating_count[i] = 0;
+    }
+    pthread_mutex_init(&monitor.mutex, NULL);   // 初始化 mutex
     monitor.pickup = pickup;
     monitor.putdown = putdown;
     monitor.test = test;
-    monitor.init = init;
     monitor.output = output;
+}
+
+void cleanup(){     // 釋放資源
+    for (int i = 0; i < N; i++){
+        pthread_cond_destroy(&monitor.self[i]);
+    }
+    pthread_mutex_destroy(&monitor.mutex);
+    free(monitor.state);
+    free(monitor.self);
+}
+
+int main(){
+    pthread_t philosophers[N];  // 哲學家執行緒
+    int id[N];  // 哲學家編號
     
-    monitor.init();
+    monitor_t monitor;
+    init_monitor();     // 初始化 monitor
+    atexit(cleanup);    // 結束時釋放資源
 
     for (int i = 0; i < N; i++){
         id[i] = i;
