@@ -1,7 +1,7 @@
 # include <stdio.h>
 # include <stdlib.h>
 
-void swap(int *v, int a, int b){
+static inline void swap(int *v, int a, int b){
     if (a != b){
         int temp;
         temp = v[a];
@@ -10,7 +10,7 @@ void swap(int *v, int a, int b){
     }
 }
 
-// void q_sort(int *list, int start, int end){
+// static void q_sort(int *list, int start, int end){
 //     while (start < end){
 //         int i = start;
 //         for (int j = start; j < end; j++){
@@ -31,7 +31,7 @@ void swap(int *v, int a, int b){
 //     }
 // }
 
-void q_sort(int *list, int start, int end){ 
+static void q_sort(int *list, int start, int end){ 
     if (start >= end) return;
 
     int pivot = list[start];    //(start + end) / 2; // 使用 list[mid] 作為 pivot 值
