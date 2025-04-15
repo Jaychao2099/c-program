@@ -7,10 +7,10 @@
     const float: cbrtf,       \
     float: cbrtf)(X)
 
-int main(void)
+int main()
 {
     double x = 8.0;
-    const float y = 3.375;
+    const float y = 7.414;
     printf("cbrt(8.0) = %f\n", cbrt(x));
-    printf("cbrtf(3.375) = %f\n", cbrt(y));
+    printf("cbrtf(7.414) = %f\n", cbrt(y));
 }
