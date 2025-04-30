@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 typedef struct Node {
     int val;
@@ -32,7 +31,7 @@ static node_t *mergesort_list(node_t *head) {
     return mergeTwoLists(left, right);
 }
 
-static void mergesort(node_t **list) {
+static inline void mergesort(node_t **list) {      // 將 head 用指標的指標傳入，讓 mergesort_list 可以修改 list 的值，確保 head 是正確的
     *list = mergesort_list(*list);
 }
 
