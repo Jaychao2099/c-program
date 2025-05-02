@@ -38,12 +38,7 @@ extern "C" {
         const __typeof__(((type *) 0)->member) *(__pmember) = (ptr);    \
         (type *)((char *)__pmember - offsetof(type, member));           \
     })
-#else
-/* 簡易版的 container_of 巨集定義，沒有檢查指標型別是否正確 */
-#define container_of(ptr, type, member) \
-    ((type *)((char *)(ptr) - offsetof(type, member)))
-#endif
-#endif
+
 /* Linux 核心原始程式碼提供的 container_of 巨集定義事實上更複雜 */
 
 // 達到 static assert 的作用，儘量在編譯時期就查驗 container_of 巨集的使用是否合法：預先進行指標型態的檢查
@@ -67,6 +62,13 @@ extern "C" {
     ((type *)(__mptr - offsetof(type, member)));                    \
     })
 
+#else
+/* 簡易版的 container_of 巨集定義，沒有檢查指標型別是否正確 */
+#define container_of(ptr, type, member) \
+    ((type *)((char *)(ptr) - offsetof(type, member)))
+#endif
+#endif
+
 struct list_head { struct list_head *prev, *next; };
 
 typedef struct {
@@ -85,7 +87,7 @@ static inline void INIT_LIST_HEAD(struct list_head *head) {
 
 // Calculate address of entry that contains list node
 // container_of 等價的包裝，符合以 list_ 開頭的命名慣例
-#define list_entry(node, type, member) container_of(node, type, member)
+#define list_entry(node, type, member) container_of_Linux(node, type, member)
 
 // 取得 linked list 的開頭的 entry
 #define list_first_entry(head, type, member) \

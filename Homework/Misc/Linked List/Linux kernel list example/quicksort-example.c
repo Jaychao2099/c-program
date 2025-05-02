@@ -73,13 +73,13 @@ int main()
 
     assert(!list_empty(&testlist));
 
-    printf("Before sorting: ");
+    printf("Before sorting:\n");
     print_list(&testlist);
 
     qsort(values, ARRAY_SIZE(values), sizeof(values[0]), cmpint);
     list_qsort(&testlist);
 
-    printf("After sorting: ");
+    printf("After sorting:\n");
     print_list(&testlist);
 
     i = 0;
