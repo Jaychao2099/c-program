@@ -3,9 +3,27 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <signal.h>
+#include <stdbool.h>
+#include <stdatomic.h>
 
 #define N 5 // 哲學家數量
+
+/* 
+ * volatile 關鍵字告訴編譯器，指該變數 可能在程式的控制範圍之外發生變化，例如：
+ * 1. 被中斷服務程式（ISR）改變
+ * 2. 被其他執行緒或硬體（例如記憶體對映的 I/O）改變
+ * 因此，每次讀取或寫入這個變數時，都必須直接從記憶體存取，而不能快取或重複使用之前的值，所以不要對它進行優化。
+ * 在 while (!terminate) { … } 這類迴圈中，若沒有 volatile，編譯器極有可能把 terminate 的讀取「抽取到迴圈外」，導致迴圈永遠讀到初始值，永遠不會停止。
+ */
 volatile sig_atomic_t terminate = 0; // 全域終止標誌
+
+/* 這樣的話，terminate 會被視為一個原子變數，這樣可以避免多執行緒之間的競爭條件問題。
+ * 這意味著，當一個執行緒在讀取或寫入 terminate 變數時，其他執行緒不會看到這個變數的中間狀態。
+ * 這樣可以確保 terminate 變數的讀取和寫入操作是原子性的，不會被其他執行緒打斷。
+ * 好處是，可以提高程式的性能，因為不需要使用鎖來保護 terminate 變數的讀取和寫入操作。
+ * 缺點是，這樣做會增加程式的複雜性，因為需要使用原子變數來替代普通變數。
+ */
+// atomic_bool terminate = false;
 
 typedef struct monitor monitor_t;
 typedef enum {thinking, hungry, eating} state_t;
@@ -61,6 +79,7 @@ void output(int now){      // 顯示每個哲學家的吃飯次數
 
 void *philosopher(void *arg){
     int i = *(int *)arg;
+    // while (!atomic_load(&terminate)){
     while(!terminate){
         sleep(1);    // 模擬思考時間
         monitor.pickup(i);
@@ -107,6 +126,7 @@ static void cleanup(){     // 釋放資源
 void handler(){     // Ctrl+C 時釋放資源
     printf("\nCtrl+C pressed, exiting...\n");
     terminate = 1; // 設置終止標誌
+    // atomic_store(&terminate, true); // 設置原子變數
 }
 
 int main(){
