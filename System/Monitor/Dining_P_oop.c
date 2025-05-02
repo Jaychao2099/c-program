@@ -107,7 +107,7 @@ int init_monitor(Monitor_t **monitor) {
 }
 
 /* 釋放 Monitor 資源 */
-void cleanup_monitor(Monitor_t *monitor) {
+static void cleanup_monitor(Monitor_t *monitor) {
     if (monitor == NULL) return;
     
     printf("clenaup...\n");
@@ -126,7 +126,7 @@ void cleanup_monitor(Monitor_t *monitor) {
 static Monitor_t *g_monitor = NULL;
 
 /* 信號處理函數 */
-void signal_handler(int sig) {
+static void signal_handler(int sig) {
     printf("\nReceived SIGNAL %d (Ctrl+C), ending the process...\n", sig);
     if (g_monitor != NULL) {
         cleanup_monitor(g_monitor);
