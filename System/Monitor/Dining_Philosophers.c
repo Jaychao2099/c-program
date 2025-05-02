@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <signal.h>
 
 #define N 5 // 哲學家數量
+volatile sig_atomic_t terminate = 0; // 全域終止標誌
 
 typedef struct monitor monitor_t;
 typedef enum {thinking, hungry, eating} state_t;
@@ -32,17 +34,21 @@ void test(int i){        // try to eat
 }
 
 void pickup(int i){     // pickup chopsticks
+    pthread_mutex_lock(&monitor.mutex);
     monitor.state[i] = hungry;
     monitor.test(i);    //try to eat
     if (monitor.state[i] != eating){
         pthread_cond_wait(&monitor.self[i], &monitor.mutex);
     }
+    pthread_mutex_unlock(&monitor.mutex);
 }
 
 void putdown(int i){
+    pthread_mutex_lock(&monitor.mutex);
     monitor.state[i] = thinking;
     monitor.test((i+N-1)%N);        // check if neighbors are waiting to eat
     monitor.test((i+1)%N);
+    pthread_mutex_unlock(&monitor.mutex);
 }
 
 void output(int now){      // 顯示每個哲學家的吃飯次數
@@ -55,12 +61,21 @@ void output(int now){      // 顯示每個哲學家的吃飯次數
 
 void *philosopher(void *arg){
     int i = *(int *)arg;
-    while(1){
-        // sleep(1);
+    while(!terminate){
+        sleep(1);    // 模擬思考時間
         monitor.pickup(i);
+        // -----------
+        // 檢查是否在 pickup 後收到終止信號
+        if (terminate) {
+            monitor.putdown(i); // 如果收到信號，放下叉子並退出
+            break;
+        }
+        pthread_mutex_lock(&monitor.mutex);
         monitor.eating_count[i]++;  // 更新計數器
         monitor.output(i);          // 顯示計數器
-        sleep(1);
+        pthread_mutex_unlock(&monitor.mutex);
+        // -----------
+        sleep(1);   // 模擬吃飯時間
         monitor.putdown(i);     // Put down chopsticks
     }
 }
@@ -80,7 +95,7 @@ void init_monitor(){
     monitor.output = output;
 }
 
-void cleanup(){     // 釋放資源
+static void cleanup(){     // 釋放資源
     for (int i = 0; i < N; i++){
         pthread_cond_destroy(&monitor.self[i]);
     }
@@ -89,13 +104,23 @@ void cleanup(){     // 釋放資源
     free(monitor.self);
 }
 
+void handler(){     // Ctrl+C 時釋放資源
+    printf("\nCtrl+C pressed, exiting...\n");
+    terminate = 1; // 設置終止標誌
+}
+
 int main(){
+    signal(SIGINT, handler);    // 設定 Ctrl+C 的 handler
+    int e = atexit(cleanup);    // 結束時釋放資源
+    if (e != 0) {
+        fprintf(stderr, "cannot set exit function\n");
+        exit(EXIT_FAILURE);
+    }
+
     pthread_t philosophers[N];  // 哲學家執行緒
     int id[N];  // 哲學家編號
     
-    monitor_t monitor;
     init_monitor();     // 初始化 monitor
-    atexit(cleanup);    // 結束時釋放資源
 
     for (int i = 0; i < N; i++){
         id[i] = i;
